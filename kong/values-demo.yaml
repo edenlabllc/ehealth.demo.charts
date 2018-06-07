@@ -1,0 +1,59 @@
+
+## API ##
+#Docker image and tag for api
+image_api:
+  repository: edenlabllc/kong
+  tag: "0.0.22"
+
+env_api:
+  KONG_PROXY_ACCESS_LOG:  "/dev/stdout"
+  KONG_ADMIN_ACCESS_LOG: "/dev/stdout"
+  KONG_PROXY_ERROR_LOG: "/dev/stderr"
+  KONG_ADMIN_ERROR_LOG: "/dev/stderr"
+  KONG_CUSTOM_PLUGINS: "mithril,stdout-log"
+  KONG_REAL_IP_HEADER: "CF-Connecting-IP"
+  KONG_TRUSTED_IPS: "0.0.0.0/0,::/0"
+    # Database
+  DB_HOST: "db-svc"
+  DB_PORT: "5432"
+  DB_POOL_SIZE: "50"
+resources_api:
+  cpu: "50m"
+  memory: "100Mi"
+  memory_limit: "500Mi"
+
+
+
+## DB ##
+image_db:
+  repository: nebo15/alpine-postgre
+  tag: pglogical
+
+env_db:
+  app: "postgresql"
+  version: "9.6"
+  #DB_USER: API - POSTGRES_DB: DB
+  POSTGRES_USER: "db"
+  #DB_PASSWORD: API and DB
+  POSTGRES_PASSWORD: ""
+  PGDATA: "/var/lib/postgresql/data"
+  #DB_NAME: API
+  POSTGRES_DB: "kong"
+  db_port: "5432"
+
+resources_db:
+  cpu: "50m"
+  memory: "112Mi"
+  limits_memory: "1Gi"
+  storage: "10Gi"
+
+rollingUpdate:
+  maxSurge: "1"
+  maxUnavailable: "1"
+
+deployNotification:
+  enabled: false
+  slackEndpoint:
+  slackChannel:
+  slackUsername:
+  slackEmoji:

@@ -1,0 +1,50 @@
+        {{- if or (eq .Values.env "dev") (eq .Values.env "demo") }}
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: uaddresses
+  name: fe
+  labels:
+    app:  {{ .Values.env_fe.app}}
+    version: "{{ .Values.image_fe.tag}}"
+spec:
+  replicas: {{ .Values.env_fe.replicas}}
+  revisionHistoryLimit: {{ .Values.env_fe.revisionHistoryLimit}}
+  selector:
+    matchLabels:
+      app: {{ .Values.env_fe.app}}
+  template:
+    metadata:
+      labels:
+        app:  {{ .Values.env_fe.app}}
+        version: "{{ .Values.image_fe.tag}}"
+    spec:
+      containers:
+      - name: uaddresses-fe
+        image: {{ .Values.image_fe.image}}:{{ .Values.image_fe.tag}}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: {{ .Values.env_fe.containerPort}}
+          protocol: TCP
+        env:
+        - name: PORT
+          value:  "{{ .Values.env_fe.containerPort}}"
+        - name: API_ENDPOINT
+          value:  "{{ .Values.env_fe.API_ENDPOINT}}"
+        - name: AUTH_ENDPOINT
+          value:  "{{ .Values.env_fe.AUTH_ENDPOINT}}"
+        - name: CLIENT_ID
+          value: "{{ .Values.env_fe.CLIENT_ID}}"
+        - name: CLIENT_SECRET
+          value: "{{ .Values.env_fe.CLIENT_SECRET}}"
+        - name: OAUTH_REDIRECT_URL
+          value: "{{ .Values.env_fe.OAUTH_REDIRECT_URL}}"
+        - name: OAUTH_URL
+          value: "{{ .Values.env_fe.OAUTH_URL}}"
+        - name: API_HOST
+          value: "{{ .Values.env_fe.API_HOST}}"
+        resources:
+          requests:
+            cpu: {{ .Values.env_fe.cpu}}
+            memory: {{ .Values.env_fe.memory}}
+        {{ end }}

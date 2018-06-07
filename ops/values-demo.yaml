@@ -1,0 +1,112 @@
+
+## API ##
+#Docker image and tag for api
+image_api:
+  repository: edenlabllc/ops
+  tag: "1.145.1"
+
+env_api:
+   # --- Phoenix---#
+   #APP_PORT
+  port: "4000"
+  #APP_HOST
+  host: ""
+  #APP_SECRET_KEY
+  secret: ""
+  ERLANG_COOKIE: ""
+    # Database
+  DB_NAME: "ops"
+  DB_USER: "db"
+  DB_PASSWORD: ""
+  DB_HOST: "db-svc"
+  DB_PORT: "5432"
+  DB_POOL_SIZE: "50"
+    # Blocks database
+  BLOCK_DB_NAME: "blocks"
+  BLOCK_DB_USER: "db"
+  BLOCK_DB_PASSWORD: ""
+  BLOCK_DB_HOST: "blocks-db-svc"
+  BLOCK_DB_PORT: "5432"
+  BLOCK_DB_POOL_SIZE: "50"
+  # EventManager Database
+  EVENT_MANAGER_DB_NAME: "event_manager"
+  EVENT_MANAGER_DB_USER: "db"
+  EVENT_MANAGER_DB_PASSWORD: ""
+  EVENT_MANAGER_DB_HOST: "db-svc.em.svc.cluster.local"
+  EVENT_MANAGER_DB_PORT: "5432"
+  EVENT_MANAGER_DB_POOL_SIZE: "50"
+  DECLARATION_AUTOTERMINATION_SCHEDULE: "*/15 * * * *"
+  DECLARATION_AUTO_APPROVE_SCHEDULE: "*/15 * * * *"
+  CLOSE_BLOCK_SCHEDULE: "0 0 * * *"
+  EM_ENABLED: true
+    # App migrations
+  DB_MIGRATE: "true"
+resources_api:
+  cpu: "10m"
+  cpu_limit: "1"
+  memory: "150Mi"
+  memory_limit: "300Mi"
+
+
+
+## DB ##
+image_db:
+  repository: nebo15/alpine-postgre
+  tag: pglogical
+
+env_db:
+  app: "postgresql"
+  version: "9.6"
+  #DB_USER: API - POSTGRES_DB: DB
+  POSTGRES_USER: "db"
+  #DB_PASSWORD: API and DB
+  POSTGRES_PASSWORD: ""
+  PGDATA: "/var/lib/postgresql/data"
+  #DB_NAME: API
+  POSTGRES_DB: "ops"
+  REPLICATOR_USER: "pghoard"
+  REPLICATOR_PASSWORD: ""
+  db_port: "5432"
+
+## Blocks DB ##
+resources_db:
+  cpu: "50m"
+  memory: "112Mi"
+  limits_memory: "1Gi"
+  storage: "2Gi"
+  storage_ops: "2Gi"
+
+env_blocks_db:
+  app: "psql-blocks"
+  version: "9.6"
+  #DB_USER: API - POSTGRES_DB: DB
+  POSTGRES_USER: "db"
+  #DB_PASSWORD: API and DB
+  POSTGRES_PASSWORD: ""
+  PGDATA: "/var/lib/postgresql/data"
+  #DB_NAME: API
+  POSTGRES_DB: "blocks"
+  REPLICATOR_USER: "pghoard"
+  REPLICATOR_PASSWORD: ""
+  db_port: "5432"
+  port_name: psql-blocks
+
+resources_db:
+  cpu: "50m"
+  memory: "512Mi"
+  limits_memory: "1Gi"
+  storage: "50Gi"
+
+rollingUpdate:
+  maxSurge: "1"
+  maxUnavailable: "1"
+
+env: demo
+storageClass: dev
+
+deployNotification:
+  enabled: false
+  slackEndpoint:
+  slackChannel:
+  slackUsername:
+  slackEmoji:

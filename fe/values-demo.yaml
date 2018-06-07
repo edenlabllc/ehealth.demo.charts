@@ -1,0 +1,58 @@
+
+## FE ADMIN ##
+image_admin:
+   image: edenlabllc/nhs.admin.web
+   tag: "0.1.122"
+   loadBalancerIP: 
+admin_env:
+    PORT: "8080"
+    API_HOST: ""
+    CLIENT_ID: ""
+    CLIENT_SECRET: ""
+    OAUTH_URL: ""
+    OAUTH_REDIRECT_URL: ""
+    #APP_ENV: "demo"
+    BI_URL: ""
+
+## FE AUTH ##
+image_AUTH:
+   image: edenlabllc/nhs.auth.web
+   tag: "0.2.60"
+   loadBalancerIP: 
+AUTH_env:
+   PORT: "8080"
+   API_ENDPOINT: ""
+   AUTH_ENDPOINT: ""
+   CLIENT_ID: ""
+
+## FE STATUS ##
+image_status:
+   image: edenlabllc/annon.status.web
+   tag: "0.1.8"
+STATUS_env:
+   PORT: "8080"
+   API_ENDPOINT: ""
+   PROJECT_NAME: "eHealth Demo Dashboard"
+   PROJECT_DESCRIPTION: "This dashboard discloses status of public eHealth endpoints in demo environment."
+
+## FE PORTAL ##
+image_PORTAL:
+   image: edenlabllc/nhs.portal.web
+   tag: "1.3.40"
+   loadBalancerIP: 
+PORTAL_env:
+   API_ENDPOINT: ""
+
+ingress:
+  nhs_admin_host:  
+  nhs_auth_host: 
+  nhs_portal_host: 
+
+env: demo
+
+deployNotification:
+  enabled: false
+  slackEndpoint:
+  slackChannel:
+  slackUsername:
+  slackEmoji:

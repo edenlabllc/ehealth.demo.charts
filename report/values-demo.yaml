@@ -1,0 +1,72 @@
+
+image_api:
+  repository: edenlabllc/report_api
+  tag: "1.122.0"
+
+env_api:
+   # Phoenix
+  port: "4000"
+  host: ""
+  secret: ""
+  ERLANG_COOKIE: ""
+    # Database
+  DB_HOST: "db-svc"
+  DB_PORT: "5432"
+  DB_POOL_SIZE: "50"
+  SOURCE_NUMBER: "E-Health"
+    # App migrations
+  DB_MIGRATE: "true"
+  GANDALF_DECISION_URL: ""
+  GANDALF_USER: ""
+  GANDALF_PASSWORD: ""
+  GANDALF_APPLICATION_HEADER: ""
+  MEDIA_STORAGE_ENABLED: true
+  VALIDATE_SIGNED_CONTENT: true
+  MEDIA_STORAGE_DECLARATIONS_BUCKET: "declarations-dev"
+  MEDIA_STORAGE_CAPITATION_REPORT_BUCKET: "capitation-reports-dev"
+  MAIN_STATS_CACHE_TTL: "60000"
+  REGIONS_STATS_CACHE_TTL: "300000"
+  HISTOGRAM_STATS_CACHE_TTL: "300000"
+  DECLARATIONS_BY_REGIONS_TIMEOUT: "9000000"
+
+resources_api:
+  cpu: "10m"
+  cpu_limit: "1"
+  memory: "150Mi"
+  memory_limit: "350Mi"
+
+image_db:
+  repository: nebo15/alpine-postgre
+  tag: pglogical-gis
+
+env_db:
+  app: "postgresql"
+  POSTGRES_USER: "db"
+  POSTGRES_PASSWORD: ""
+  PGDATA: "/var/lib/postgresql/data"
+  POSTGRES_DB: "report"
+  REPLICATOR_USER: "pghoard"
+  REPLICATOR_PASSWORD: ""
+  db_port: "5432"
+
+service:
+  name: "db-svc"
+
+resources_db:
+  cpu: "50m"
+  memory: "512Mi"
+  limits_memory: "1Gi"
+  storage: "50Gi"
+
+rollingUpdate:
+  maxSurge: "1"
+  maxUnavailable: "1"
+
+env: demo
+
+deployNotification:
+  enabled: false
+  slackEndpoint:
+  slackChannel:
+  slackUsername:
+  slackEmoji:

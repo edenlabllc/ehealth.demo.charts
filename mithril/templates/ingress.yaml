@@ -1,0 +1,18 @@
+{{ if .Values.ingress.active }}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: mithril-admin-frontend
+  namespace: mithril
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+  - host: {{ .Values.ingress.host }}
+    http:
+      paths:
+       - path:
+         backend:
+          serviceName: mithril-svc-traefik
+          servicePort: 80
+{{ end }}

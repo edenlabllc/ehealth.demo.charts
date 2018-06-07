@@ -1,0 +1,117 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  namespace: il
+  name: db
+  labels:
+    app: "{{ .Values.env_db.app}}"
+    version: "{{ .Values.env_db.version}}"
+spec:
+  serviceName: "postgresql"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: "{{ .Values.env_db.app}}"
+        version: "{{ .Values.env_db.version}}"
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: il-postgresql
+        image:  {{ .Values.image_db.repository }}:{{ .Values.image_db.tag }}
+        imagePullPolicy: IfNotPresent
+        ports:
+          - name: postgresql
+            containerPort: 5432
+        env:
+          - name: POSTGRES_USER
+            value: "{{ .Values.env_db.POSTGRES_USER}}"
+          - name: POSTGRES_PASSWORD
+  {{- if .Values.env_db.POSTGRES_PASSWORD }}
+            value: "{{ .Values.env_db.POSTGRES_PASSWORD }}"
+  {{ else }}
+            valueFrom:
+             secretKeyRef:
+               name: db
+               key: DB_PASSWORD
+  {{- end }}
+          - name: PGDATA
+            value: "{{ .Values.env_db.PGDATA}}"
+          - name: POSTGRES_DB
+            value: "{{ .Values.env_db.POSTGRES_DB}}"
+          - name: REPLICATOR_USER
+            value: "{{ .Values.env_db.REPLICATOR_USER}}"
+          - name: REPLICATOR_PASSWORD
+  {{- if .Values.env_db.REPLICATOR_PASSWORD }}
+            value: "{{ .Values.env_db.REPLICATOR_PASSWORD }}"
+  {{ else }}
+            valueFrom:
+             secretKeyRef:
+               name: db
+               key: REPLICATOR_PASSWORD
+  {{- end }}
+        volumeMounts:
+        - mountPath: /var/lib/postgresql
+          name: "{{ .Values.env_db.app}}"
+        resources:
+          requests:
+            cpu: {{ .Values.resources_db.cpu }}
+            memory: {{ .Values.resources_db.memory }}
+          limits:
+            memory: {{ .Values.resources_db.limits_memory }}
+            cpu: {{ .Values.resources_db.cpu_limit }}
+        readinessProbe:
+          timeoutSeconds: 3
+          initialDelaySeconds: 5
+          tcpSocket:
+            port: postgresql
+        livenessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -h
+            - localhost
+            - -U
+            - $(POSTGRES_USER)
+            - -d
+            - $(POSTGRES_DB)
+      {{- if .Values.nodeSelector_db }}
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.nodeSelector_db}}
+      {{- end}}    
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              namespaces:
+                - gateway
+                - man
+                - mithril
+                - mpi
+                - ops
+                - prm
+                - uaddresses
+                - verification
+              labelSelector:
+                matchLabels:
+                  app: "{{ .Values.env_db.app}}"
+              topologyKey: "kubernetes.io/hostname"
+  volumeClaimTemplates:
+  - metadata:
+      name: postgresql
+      labels:
+        app: "{{ .Values.env_db.app}}"
+        version: "{{ .Values.env_db.version}}"
+    spec:
+      {{- if ne .Values.storageClass "denovo" }}
+      storageClassName: ssd
+        {{- end }}
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: {{ .Values.resources_db.storage}}
+          {{- if .Values.volumeName }}
+      volumeName:  {{ .Values.volumeName }}
+          {{- end }}

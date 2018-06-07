@@ -1,0 +1,101 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: api
+    version: {{ .Values.image_api.tag }}
+  name: api
+  namespace: gndf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: api
+        version: {{ .Values.image_api.tag }}
+    spec:
+      containers:
+      - env:
+        - name: DB_CONNECTION
+          value: "{{ .Values.env_api.DB_CONNECTION }}"
+        - name: DB_HOST
+          value:  "{{ .Values.env_api.DB_HOST }}"
+        - name: DB_PORT
+          value:  "{{ .Values.env_api.DB_PORT }}"
+        - name: DB_DATABASE
+          value:  "{{ .Values.env_api.DB_DATABASE }}"
+        - name: DB_USERNAME
+        - name: DB_PASSWORD
+        - name: APP_DEBUG
+          value:  "{{ .Values.env_api.APP_DEBUG }}"
+        - name: APP_ENV
+          value: "{{ .Values.env_api.APP_ENV }}"
+        - name: INTERCOM_ENABLED
+          value: "{{ .Values.env_api.INTERCOM_ENABLED }}"
+        - name: MIXPANEL_ENABLED
+          value: "{{ .Values.env_api.MIXPANEL_ENABLED }}"
+        - name: EMAIL_ENABLED
+          value: "false"
+        image: {{ .Values.image_api.repository }}:{{ .Values.image_api.tag }}
+        imagePullPolicy: IfNotPresent
+        name: gndf-api
+        ports:
+        - containerPort: 9000
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 6
+          periodSeconds: 10
+          successThreshold: 1
+          tcpSocket:
+            port: 9000
+          timeoutSeconds: 10
+        resources:
+          limits:
+            cpu: "2"
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+      - image: nginx:1.11.10-alpine
+        imagePullPolicy: IfNotPresent
+        name: gndf-nginx
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /etc/nginx/conf.d
+          name: nginx-config-volume
+        - mountPath: /app
+          name: shared-app
+      dnsPolicy: ClusterFirst
+      initContainers:
+      - args:
+        - cp -r /app /tmp && chmod -R 777 /tmp/app
+        command:
+        - /bin/sh
+        - -c
+        image: {{ .Values.image_api.repository }}:{{ .Values.image_api.tag }}
+        imagePullPolicy: IfNotPresent
+        name: gndf-api-init
+        volumeMounts:
+        - mountPath: /tmp/app
+          name: shared-app
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: nginx-api-gndf
+        name: nginx-config-volume
+      - emptyDir: {}
+        name: shared-app
+      nodeSelector:
+        cloud.google.com/gke-nodepool: monitoring

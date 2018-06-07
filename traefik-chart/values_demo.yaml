@@ -1,0 +1,85 @@
+# Default values for Traefik
+image: traefik
+imageTag: 1.5.1
+serviceType: LoadBalancer
+loadBalancerIP:
+#loadBalancerSourceRanges: []
+replicas: 1
+cpuRequest: 100m
+memoryRequest: 100Mi
+cpuLimit: 200m
+memoryLimit: 300Mi
+debug:
+  enabled: false
+nodeSelector: {}
+  #key: value
+tolerations: []
+  #- key: "key"
+  #operator: "Equal|Exists"
+  #value: "value"
+  #effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
+ssl:
+  enabled: true
+  enforced: false
+  defaultCert: 
+  defaultKey: 
+acme:
+  enabled: false
+  email: admin@example.com
+  staging: true
+  # Save ACME certs to a persistent volume. WARNING: If you do not do this, you will re-request
+  # certs every time a pod (re-)starts and you WILL be rate limited!
+  persistence:
+    enabled: true
+    ## If defined, volume.beta.kubernetes.io/storage-class: <storageClass>
+    ## Default: volume.alpha.kubernetes.io/storage-class: default
+    ##
+    # storageClass:
+    accessMode: ReadWriteOnce
+    size: 1Gi
+dashboard:
+  enabled: true
+  domain: 
+  ingress:
+    # annotations:
+    #   key: value
+  auth:
+     basic:
+       admin: ''
+  statistics:
+    ## Number of recent errors to show in the ‘Health’ tab
+    # recentErrors:
+service:
+  # annotations:
+  #   key: value
+  # labels:
+  #   key: value
+gzip:
+  enabled: true
+accessLogs:
+  enabled: false
+  ## Path to the access logs file. If not provided, Traefik defaults it to stdout.
+  # filePath: ""
+  format: common  # choices are: common, json
+# Kubernetes ingress filters
+#kubernetes:
+#  namespaces:
+#  - default
+#  labelSelector:
+rbac:
+  enabled: true
+# Enable the /metrics endpoint, for now only supports prometheus
+# set to true to enable metric collection by prometheus
+metrics:
+  prometheus:
+    enabled: true
+    buckets: "[0.1,0.3,1.2,5.0]"
+  datadog:
+    enabled: false
+#    address: "localhost:8125"
+#    pushInterval: 30s
+  statsd:
+    enabled: false
+#    address: "localhost:8125"
+#    pushInterval: 30s
+

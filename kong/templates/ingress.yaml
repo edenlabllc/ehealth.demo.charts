@@ -1,0 +1,16 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: kong-svc
+  namespace: kong
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+  - host: {{ .Values.ingress}}
+    http:
+      paths:
+       - path: 
+         backend:
+          serviceName: kong-traefik
+          servicePort: 80

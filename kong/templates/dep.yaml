@@ -1,0 +1,107 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: api
+  labels:
+    app: api
+    version: {{ .Values.image_api.tag }}
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: api
+  strategy:
+    rollingUpdate:
+      maxSurge: {{ .Values.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.rollingUpdate.maxUnavailable }}
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: api
+        version: {{ .Values.image_api.tag }}
+    spec:
+      containers:
+      - name: kong-api
+        image: {{ .Values.image_api.repository }}:{{ .Values.image_api.tag }}
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: KONG_PG_USER
+            value: "{{ .Values.env_db.POSTGRES_USER }}"
+          - name: KONG_PG_PASSWORD
+       {{- if .Values.env_db.POSTGRES_PASSWORD }}
+            value: "{{ .Values.env_db.POSTGRES_PASSWORD }}"
+       {{ else }}
+            valueFrom:
+             secretKeyRef:
+               name: db
+               key: DB_PASSWORD
+       {{- end }}
+          - name: KONG_PG_HOST
+            value: "{{ .Values.env_api.DB_HOST }}"
+          - name: KONG_PROXY_ACCESS_LOG
+            value: "{{ .Values.env_api.KONG_PROXY_ACCESS_LOG }}"
+          - name: KONG_ADMIN_ACCESS_LOG
+            value: "{{ .Values.env_api.KONG_ADMIN_ACCESS_LOG }}"
+          - name: KONG_PROXY_ERROR_LOG
+            value: "{{ .Values.env_api.KONG_PROXY_ERROR_LOG }}"
+          - name: KONG_ADMIN_ERROR_LOG
+            value: "{{ .Values.env_api.KONG_ADMIN_ERROR_LOG }}" 
+          - name: KONG_CUSTOM_PLUGINS
+            value: "{{ .Values.env_api.KONG_CUSTOM_PLUGINS }}" 
+          - name: KONG_REAL_IP_HEADER
+            value: "{{ .Values.env_api.KONG_REAL_IP_HEADER }}" 
+          - name: KONG_TRUSTED_IPS
+            value: "{{ .Values.env_api.KONG_TRUSTED_IPS }}" 
+        ports:
+        - name: admin
+          containerPort: 8001
+          protocol: TCP
+        - name: proxy
+          containerPort: 8000
+          protocol: TCP
+        - name: proxy-ssl
+          containerPort: 8443
+          protocol: TCP
+        - name: admin-ssl
+          containerPort: 8444
+          protocol: TCP
+        resources:
+          requests:
+            cpu: {{ .Values.resources_api.cpu }}
+            memory: {{ .Values.resources_api.memory }}
+          limits:
+            memory: {{ .Values.resources_api.memory_limit }}
+        readinessProbe:
+          timeoutSeconds: 2
+          initialDelaySeconds: 5
+          failureThreshold: 3
+          tcpSocket:
+            port: 8000
+        livenessProbe:
+          timeoutSeconds: 2
+          initialDelaySeconds: 5
+          failureThreshold: 3
+          tcpSocket:
+            port: 8000
+        volumeMounts:
+         - mountPath: /kong-logs
+           name: logs-volume
+      volumes:
+       - name: logs-volume
+         hostPath:
+           path: /tmp
+      affinity:
+        podAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: postgres
+              topologyKey: failure-domain.beta.kubernetes.io/zone
+        {{- if .Values.nodeSelector_api }}
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.nodeSelector_api}}
+        {{ end }}

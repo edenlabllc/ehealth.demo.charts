@@ -1,0 +1,26 @@
+
+## DB ##
+image_db: 
+  repository: nebo15/alpine-postgre
+  tag: pglogical-gis
+
+env_db:
+  app: "postgresql"
+  version: "9.6"
+  #DB_USER: API - POSTGRES_DB: DB
+  POSTGRES_USER: "db"
+  #DB_PASSWORD: API and DB 
+  POSTGRES_PASSWORD: ""
+  PGDATA: "/var/lib/postgresql/data"
+  #DB_NAME: API
+  POSTGRES_DB: "prm"
+  REPLICATOR_USER: "pghoard"
+  REPLICATOR_PASSWORD: ""
+  db_port: "5432"
+
+resources_db:
+  cpu: "50m"
+  memory: "512Mi"
+  limits_memory: "1Gi"
+  storage: "50Gi"
+storageClass: "dev"

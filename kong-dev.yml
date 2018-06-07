@@ -1,0 +1,3251 @@
+host: 'localhost:8001'
+headers: []
+apis:
+  - name: employees
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - POST
+                  - PUT
+                path: .*
+                scopes:
+                  - 'employee:write'
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'employee:read'
+              - methods:
+                  - PATCH
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/deactivate
+                scopes:
+                  - 'employee:deactivate'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/employees
+      methods:
+        - POST
+        - PUT
+        - GET
+        - PATCH
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: get-main-stats
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - GET
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - '*'
+            preflight_continue: false
+    attributes:
+      uris:
+        - /reports/stats
+      methods:
+        - GET
+        - OPTIONS
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.reports/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: uaddresses
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - GET
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - '*'
+            preflight_continue: false
+    attributes:
+      uris:
+        - /api/uaddresses
+      methods:
+        - GET
+      strip_uri: true
+      preserve_host: false
+      upstream_url: 'http://api-svc.uaddresses/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: manage-users-on-mithril-admin
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - PATCH
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/block
+                scopes:
+                  - 'user:block'
+              - methods:
+                  - PATCH
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/unblock
+                scopes:
+                  - 'user:unblock'
+              - methods:
+                  - POST
+                  - PATCH
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/authentication_factors
+                scopes:
+                  - 'authentication_factor:write'
+              - methods:
+                  - GET
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/authentication_factors
+                scopes:
+                  - 'authentication_factor:read'
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'user:read'
+              - methods:
+                  - POST
+                  - PATCH
+                path: .*
+                scopes:
+                  - 'user:write'
+              - methods:
+                  - DELETE
+                path: .*
+                scopes:
+                  - 'user:delete'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /admin/users
+      methods:
+        - GET
+        - POST
+        - PATCH
+        - DELETE
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.mithril/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: persons
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'person:read'
+              - methods:
+                  - GET
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/declaration
+                scopes:
+                  - 'declaration:read'
+              - methods:
+                  - PATCH
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/reset_authentication_method
+                scopes:
+                  - 'person:reset_authentication_method'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/persons
+      methods:
+        - GET
+        - PATCH
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: manage-tokens-on-mithril-temp
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - GET
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - '*'
+            preflight_continue: false
+    attributes:
+      uris:
+        - '/admin/tokens/[A-Za-z0-9]{32}/verify'
+      methods:
+        - OPTIONS
+        - GET
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.mithril/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: manage-otps-on-mithril-temp
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - GET
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - '*'
+            preflight_continue: false
+    attributes:
+      uris:
+        - /admin/otps
+      methods:
+        - GET
+        - OPTIONS
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.mithril/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: entire-ops-service
+    plugins: []
+    attributes:
+      uris:
+        - /ops
+      methods:
+        - GET
+        - POST
+      strip_uri: true
+      preserve_host: false
+      upstream_url: 'http://api-svc.ops/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: get-nonce-from-mithril-for-sign-in
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - POST
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - '*'
+            preflight_continue: false
+    attributes:
+      uris:
+        - /oauth/nonce
+      methods:
+        - POST
+        - OPTIONS
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.mithril/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: cabinet---send-email-verification
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - POST
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - '*'
+            preflight_continue: false
+    attributes:
+      uris:
+        - /api/cabinet/email_verification
+      methods:
+        - POST
+        - OPTIONS
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: manage-clients-on-mithril-admin
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'client:read'
+              - methods:
+                  - POST
+                  - PUT
+                path: .*
+                scopes:
+                  - 'client:write'
+              - methods:
+                  - DELETE
+                path: .*
+                scopes:
+                  - 'client:delete'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /admin/clients
+      methods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.mithril/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: manage-legal-entity-temp
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - PUT
+                path: .*
+                scopes:
+                  - 'legal_entity:write'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /prm
+      methods:
+        - PUT
+      strip_uri: true
+      preserve_host: false
+      upstream_url: 'http://api-svc.prm/api'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: create-token
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - POST
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+              - drfo
+            origins:
+              - '*'
+            preflight_continue: false
+    attributes:
+      uris:
+        - /oauth/tokens
+      methods:
+        - OPTIONS
+        - POST
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.mithril/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: authorize-app-on-mithril-temp
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - POST
+                path: .*
+                scopes:
+                  - 'app:authorize'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - POST
+            exposed_headers:
+              - location
+            credentials: false
+            origins:
+              - '*'
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            preflight_continue: false
+    attributes:
+      uris:
+        - /oauth/apps/authorize
+      methods:
+        - OPTIONS
+        - POST
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.mithril/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: get-invite-by-id
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - GET
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - '*'
+            preflight_continue: false
+    attributes:
+      uris:
+        - /api/invite/.*
+      methods:
+        - GET
+        - OPTIONS
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: manage-roles-on-mithril-admin
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'role:read'
+              - methods:
+                  - POST
+                  - PATCH
+                path: .*
+                scopes:
+                  - 'role:write'
+              - methods:
+                  - DELETE
+                path: .*
+                scopes:
+                  - 'role:delete'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /admin/roles
+      methods:
+        - GET
+        - POST
+        - PATCH
+        - DELETE
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.mithril/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: manage-tokens-on-mithril-admin
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'token:read'
+              - methods:
+                  - POST
+                path: .*
+                scopes:
+                  - 'token:write'
+              - methods:
+                  - DELETE
+                path: .*
+                scopes:
+                  - 'token:delete'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /admin/tokens$
+      methods:
+        - GET
+        - DELETE
+        - POST
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.mithril/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: manage-medication_request-requests
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'medication_request_request:read'
+              - methods:
+                  - POST
+                path: .*
+                scopes:
+                  - 'medication_request_request:write'
+              - methods:
+                  - PATCH
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/sign
+                scopes:
+                  - 'medication_request_request:sign'
+              - methods:
+                  - PATCH
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/reject
+                scopes:
+                  - 'medication_request_request:reject'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/medication_request_requests
+      methods:
+        - POST
+        - GET
+        - PATCH
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: employee-id-by-employee-request-id
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+                scopes:
+                  - 'event:read'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/mis/employee_requests
+      methods:
+        - GET
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: uaddresses-settlement
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - PATCH
+                path: .*
+                scopes:
+                  - 'address:write'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/uaddresses/settlements
+      methods:
+        - PATCH
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: manage-medication_requests
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/dispenses
+                scopes:
+                  - 'medication_request:read'
+              - methods:
+                  - GET
+                  - POST
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}
+                scopes:
+                  - 'medication_request:details'
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'medication_request:read'
+              - methods:
+                  - PATCH
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/reject
+                scopes:
+                  - 'medication_request:reject'
+              - methods:
+                  - PATCH
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/resend
+                scopes:
+                  - 'medication_request:resend'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/medication_requests
+      methods:
+        - GET
+        - POST
+        - PATCH
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: entire-prm-service
+    plugins: []
+    attributes:
+      uris:
+        - /prm
+      methods:
+        - GET
+        - POST
+      strip_uri: true
+      preserve_host: false
+      upstream_url: 'http://api-svc.prm/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: declaration-requests
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - POST
+                path: (/)?$
+                scopes:
+                  - 'declaration_request:write'
+              - methods:
+                  - PATCH
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/sign
+                scopes:
+                  - 'declaration_request:sign'
+              - methods:
+                  - PATCH
+                path: >-
+                  (/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/approve|/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/reject)
+                scopes:
+                  - 'declaration_request:write'
+              - methods:
+                  - POST
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/resend_otp
+                scopes:
+                  - 'otp:write'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/declaration_requests
+      methods:
+        - POST
+        - PATCH
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: view-declaration-request
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'declaration_request:read'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/declaration_requests
+      methods:
+        - GET
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: manage-users-on-mithril-temp
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - GET
+              - POST
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - '*'
+            preflight_continue: false
+    attributes:
+      uris:
+        - >-
+          /admin/users/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}
+      methods:
+        - GET
+        - OPTIONS
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.mithril/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: manage-tokens-by-id-on-mithril-admin
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'token:read'
+              - methods:
+                  - POST
+                path: .*
+                scopes:
+                  - 'token:write'
+              - methods:
+                  - DELETE
+                path: .*
+                scopes:
+                  - 'token:delete'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - >-
+          /admin/tokens/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+      methods:
+        - GET
+        - DELETE
+        - POST
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.mithril/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: cabinet---search-user-by-tax_id
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - POST
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+              - drfo
+            origins:
+              - '*'
+            preflight_continue: false
+    attributes:
+      uris:
+        - /api/cabinet/users
+      methods:
+        - POST
+        - OPTIONS
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: manage-program_medications
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'program_medication:read'
+              - methods:
+                  - POST
+                  - PUT
+                path: .*
+                scopes:
+                  - 'program_medication:write'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/program_medications
+      methods:
+        - GET
+        - POST
+        - PUT
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: get-user-details
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - GET
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - '*'
+            preflight_continue: false
+    attributes:
+      uris:
+        - /admin/tokens/.*/user
+      methods:
+        - OPTIONS
+        - GET
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.mithril/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: create-declaration-request-from-cabinet
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - POST
+                path: (/)?$
+                scopes:
+                  - 'declaration_request:write'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/cabinet/declaration_requests
+      methods:
+        - POST
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: approve-declaration-request-from-cabinet
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - PATCH
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/approve(/)?$
+                scopes:
+                  - 'declaration_request:write'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/cabinet/declaration_requests
+      methods:
+        - PATCH
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: cabinet-declarations-details
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - GET
+            credentials: true
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - 'https://account.dev.asclepius.com.ua'
+            preflight_continue: false
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'declaration:read'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/cabinet/declarations/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}(/)?$
+      methods:
+        - GET
+        - OPTIONS
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: cabinet-declarations-list
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - GET
+            credentials: true
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - 'https://account.dev.asclepius.com.ua'
+            preflight_continue: false
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                  - OPTIONS
+                path: .*
+                scopes:
+                  - 'declaration:read'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/cabinet/declarations(/)?$
+      methods:
+        - GET
+        - OPTIONS
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: terminate-declaration-from-cabinet
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - PATCH
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/terminate
+                scopes:
+                  - 'declaration:terminate'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/cabinet/declarations
+      methods:
+        - PATCH
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: cabinet---jwt-email-validation
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - POST
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - '*'
+            preflight_continue: false
+    attributes:
+      uris:
+        - /api/cabinet/email_validation
+      methods:
+        - POST
+        - OPTIONS
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: get-events
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: >-
+                  (/|/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?$
+                scopes:
+                  - 'event:read'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/events
+      methods:
+        - GET
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.em/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: legal-entities
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - PATCH
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/mis_verify
+                scopes:
+                  - 'legal_entity:mis_verify'
+              - methods:
+                  - PATCH
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/nhs_verify
+                scopes:
+                  - 'legal_entity:nhs_verify'
+              - methods:
+                  - PATCH
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/deactivate
+                scopes:
+                  - 'legal_entity:deactivate'
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'legal_entity:read'
+              - methods:
+                  - PUT
+                path: .*
+                scopes:
+                  - 'legal_entity:write'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/legal_entities
+      methods:
+        - GET
+        - PUT
+        - PATCH
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: manage-innms
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'innm:read'
+              - methods:
+                  - PUT
+                  - POST
+                path: .*
+                scopes:
+                  - 'innm:write'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/innms
+      methods:
+        - POST
+        - PUT
+        - GET
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: send-otp-via-mithril
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - POST
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - '*'
+            preflight_continue: false
+    attributes:
+      uris:
+        - /api/send_otp
+      methods:
+        - POST
+        - OPTIONS
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.mithril/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: divisions
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - POST
+                  - PATCH
+                path: .*
+                scopes:
+                  - 'division:write'
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'division:read'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/divisions
+      methods:
+        - POST
+        - PATCH
+        - GET
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: change-password-for-user
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - PATCH
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - '*'
+            preflight_continue: false
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - PATCH
+                path: .*
+                scopes:
+                  - 'session:read'
+                  - 'session:write'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - >-
+          /users/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/change_password
+      methods:
+        - PATCH
+        - OPTIONS
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.mithril/admin'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: create-user-through-employee-request
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - POST
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - '*'
+            preflight_continue: false
+    attributes:
+      uris:
+        - >-
+          /api/employee_requests/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/user
+      methods:
+        - OPTIONS
+        - POST
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: get-current-user-roles
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules: {}
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - GET
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - '*'
+            preflight_continue: false
+    attributes:
+      uris:
+        - /user/roles
+      methods:
+        - GET
+        - OPTIONS
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/api'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: manage-client_types-on-mithril-admin
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'client_type:read'
+              - methods:
+                  - POST
+                  - PATCH
+                path: .*
+                scopes:
+                  - 'client_type:write'
+              - methods:
+                  - DELETE
+                path: .*
+                scopes:
+                  - 'client_type:delete'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /admin/client_types
+      methods:
+        - GET
+        - POST
+        - PATCH
+        - DELETE
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.mithril/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: get-employees
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - GET
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - '*'
+            preflight_continue: false
+    attributes:
+      uris:
+        - /api/stats/employees
+      methods:
+        - GET
+        - OPTIONS
+      strip_uri: true
+      preserve_host: false
+      upstream_url: 'http://api-svc.reports/stats/employees'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: cabinet---patient-registration
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - POST
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+              - drfo
+              - given_name
+              - surname
+            origins:
+              - '*'
+            preflight_continue: false
+    attributes:
+      uris:
+        - /api/cabinet/registration
+      methods:
+        - POST
+        - OPTIONS
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: get-persons-in-cabinet
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'person:read'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - GET
+            credentials: true
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - 'https://account.dev.asclepius.com.ua'
+            preflight_continue: false
+    attributes:
+      uris:
+        - /api/cabinet/persons(/)?$
+      methods:
+        - GET
+        - OPTIONS
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: refresh-client-secret-on-mithril
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - PATCH
+                path: .*
+                scopes:
+                  - 'secret:refresh'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - PATCH
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - '*'
+            preflight_continue: false
+    attributes:
+      uris:
+        - >-
+          /admin/clients/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/refresh_secret
+      methods:
+        - OPTIONS
+        - PATCH
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: declarations---approve
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - PATCH
+                path: .*
+                scopes:
+                  - 'declaration:approve'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - >-
+          /api/declarations/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/approve
+      methods:
+        - PATCH
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: manage-dictionaries-admin
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - PATCH
+            exposed_headers:
+              - location
+            credentials: false
+            origins:
+              - '*'
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            preflight_continue: false
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - PATCH
+                path: .*
+                scopes:
+                  - 'dictionary:write'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/dictionaries
+      methods:
+        - OPTIONS
+        - PATCH
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: manage-medical_programs
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'medical_program:read'
+              - methods:
+                  - POST
+                path: .*
+                scopes:
+                  - 'medical_program:write'
+              - methods:
+                  - PATCH
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/deactivate
+                scopes:
+                  - 'medical_program:deactivate'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/medical_programs
+      methods:
+        - GET
+        - POST
+        - PATCH
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: get-main-stats-by-regions
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - GET
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - '*'
+            preflight_continue: false
+    attributes:
+      uris:
+        - /reports/stats/regions
+      methods:
+        - GET
+        - OPTIONS
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.reports/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: get-histogram-stats
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - GET
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - '*'
+            preflight_continue: false
+    attributes:
+      uris:
+        - /reports/stats/histogram
+      methods:
+        - GET
+        - OPTIONS
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.reports/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: person-details-in-cabinet
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'person:read'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - GET
+            credentials: true
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - 'https://account.dev.asclepius.com.ua'
+            preflight_continue: false
+    attributes:
+      uris:
+        - /api/cabinet/persons/details(/)?$
+      methods:
+        - GET
+        - OPTIONS
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: client-details--public-endpoint
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - GET
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - '*'
+            preflight_continue: false
+    attributes:
+      uris:
+        - >-
+          /admin/clients/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/details
+      methods:
+        - OPTIONS
+        - GET
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.mithril/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: credentials-recovery-requests
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - POST
+              - PATCH
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - '*'
+            preflight_continue: false
+    attributes:
+      uris:
+        - /api/credentials_recovery_requests
+      methods:
+        - PATCH
+        - POST
+        - OPTIONS
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: manage-medications
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'medication:read'
+              - methods:
+                  - PUT
+                  - POST
+                path: .*
+                scopes:
+                  - 'medication:write'
+              - methods:
+                  - PATCH
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/deactivate
+                scopes:
+                  - 'medication:deactivate'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/medications
+      methods:
+        - POST
+        - PUT
+        - GET
+        - PATCH
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: manage-medication_dispenses
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'medication_dispense:read'
+              - methods:
+                  - POST
+                path: .*
+                scopes:
+                  - 'medication_dispense:write'
+              - methods:
+                  - PATCH
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/process
+                scopes:
+                  - 'medication_dispense:process'
+              - methods:
+                  - PATCH
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/reject
+                scopes:
+                  - 'medication_dispense:reject'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/medication_dispenses
+      methods:
+        - GET
+        - POST
+        - PATCH
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: entire-il-service
+    plugins: []
+    attributes:
+      uris:
+        - /il
+      methods:
+        - GET
+        - POST
+      strip_uri: true
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: manage-innm-dosages
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'innm_dosage:read'
+              - methods:
+                  - PUT
+                  - POST
+                path: .*
+                scopes:
+                  - 'innm_dosage:write'
+              - methods:
+                  - PATCH
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/deactivate
+                scopes:
+                  - 'innm_dosage:deactivate'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/innm_dosages
+      methods:
+        - POST
+        - PUT
+        - GET
+        - PATCH
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: init---approve-factor
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - POST
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - '*'
+            preflight_continue: false
+    attributes:
+      uris:
+        - /oauth/users/actions/.*
+      methods:
+        - OPTIONS
+        - POST
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.mithril/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: otp-verification
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'otp:read'
+              - methods:
+                  - PATCH
+                path: .*/actions/complete$
+                scopes:
+                  - 'otp:write'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/verifications
+      methods:
+        - GET
+        - PATCH
+      strip_uri: true
+      preserve_host: false
+      upstream_url: 'http://api-svc.verification/verifications'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: initialize-otp-verification
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - POST
+                path: (/)?$
+                scopes:
+                  - 'otp:write'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/verifications
+      methods:
+        - POST
+      strip_uri: true
+      preserve_host: false
+      upstream_url: 'http://api-svc.verification/verifications'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: manage-black-list-of-users
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'bl_user:read'
+              - methods:
+                  - POST
+                path: .*
+                scopes:
+                  - 'bl_user:write'
+              - methods:
+                  - PATCH
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/deactivate
+                scopes:
+                  - 'bl_user:deactivate'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/black_list_users
+      methods:
+        - GET
+        - POST
+        - PATCH
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: reimbursement-report-csv
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'reimbursement_report:download'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/reimbursement_report_download
+      methods:
+        - GET
+      strip_uri: true
+      preserve_host: false
+      upstream_url: 'http://api-svc.reports/reimbursement_report_download'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: get-party-users
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'party_user:read'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/party_users
+      methods:
+        - GET
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: manage-user-authentication-factors-on-mithril-admin
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - PATCH
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/reset
+                scopes:
+                  - 'authentication_factor:write'
+              - methods:
+                  - PATCH
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/enable
+                scopes:
+                  - 'authentication_factor:write'
+              - methods:
+                  - PATCH
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/disable
+                scopes:
+                  - 'authentication_factor:write'
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'authentication_factor:read'
+              - methods:
+                  - POST
+                  - PATCH
+                path: .*
+                scopes:
+                  - 'authentication_factor:write'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - >-
+          /admin/users/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/authentication_factors
+      methods:
+        - GET
+        - POST
+        - PATCH
+        - DELETE
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.mithril/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: declarations
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: (/)?$
+                scopes:
+                  - 'declaration:read'
+              - methods:
+                  - GET
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}(/)?$
+                scopes:
+                  - 'declaration:read'
+              - methods:
+                  - GET
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/documents
+                scopes:
+                  - 'declaration_documents:read'
+              - methods:
+                  - PATCH
+                path: /terminate
+                scopes:
+                  - 'declaration:terminate'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/declarations
+      methods:
+        - GET
+        - PATCH
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: get-main-stats-by-division-id
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - GET
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - '*'
+            preflight_continue: false
+    attributes:
+      uris:
+        - >-
+          /reports/stats/division/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}
+      methods:
+        - GET
+        - OPTIONS
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.reports/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: get-report-log
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - GET
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - '*'
+            preflight_continue: false
+    attributes:
+      uris:
+        - /reports/log
+      methods:
+        - GET
+        - OPTIONS
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.reports/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: global-parameters
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'global_parameters:read'
+              - methods:
+                  - PUT
+                path: .*
+                scopes:
+                  - 'global_parameters:write'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/global_parameters
+      methods:
+        - PUT
+        - GET
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: log-in
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - POST
+                path: .*
+                scopes:
+                  - 'session:read'
+                  - 'session:write'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /users/login
+      methods:
+        - POST
+      strip_uri: true
+      preserve_host: false
+      upstream_url: 'http://api-svc.mithril/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: manage-uaddresses
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - POST
+                  - PATCH
+                path: .*
+                scopes:
+                  - 'address:write'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/uaddresses
+      methods:
+        - POST
+        - PATCH
+      strip_uri: true
+      preserve_host: false
+      upstream_url: 'http://api-svc.uaddresses/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: digital-signature-temp
+    plugins: []
+    attributes:
+      uris:
+        - /digital_signatures
+      methods:
+        - POST
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.digital-signature.svc.cluster.local/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: get-or-create-employee-requests
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - GET
+              - POST
+            credentials: false
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - '*'
+            preflight_continue: false
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - POST
+                path: (/)?$
+                scopes:
+                  - 'employee_request:write'
+              - methods:
+                  - GET
+                path: >-
+                  (/|/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?$
+                scopes:
+                  - 'employee_request:read'
+              - methods:
+                  - POST
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/approve$
+                scopes:
+                  - 'employee_request:approve'
+              - methods:
+                  - POST
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/reject$
+                scopes:
+                  - 'employee_request:reject'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/employee_requests
+      methods:
+        - POST
+        - GET
+        - OPTIONS
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: manage-registers-batch-termination-declarations-by-file
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'register:read'
+              - methods:
+                  - POST
+                path: .*
+                scopes:
+                  - 'register:write'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/registers
+      methods:
+        - POST
+        - GET
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: manage-register-entries
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'register_entry:read'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/registers_entries
+      methods:
+        - GET
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: get-dictionaries
+    plugins:
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - GET
+            exposed_headers:
+              - location
+            credentials: false
+            origins:
+              - '*'
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            preflight_continue: false
+    attributes:
+      uris:
+        - /api/dictionaries
+      methods:
+        - OPTIONS
+        - GET
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: list-drugs
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'drugs:read'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/drugs
+      methods:
+        - GET
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: declarations---reject
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - PATCH
+                path: .*
+                scopes:
+                  - 'declaration:reject'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - >-
+          /api/declarations/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/reject
+      methods:
+        - PATCH
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: reimbursement-report
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'reimbursement_report:read'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/reimbursement_report
+      methods:
+        - GET
+      strip_uri: true
+      preserve_host: false
+      upstream_url: 'http://api-svc.reports/reimbursement_report'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: manage-approvals-on-mithril-admin
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: .*
+                scopes:
+                  - 'app:read'
+              - methods:
+                  - POST
+                  - PATCH
+                path: .*
+                scopes:
+                  - 'app:write'
+              - methods:
+                  - DELETE
+                path: .*
+                scopes:
+                  - 'app:delete'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /admin/apps
+      methods:
+        - GET
+        - POST
+        - PATCH
+        - DELETE
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.mithril/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: cabinet---update-person
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - PATCH
+                path: >-
+                  /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+                scopes:
+                  - 'person:write'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+      - name: cors
+        attributes:
+          enabled: true
+          config:
+            methods:
+              - PATCH
+            credentials: true
+            headers:
+              - Access-Control-Allow-Origin
+              - Authorization
+              - content-type
+              - origin
+              - accept
+              - access-control-request-headers
+              - access-control-request-method
+              - pragma
+              - cache-control
+            origins:
+              - 'https://account.dev.asclepius.com.ua'
+            preflight_continue: false
+    attributes:
+      uris:
+        - /api/cabinet/persons
+      methods:
+        - PATCH
+        - OPTIONS
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: contract-request-manage
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - POST
+                path: (/)?$
+                scopes:
+                  - 'contract_request:create'
+              - methods:
+                  - PATCH
+                path: /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}(/)?$
+                scopes:
+                  - 'contract_request:update'
+              - methods:
+                  - PATCH
+                path: /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/approve(/)?$
+                scopes:
+                  - 'contract_request:update'
+              - methods:
+                  - PATCH
+                path: /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/decline(/)?$
+                scopes:
+                  - 'contract_request:update'
+              - methods:
+                  - PATCH
+                path: /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/terminate(/)?$
+                scopes:
+                  - 'contract_request:terminate'
+              - methods:
+                  - PATCH
+                path: /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/sign_nhs(/)?$
+                scopes:
+                  - 'contract_request:sign'
+              - methods:
+                  - PATCH
+                path: /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/actions/sign_msp(/)?$
+                scopes:
+                  - 'contract_request:sign'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/contract_requests
+      methods:
+        - POST
+        - PATCH
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+  - name: contract-request-get
+    plugins:
+      - name: mithril
+        attributes:
+          enabled: true
+          config:
+            rules:
+              - methods:
+                  - GET
+                path: (/)?$
+                scopes:
+                  - 'contract_request:read'
+              - methods:
+                  - GET
+                path: /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}(/)?$
+                scopes:
+                  - 'contract_request:read'
+              - methods:
+                  - GET
+                path: /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/signed_content(/)?$
+                scopes:
+                  - 'contract_request:read'
+            url_template: 'http://api-svc.mithril/admin/tokens/{access_token}/verify'
+    attributes:
+      uris:
+        - /api/contract_requests
+      methods:
+        - GET
+      strip_uri: false
+      preserve_host: false
+      upstream_url: 'http://api-svc.il/'
+      retries: 5
+      upstream_connect_timeout: 60000
+      upstream_read_timeout: 60000
+      upstream_send_timeout: 60000
+      https_only: false
+      http_if_terminated: false
+consumers: []
+plugins:
+  - name: correlation-id
+    attributes:
+      enabled: true
+      config:
+        echo_downstream: true
+        header_name: x-request-id
+        generator: 'uuid#counter'
+  - name: rate-limiting
+    ensure: "removed"
+    attributes:
+      enabled: true
+      config:
+        hide_client_headers: false
+        minute: 9000
+        policy: cluster
+        redis_database: 0
+        redis_timeout: 2000
+        redis_port: 6379
+        limit_by: ip
+        fault_tolerant: true
+  - name: file-log
+    attributes:
+      enabled: false
+      config:
+        path: /kong-logs/kong.log
+        reopen: false
+  - name: stdout-log
+    ensure: "removed"
+    attributes:
+      enabled: true
+      config: {}
+upstreams: []
+certificates: []

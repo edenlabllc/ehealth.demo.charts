@@ -1,0 +1,18 @@
+        {{- if or (eq .Values.env "dev") (eq .Values.env "demo") (eq .Values.env "denovo") (eq .Values.env "denovo-preprod")  }}
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: fe
+  name: admin-svc-traefik
+  labels:
+    app: admin
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: public
+  selector:
+    app: admin
+  type: ClusterIP
+    {{ end }}

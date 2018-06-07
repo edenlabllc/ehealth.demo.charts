@@ -1,0 +1,44 @@
+
+image_api:
+  repository: edenlabllc/gandalf.api
+  tag: "1.1.7"
+
+env_api:
+  DB_CONNECTION: "mongodb"
+  DB_HOST: "db-svc"
+  DB_PORT: "27017"
+  DB_DATABASE: "gndf"
+  APP_DEBUG:  "true"
+  APP_ENV: "prod"
+  INTERCOM_ENABLED: "false"
+  MIXPANEL_ENABLED: "false"
+
+image_fe:
+  repository:  nebo15/gandalf.web
+  tag: "1.0.2"
+
+env_fe:
+  PORT: "8080"
+  API_ENDPOINT: ""
+  API_CLIENTID: ""
+  API_CLIENTSECRET: ""
+
+
+image_db:
+  repository: nebo15/alpine-mongodb
+  tag: "3.2.10"
+
+env_db:
+  MAX_RAM: "512Mb"
+ 
+
+service:
+  name: "db-svc"
+
+resources_db:
+  cpu: "200m"
+  memory: "512Mi"
+  limits_memory: "1Gi"
+
+
+env: dev-demo

@@ -1,0 +1,70 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: ael
+  name: api
+  labels:
+    app: api
+    version: {{ .Values.image_api.tag }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: api
+  strategy:
+    rollingUpdate:
+      maxSurge: {{ .Values.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.rollingUpdate.maxUnavailable }}
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: api
+        version: {{ .Values.image_api.tag }}
+    spec:
+      containers:
+      - name: ael-api
+        image: {{ .Values.image_api.repository }}:{{ .Values.image_api.tag }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 4000
+          protocol: TCP
+        env:
+        {{- range $name, $value := .Values.env_api }}
+        {{- if not (empty $value) }}
+        - name: {{ $name | quote }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
+        resources:
+          requests:
+            cpu: {{ .Values.resources_api.cpu }}
+            memory: {{ .Values.resources_api.memory }}
+          limits:
+            cpu: {{ .Values.resources_api.cpu_limit }}
+            memory: {{ .Values.resources_api.memory_limit }}
+        volumeMounts:
+        - name: gcs-secret
+          mountPath: /app/secrets
+          readOnly: true
+        readinessProbe:
+          timeoutSeconds: 2
+          initialDelaySeconds: 5
+          failureThreshold: 3
+          tcpSocket:
+            port: 4000
+        livenessProbe:
+          timeoutSeconds: 2
+          initialDelaySeconds: 5
+          failureThreshold: 3
+          tcpSocket:
+            port: 4000
+        {{- if  .Values.nodeSelector_api }}
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.nodeSelector_api}}
+        {{ end }}
+      volumes:
+        - name: gcs-secret
+          secret:
+            secretName: gcs-secret

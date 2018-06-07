@@ -1,0 +1,32 @@
+{{- if .Values.run_migration }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kong-migration
+spec:
+  template:
+    metadata:
+      name: kong-migration
+    spec:
+      containers:
+      - name: kong-migration
+        image: kong
+        env:
+          - name: KONG_PG_USER
+            value: "{{ .Values.env_db.POSTGRES_USER }}"
+          - name: KONG_NGINX_DAEMON
+            value: 'off'
+          - name: KONG_PG_PASSWORD
+        {{- if .Values.env_db.POSTGRES_PASSWORD }}
+            value: "{{ .Values.env_db.POSTGRES_PASSWORD }}"
+        {{ else }}
+            valueFrom:
+             secretKeyRef:
+               name: db
+               key: DB_PASSWORD
+        {{ end }}
+          - name: KONG_PG_HOST
+            value: db-svc.kong.svc.cluster.local
+        command: [ "/bin/sh", "-c", "kong migrations up" ]
+      restartPolicy: Never
+{{- end }}

@@ -1,0 +1,58 @@
+image_api:
+  repository: edenlabllc/event_manager_web
+  tag: "0.9.0"
+
+env_api:
+   # Phoenix
+  port: "4000"
+  host: ""
+  secret: ""
+  ERLANG_COOKIE: ""
+    # Database
+  DB_HOST: "db-svc"
+  DB_PORT: "5432"
+  DB_POOL_SIZE: "50"
+  # APP
+  DB_MIGRATE: "true"
+
+resources_api:
+  cpu: "10m"
+  cpu_limit: "1"
+  memory: "100Mi"
+  memory_limit: "300Mi"
+
+image_db:
+  repository: nebo15/alpine-postgre
+  tag: pglogical-gis
+
+env_db:
+  app: "postgresql"
+  POSTGRES_USER: "db"
+  POSTGRES_PASSWORD: ""
+  PGDATA: "/var/lib/postgresql/data"
+  POSTGRES_DB: "event_manager"
+  REPLICATOR_USER: "pghoard"
+  REPLICATOR_PASSWORD: ""
+  db_port: "5432"
+
+service:
+  name: "db-svc"
+
+resources_db:
+  cpu: "50m"
+  memory: "512Mi"
+  limits_memory: "1Gi"
+  storage: "50Gi"
+
+rollingUpdate:
+  maxSurge: "1"
+  maxUnavailable: "1"
+
+env: demo
+
+deployNotification:
+  enabled: false
+  slackEndpoint:
+  slackChannel:
+  slackUsername:
+  slackEmoji:

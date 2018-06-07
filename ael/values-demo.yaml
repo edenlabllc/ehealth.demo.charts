@@ -1,0 +1,43 @@
+
+## API ##
+#Docker image and tag for api
+image_api:
+  repository: edenlabllc/ael_api
+  tag: "1.36.1"
+
+env_api:
+  # --- Phoenix---#
+  PORT: "4000"
+  HOST: ""
+  SECRET: ""
+  ERLANG_COOKIE: ""
+  # SA
+  SERVICE_ACCOUNT_KEY_PATH: "/app/secrets/sa.json"
+  KNOWN_BUCKETS: "legal-entities-dev, declaration-requests-dev, capitation-reports-dev, declarations-dev,  medication-request-requests-dev, contract-requests-dev"
+  # 30 minutes
+  SECRETS_TTL: "7200"
+  # App migrations
+  DB_MIGRATE: "true"
+  SWIFT_ENDPOINT: ""
+  SWIFT_TENANT_ID: ""
+  SWIFT_TEMP_URL_KEY: ""
+  OBJECT_STORAGE_BACKEND: "gcs"
+  DIGITAL_SIGNATURE_ENDPOINT: "http://api-svc.digital-signature"
+resources_api:
+  cpu: "10m"
+  cpu_limit: "1"
+  memory: "100Mi"
+  memory_limit: "300Mi"
+
+rollingUpdate:
+  maxSurge: "1"
+  maxUnavailable: "1"
+
+env: demo
+
+deployNotification:
+  enabled: false
+  slackEndpoint:
+  slackChannel:
+  slackUsername:
+  slackEmoji:

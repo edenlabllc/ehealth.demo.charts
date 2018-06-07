@@ -1,0 +1,51 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: fe
+  name: portal
+  labels:
+    app: portal
+    version: {{ .Values.image_PORTAL.tag}}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: portal
+  template:
+    metadata:
+      labels:
+        app: portal
+        version: {{ .Values.image_PORTAL.tag}}
+    spec:
+      containers:
+      - name: fe-portal
+        image: {{ .Values.image_PORTAL.image}}:{{ .Values.image_PORTAL.tag}}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          protocol: TCP
+             {{- if or (eq .Values.env "prod") (eq .Values.env "preprod") }}
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 2
+          failureThreshold: 5
+             {{ end }}
+        env:
+        - name: API_ENDPOINT
+          value: "{{ .Values.PORTAL_env.API_ENDPOINT}}"
+        resources:
+          requests:
+            cpu: 50m
+            memory: 50Mi
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        {{- if .Values.nodeSelector_fe }}
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.nodeSelector_fe}}
+        {{ end }}

@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: fe
+  name: auth-svc
+  labels:
+    app: auth
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: public
+{{- if or (eq .Values.env "prod") (eq .Values.env "preprod") }}
+  - port: 443
+    targetPort: 8080
+    protocol: TCP
+    name: public-https
+  {{ end }}
+  selector:
+    app: auth
+    {{- if or (eq .Values.env "dev") (eq .Values.env "demo") }}
+  type: LoadBalancer
+  loadBalancerIP: "{{ .Values.image_AUTH.loadBalancerIP}}"
+    {{- else if or (eq .Values.env "prod") (eq .Values.env "preprod") }}
+  type: NodePort
+    {{ end }}

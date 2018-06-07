@@ -1,0 +1,88 @@
+
+## FE ##
+image_fe:
+   image: edenlabllc/uaddresses.web
+   tag: "0.1.21"
+env_fe:
+  containerPort: 8080
+  API_ENDPOINT: ""
+  AUTH_ENDPOINT: ""
+  CLIENT_ID:  ""
+  CLIENT_SECRET: ""
+  OAUTH_REDIRECT_URL: ""
+  OAUTH_URL: ""
+  cpu: 50m
+  memory: 50Mi
+  replicas: 1
+  revisionHistoryLimit: 3
+  app: fe
+
+ingress:
+  host: 
+
+## API ##
+#Docker image and tag for api
+image_api:
+  repository: edenlabllc/uaddresses_api
+  tag: "1.49.0"
+
+env_api:
+   # --- Phoenix---#
+   #APP_PORT
+  port: "4000"
+  #APP_HOST
+  host: ""
+  #APP_SECRET_KEY
+  secret: ""
+  ERLANG_COOKIE: ""
+    # Database
+  DB_HOST: "db-svc"
+  DB_PORT: "5432"
+  DB_POOL_SIZE: "50"
+    # App migrations
+  DB_MIGRATE: "true"
+resources_api:
+  cpu: "10m"
+  cpu_limit: "1"
+  memory: "150Mi"
+  memory_limit: "300Mi"
+
+
+
+## DB ##
+image_db:
+  repository: nebo15/alpine-postgre
+  tag: pglogical
+
+env_db:
+  app: "postgresql"
+  version: "9.6"
+  #DB_USER: API - POSTGRES_DB: DB
+  POSTGRES_USER: "db"
+  #DB_PASSWORD: API and DB
+  POSTGRES_PASSWORD: ""
+  PGDATA: "/var/lib/postgresql/data"
+  #DB_NAME: API
+  POSTGRES_DB: "uaddresses"
+  REPLICATOR_USER: "pghoard"
+  REPLICATOR_PASSWORD: ""
+  db_port: "5432"
+
+resources_db:
+  cpu: "50m"
+  memory: "512Mi"
+  limits_memory: "1Gi"
+  storage: "50Gi"
+
+rollingUpdate:
+  maxSurge: "1"
+  maxUnavailable: "1"
+
+env: demo
+
+deployNotification:
+  enabled: false
+  slackEndpoint:
+  slackChannel:
+  slackUsername:
+  slackEmoji:

@@ -1,0 +1,122 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: api
+  labels:
+    app: api
+    version: {{ .Values.image_api.tag }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: api
+  strategy:
+    rollingUpdate:
+      maxSurge: {{ .Values.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.rollingUpdate.maxUnavailable }}
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: api
+        version: {{ .Values.image_api.tag }}
+    spec:
+      containers:
+      - name: report-api
+        image: {{ .Values.image_api.repository }}:{{ .Values.image_api.tag }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 4000
+          protocol: TCP
+        env:
+        # Phoenix
+        - name: PORT
+          value: "{{ .Values.env_api.port }}"
+        - name: HOST
+          value: "{{ .Values.env_api.host }}"
+        - name: SECRET_KEY
+          value: "{{ .Values.env_api.secret }}"
+        - name: ERLANG_COOKIE
+          value: "{{ .Values.env_api.ERLANG_COOKIE }}"
+        # Database
+        - name: DB_NAME
+          value: "{{ .Values.env_db.POSTGRES_DB }}"
+        - name: DB_USER
+          value: "{{ .Values.env_db.POSTGRES_USER }}"
+        - name: DB_PASSWORD
+  {{- if .Values.env_db.POSTGRES_PASSWORD }}
+          value: "{{ .Values.env_db.POSTGRES_PASSWORD }}"
+  {{ else }}
+          valueFrom:
+             secretKeyRef:
+               name: db
+               key: DB_PASSWORD
+  {{ end }}
+        - name: DB_HOST
+          value: "{{ .Values.env_api.DB_HOST }}"
+        - name: DB_PORT
+          value: "{{ .Values.env_api.DB_PORT }}"
+        - name: DB_POOL_SIZE
+          value: "{{ .Values.env_api.DB_POOL_SIZE }}"
+        - name: SOURCE_NUMBER
+          value: "{{ .Values.env_api.SOURCE_NUMBER }}"
+        # App migrations
+        - name: DB_MIGRATE
+          value: "{{ .Values.env_api.DB_MIGRATE }}"
+        - name: GANDALF_DECISION_URL
+          value: "{{ .Values.env_api.GANDALF_DECISION_URL }}"
+        - name: GANDALF_USER
+          value: "{{ .Values.env_api.GANDALF_USER }}"
+        - name: GANDALF_PASSWORD
+          value: "{{ .Values.env_api.GANDALF_PASSWORD }}"
+        - name: GANDALF_APPLICATION_HEADER
+          value: "{{ .Values.env_api.GANDALF_APPLICATION_HEADER }}"
+        - name: MEDIA_STORAGE_ENABLED
+          value: "{{ .Values.env_api.MEDIA_STORAGE_ENABLED }}"
+        - name: VALIDATE_SIGNED_CONTENT
+          value: "{{ .Values.env_api.VALIDATE_SIGNED_CONTENT }}"
+        - name: MEDIA_STORAGE_CAPITATION_REPORT_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_CAPITATION_REPORT_BUCKET }}"
+        - name: MEDIA_STORAGE_DECLARATIONS_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_DECLARATIONS_BUCKET }}"
+        - name: REGIONS_STATS_CACHE_TTL
+          value: "{{ .Values.env_api.REGIONS_STATS_CACHE_TTL }}"
+        - name: MAIN_STATS_CACHE_TTL
+          value: "{{ .Values.env_api.MAIN_STATS_CACHE_TTL }}"
+        - name: HISTOGRAM_STATS_CACHE_TTL
+          value: "{{ .Values.env_api.HISTOGRAM_STATS_CACHE_TTL }}"
+        - name: DECLARATIONS_BY_REGIONS_TIMEOUT
+          value: "{{ .Values.env_api.DECLARATIONS_BY_REGIONS_TIMEOUT }}"
+        resources:
+          requests:
+            cpu: {{ .Values.resources_api.cpu }}
+            memory: {{ .Values.resources_api.memory }}
+          limits:
+            cpu: {{ .Values.resources_api.cpu_limit }}
+            memory: {{ .Values.resources_api.memory_limit }}
+        readinessProbe:
+          timeoutSeconds: 2
+          initialDelaySeconds: 50
+          failureThreshold: 3
+          tcpSocket:
+            port: 4000
+        livenessProbe:
+          timeoutSeconds: 2
+          initialDelaySeconds: 50
+          failureThreshold: 3
+          tcpSocket:
+            port: 4000
+      affinity:
+        podAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: postgres
+              topologyKey: failure-domain.beta.kubernetes.io/zone
+        {{- if or (eq .Values.env "prod") (eq .Values.env "preprod") }}
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.nodeSelector_api}}
+        {{ end }}

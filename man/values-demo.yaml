@@ -1,0 +1,72 @@
+image_fe:
+  image: nebo15/man.web
+  tag: "0.1.31"
+env_fe:
+  containerPort: 8080
+  value_API_ENDPOINT: "http://api-svc.man"
+  cpu: 50m
+  memory: 50Mi
+  replicas: 1
+  revisionHistoryLimit: 3
+  app: fe
+
+image_api:
+  repository: edenlabllc/man_api
+  tag: "1.68.1"
+
+env_api:
+   # Phoenix
+  port: "4000"
+  host: ""
+  secret: ""
+  ERLANG_COOKIE: ""
+    # Database
+  DB_HOST: "db-svc"
+  DB_PORT: "5432"
+  DB_POOL_SIZE: "50"
+    # App migrations
+  DB_MIGRATE: "true"
+
+resources_api:
+  cpu: "10m"
+  cpu_limit: "1"
+  memory: "100Mi"
+  memory_limit: "300Mi"
+
+
+image_db:
+  repository: nebo15/alpine-postgre
+  tag: pglogical
+
+env_db:
+  app: "postgresql"
+  version: "9.6"
+  POSTGRES_USER: "db"
+  POSTGRES_PASSWORD: ""
+  PGDATA: "/var/lib/postgresql/data"
+  POSTGRES_DB: "man"
+  REPLICATOR_USER: "pghoard"
+  REPLICATOR_PASSWORD: ""
+  db_port: "5432"
+
+service:
+  name: "db-svc"
+
+resources_db:
+  cpu: "50m"
+  memory: "512Mi"
+  limits_memory: "1Gi"
+  storage: "50Gi"
+
+rollingUpdate:
+  maxSurge: "1"
+  maxUnavailable: "1"
+
+env: demo
+
+deployNotification:
+  enabled: false
+  slackEndpoint:
+  slackChannel:
+  slackUsername:
+  slackEmoji:

@@ -1,0 +1,39 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: fe
+  labels:
+    app:  {{ .Values.env_fe.app}}
+    version: "{{ .Values.image_fe.tag}}"
+spec:
+  replicas: {{ .Values.env_fe.replicas}}
+  revisionHistoryLimit: {{ .Values.env_fe.revisionHistoryLimit}}
+  selector:
+    matchLabels:
+      app: {{ .Values.env_fe.app}}
+  template:
+    metadata:
+      labels:
+        app:  {{ .Values.env_fe.app}}
+        version: "{{ .Values.image_fe.tag}}"
+    spec:
+      containers:
+      - name: man-fe
+        image: {{ .Values.image_fe.image}}:{{ .Values.image_fe.tag}}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: {{ .Values.env_fe.containerPort}}
+          protocol: TCP
+        env:
+        - name: PORT
+          value:  "{{ .Values.env_fe.containerPort}}"
+        - name: API_ENDPOINT
+          value:  "{{ .Values.env_fe.value_API_ENDPOINT}}"
+        resources:
+          requests:
+            cpu: {{ .Values.env_fe.cpu}}
+            memory: {{ .Values.env_fe.memory}}
+        {{- if .Values.nodeSelector_api }}
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.nodeSelector_api}}
+        {{ end }}
