@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: fe
+  name: polyfill-web-svc
+  labels:
+    app: polyfill-web
+spec:
+  ports:
+  - port: 80
+    targetPort: {{ .Values.polyfill_web_env.PORT}}
+    protocol: TCP
+    name: public
+  selector:
+    app: polyfill-web
+  type: ClusterIP

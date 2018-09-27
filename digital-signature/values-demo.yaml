@@ -3,7 +3,7 @@
 #Docker image and tag for api
 image_api:
   repository: edenlabllc/digital_signature_api
-  tag: "1.60.0"
+  tag: "2.0.0"
 
 api:
   replicas: 1
@@ -50,6 +50,15 @@ env_db:
   REPLICATOR_PASSWORD: ""
   db_port: "5432"
   storage: "50Gi"
+
+log_backups:
+  enabled: true
+  period_in_seconds: "30"
+  image: google/cloud-sdk:198.0.0-alpine
+  log_folder: /var/lib/postgresql/data/pg_log
+  account: 
+  key_file_path:
+  bucket:
 
 resources_db:
   cpu: "50m"

@@ -117,6 +117,10 @@ spec:
           value: "{{ .Values.env_api.SENSITIVE_DATA_IN_RESPONSE_ENABLED }}"
         - name: TRUSTED_CLIENT_IDS
           value: "{{ .Values.env_api.TRUSTED_CLIENT_IDS }}"
+        - name: AUTH_ACCESS_TOKEN_LIFETIME
+          value: "{{ .Values.env_api.AUTH_ACCESS_TOKEN_LIFETIME }}"
+        - name: AUTH_REFRESH_TOKEN_LIFETIME
+          value: "{{ .Values.env_api.AUTH_REFRESH_TOKEN_LIFETIME }}"
         resources:
           requests:
             cpu: {{ .Values.resources_api.cpu }}

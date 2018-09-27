@@ -3,7 +3,7 @@
 #Docker image and tag for api
 image_api:
   repository: edenlabllc/otp_verification_api
-  tag: "1.45.13"
+  tag: "2.1.0"
 
 env_api:
    # --- Phoenix---#
@@ -59,6 +59,15 @@ resources_db:
   memory: "512Mi"
   limits_memory: "1Gi"
   storage: "50Gi"
+
+log_backups:
+  enabled: true
+  period_in_seconds: "30"
+  image: google/cloud-sdk:198.0.0-alpine
+  log_folder: /var/lib/postgresql/data/pg_log
+  account:
+  key_file_path:
+  bucket:
 
 rollingUpdate:
   maxSurge: "1"

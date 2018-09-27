@@ -3,7 +3,10 @@
 #Docker image and tag for api
 image_api:
   repository: edenlabllc/kong
-  tag: "0.0.22"
+  tag: "0.1.0"
+
+run_migration:
+  false
 
 env_api:
   KONG_PROXY_ACCESS_LOG:  "/dev/stdout"
@@ -21,8 +24,6 @@ resources_api:
   cpu: "50m"
   memory: "100Mi"
   memory_limit: "500Mi"
-
-
 
 ## DB ##
 image_db:
@@ -46,6 +47,18 @@ resources_db:
   memory: "112Mi"
   limits_memory: "1Gi"
   storage: "10Gi"
+
+log_backups:
+  enabled: true
+  period_in_seconds: "30"
+  image: google/cloud-sdk:198.0.0-alpine
+  log_folder: /var/lib/postgresql/data/pg_log
+  account:
+  key_file_path:
+  bucket:
+
+nodeSelector:
+  enabled: false
 
 rollingUpdate:
   maxSurge: "1"

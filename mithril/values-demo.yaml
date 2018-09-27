@@ -1,7 +1,6 @@
-
 image_fe:
-   image: edenlabllc/mithril.web
-   tag: "1.0.54"
+  image: edenlabllc/mithril.web
+  tag: "1.0.56"
 env_fe:
   containerPort: 8080
   CLIENT_ID:  ""
@@ -14,7 +13,7 @@ env_fe:
   replicas: 1
   revisionHistoryLimit: 3
   app: fe
-loadBalancerIP: 
+loadBalancerIP:
 
 ingress:
   active: true
@@ -24,7 +23,7 @@ ingress:
 #Docker image and tag for api
 image_api:
   repository: edenlabllc/mithril_api
-  tag: "2.5.0"
+  tag: "3.3.2"
 
 env_api:
    # --- Phoenix---#
@@ -64,18 +63,24 @@ env_api:
   OTP_MAX_ATTEMPTS: "3"
   OTP_SEND_TIMEOUT: "1" # minutes
   OTP_EXPIRATION_SCHEDULE: "*/5 * * * *"
-  # TOKEN_EXPIRATION_SCHEDULE: "* * * * *"
-  # MAX_FAILED_LOGINS_PERIOD: "5" # minutes
+  TOKEN_EXPIRATION_SCHEDULE: "* * * * *"
+  TOKEN_DELETING_SCHEDULE: "0,30 1-4 * * *"
   JWT_SECRET: ""
+  # tokens
+  AUTH_ACCESS_TOKEN_LIFETIME: "3600"
+  AUTH_REFRESH_TOKEN_LIFETIME: "1209600"
   # minutes
+  PASSWORD_EXPIRATION_DAYS: "90"
+  TOKEN_TTL_AFTER_EXPIRATION_DAYS: "30"
   JWT_LOGIN_TTL: "15"
+  SENSITIVE_DATA_IN_RESPONSE_ENABLED: "true"
+  TRUSTED_CLIENT_IDS: ""
+
 resources_api:
   cpu: "10m"
   cpu_limit: "1"
   memory: "150Mi"
   memory_limit: "400Mi"
-
-
 
 ## DB ##
 image_db:
@@ -101,6 +106,15 @@ resources_db:
   memory: "512Mi"
   limits_memory: "1Gi"
   storage: "50Gi"
+
+log_backups:
+  enabled: true
+  period_in_seconds: "30"
+  image: google/cloud-sdk:198.0.0-alpine
+  log_folder: /var/lib/postgresql/data/pg_log
+  account:
+  key_file_path:
+  bucket:
 
 rollingUpdate:
   maxSurge: "1"

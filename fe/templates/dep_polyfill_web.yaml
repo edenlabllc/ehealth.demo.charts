@@ -1,0 +1,55 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: fe
+  name: polyfill-web
+  labels:
+    app: polyfill-web
+    version: {{ .Values.image_polyfill_web.tag}}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: polyfill-web
+  template:
+    metadata:
+      labels:
+        app: polyfill-web
+        version: {{ .Values.image_polyfill_web.tag}}
+    spec:
+      containers:
+      - name: fe-polyfill-web
+        image: {{ .Values.image_polyfill_web.image}}:{{ .Values.image_polyfill_web.tag}}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: {{ .Values.polyfill_web_env.PORT}}
+          protocol: TCP
+        readinessProbe:
+          tcpSocket:
+            port: {{ .Values.polyfill_web_env.PORT}}
+          timeoutSeconds: 2
+          failureThreshold: 3
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: {{ .Values.polyfill_web_env.PORT}}
+          timeoutSeconds: 2
+          failureThreshold: 3
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        env:
+        {{- range $name, $value := .Values.polyfill_web_env }}
+        {{- if not (empty $value) }}
+        - name: {{ $name | quote }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
+        resources:
+          requests:
+            cpu: 50m
+            memory: 50Mi
+          limits:
+            memory: "512Mi"
+            cpu: "500m"

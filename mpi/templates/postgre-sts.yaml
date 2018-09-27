@@ -16,6 +16,26 @@ spec:
     spec:
       terminationGracePeriodSeconds: 10
       containers:
+      {{- if .Values.log_backups.enabled }}
+      - name: log-archiver
+        image: {{ .Values.log_backups.image }}
+        command:
+        - watch
+        - -n
+        - "{{ .Values.log_backups.period_in_seconds }}"
+        - |
+          gcloud auth activate-service-account \
+            {{ .Values.log_backups.account }} \
+            --key-file={{ .Values.log_backups.key_file_path }}
+           gsutil -m rsync -r -J \
+            {{ .Values.log_backups.log_folder }} \
+            {{ .Values.log_backups.bucket }}
+        volumeMounts:
+        - mountPath: /service-account
+          name: service-account-config
+        - mountPath: /var/lib/postgresql
+          name: "{{ .Values.env_db.app}}"
+      {{ end }}
       - name: mpi-postgresql
         image: {{ .Values.image_db.repository }}:{{ .Values.image_db.tag }}
         imagePullPolicy: IfNotPresent
@@ -76,7 +96,7 @@ spec:
       {{- if .Values.nodeSelector_db }}
       nodeSelector:
         cloud.google.com/gke-nodepool: {{ .Values.nodeSelector_db}}
-      {{- end}}   
+      {{- end}}
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -95,6 +115,11 @@ spec:
                 matchLabels:
                   app: "{{ .Values.env_db.app}}"
               topologyKey: "kubernetes.io/hostname"
+      volumes:
+      - name: service-account-config
+        secret:
+          secretName: psql-logs-backup-maker
+      {{- end }}
   volumeClaimTemplates:
   - metadata:
       name: postgresql

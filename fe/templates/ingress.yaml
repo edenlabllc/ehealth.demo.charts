@@ -13,15 +13,62 @@ spec:
       - backend:
           serviceName: admin-svc-traefik
           servicePort: 80
-  - host: {{ .Values.ingress.nhs_auth_host }}
+  - host: {{ .Values.ingress.auth_host }}
     http:
       paths:
-      - backend:
-          serviceName: auth-svc-traefik
+      - path: /
+        backend:
+          serviceName: auth-web-svc
+          servicePort: 80
+      - path: /polyfill.min.js
+        backend:
+          serviceName: polyfill-web-svc
           servicePort: 80
   - host: {{ .Values.ingress.nhs_portal_host }}
     http:
       paths:
       - backend:
           serviceName: portal-svc-traefik
+          servicePort: 80
+  - host: {{ .Values.ingress.proxy_host }}
+    http:
+      paths:
+      - backend:
+          serviceName: iit-proxy-web-svc
+          servicePort: 80
+  - host: {{ .Values.ingress.admin_host }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: admin-web-svc
+          servicePort: 80
+      - path: /auth
+        backend:
+          serviceName: admin-gatekeeper-web-svc
+          servicePort: 80
+      - path: /polyfill.min.js
+        backend:
+          serviceName: polyfill-web-svc
+          servicePort: 80
+  - host: {{ .Values.ingress.admin_legacy_host }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: admin-legacy-web-svc
+          servicePort: 80
+      - path: /auth
+        backend:
+          serviceName: admin-legacy-gatekeeper-web-svc
+          servicePort: 80
+      - path: /polyfill.min.js
+        backend:
+          serviceName: polyfill-web-svc
+          servicePort: 80
+  - host: {{ .Values.ingress.mock_server_host }}
+    http:
+      paths:
+      - backend:
+          serviceName: mock-server-web-svc
           servicePort: 80

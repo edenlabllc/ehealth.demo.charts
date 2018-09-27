@@ -3,7 +3,7 @@
 #Docker image and tag for api
 image_api:
   repository: edenlabllc/ops
-  tag: "1.145.1"
+  tag: "2.3.2"
 
 env_api:
    # --- Phoenix---#
@@ -75,6 +75,15 @@ resources_db:
   limits_memory: "1Gi"
   storage: "2Gi"
   storage_ops: "2Gi"
+
+log_backups:
+  enabled: true
+  period_in_seconds: "30"
+  image: google/cloud-sdk:198.0.0-alpine
+  log_folder: /var/lib/postgresql/data/pg_log
+  account: 
+  key_file_path:
+  bucket:
 
 env_blocks_db:
   app: "psql-blocks"

@@ -1,24 +1,38 @@
 
-## FE ADMIN ##
-image_admin:
-   image: edenlabllc/nhs.admin.web
-   tag: "0.1.122"
-   loadBalancerIP: 
-admin_env:
-    PORT: "8080"
-    API_HOST: ""
-    CLIENT_ID: ""
-    CLIENT_SECRET: ""
-    OAUTH_URL: ""
-    OAUTH_REDIRECT_URL: ""
-    #APP_ENV: "demo"
-    BI_URL: ""
+## FE ADMIN LEGACY ##
+image_admin_legacy_web:
+  image: edenlabllc/ehealth.admin-legacy-web
+  tag: "0.90.0"
+  loadBalancerIP:
+admin_legacy_web_env:
+  REACT_APP_API_HOST:  ""
+  REACT_APP_CLIENT_ID: ""
+  REACT_APP_OAUTH_URL: ""
+  REACT_APP_OAUTH_REDIRECT_URI: ""
+  REACT_APP_SIGNER_URL: ""
+  REACT_APP_APP_ENV: "demo"
+  REACT_APP_BI_URL: ""
+
+## FE ADMIN LEGACY GATEKEEPER ##
+admin_legacy_gatekeeper_web_env:
+  PORT: "4000"
+  API_URL: "http://api-svc.mithril"
+  OAUTH_REDIRECT_PATH: ""
+  OAUTH_REDIRECT_URI: ""
+  CLIENT_ID: ""
+  CLIENT_SECRET: ""
+  COOKIE_DOMAIN: ""
+
+## FE GATEKEEPER ##
+image_gatekeeper_web:
+  image: edenlabllc/ehealth.gatekeeper-web
+  tag: "0.90.0"
 
 ## FE AUTH ##
 image_AUTH:
    image: edenlabllc/nhs.auth.web
    tag: "0.2.60"
-   loadBalancerIP: 
+   loadBalancerIP:
 AUTH_env:
    PORT: "8080"
    API_ENDPOINT: ""
@@ -39,14 +53,45 @@ STATUS_env:
 image_PORTAL:
    image: edenlabllc/nhs.portal.web
    tag: "1.3.40"
-   loadBalancerIP: 
+   loadBalancerIP:
 PORTAL_env:
    API_ENDPOINT: ""
 
+## FE AUTH ##
+image_auth_web:
+  image: edenlabllc/ehealth.auth-web
+  tag: "0.76.0"
+  loadBalancerIP:
+auth_web_env:
+  REACT_APP_API_URL: ""
+  REACT_APP_AUTH_URL: ""
+  REACT_APP_PROXY_URL: ""
+  REACT_APP_CLIENT_ID: ""
+  REACT_APP_PATIENT_ACCOUNT_CLIENT_ID: ""
+  REACT_APP_PATIENT_ACCOUNT_REDIRECT_URI: "h"
+  REACT_APP_DIGITAL_SIGNATURE_ENABLED: "true"
+  REACT_APP_ALLOWED_SIGN_ORIGINS: ""
+
+## FE IIT PROXY ##
+image_iit_proxy_web:
+  image: edenlabllc/ehealth.iit-proxy-web
+  tag: "0.42.0"
+  loadBalancerIP:
+iit_proxy_web_env:
+  PORT: "5000"
+
+## FE POLYFILL ##
+image_polyfill_web:
+  image: edenlabllc/ehealth.polyfill-web
+  tag: "0.73.0"
+polyfill_web_env:
+  PORT: "4000"
+
 ingress:
-  nhs_admin_host:  
-  nhs_auth_host: 
-  nhs_portal_host: 
+  admin_legacy_host:
+  auth_host:
+  nhs_portal_host:
+  proxy_host:
 
 env: demo
 

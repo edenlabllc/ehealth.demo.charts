@@ -1,0 +1,51 @@
+{{- if  eq .Values.env "demo" }}
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: fe
+  name: admin-legacy-web
+  labels:
+    app: admin-legacy-web
+    version: {{ .Values.image_admin_legacy_web.tag}}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: admin-legacy-web
+  template:
+    metadata:
+      labels:
+        app: admin-legacy-web
+        version: {{ .Values.image_admin_legacy_web.tag}}
+    spec:
+      containers:
+      - name: fe-admin-legacy-web
+        image: {{ .Values.image_admin_legacy_web.image}}:{{ .Values.image_admin_legacy_web.tag}}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /sign-in/
+            port: 80
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 2
+          failureThreshold: 5
+        env:
+        {{- range $name, $value := .Values.admin_legacy_web_env }}
+        {{- if not (empty $value) }}
+        - name: {{ $name | quote }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
+        resources:
+          requests:
+            cpu: 50m
+            memory: 50Mi
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+{{- end }}
