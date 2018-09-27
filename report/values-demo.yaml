@@ -1,7 +1,7 @@
 
 image_api:
   repository: edenlabllc/report_api
-  tag: "1.122.0"
+  tag: "2.3.2"
 
 env_api:
    # Phoenix
@@ -21,9 +21,10 @@ env_api:
   GANDALF_PASSWORD: ""
   GANDALF_APPLICATION_HEADER: ""
   MEDIA_STORAGE_ENABLED: true
-  VALIDATE_SIGNED_CONTENT: true
   MEDIA_STORAGE_DECLARATIONS_BUCKET: "declarations-dev"
   MEDIA_STORAGE_CAPITATION_REPORT_BUCKET: "capitation-reports-dev"
+  CAPITATION_REPORT_VALIDATE_SIGNATURE: true
+  CAPITATION_SCHEDULE: "0 0 1 * *"
   MAIN_STATS_CACHE_TTL: "60000"
   REGIONS_STATS_CACHE_TTL: "300000"
   HISTOGRAM_STATS_CACHE_TTL: "300000"
@@ -48,6 +49,16 @@ env_db:
   REPLICATOR_USER: "pghoard"
   REPLICATOR_PASSWORD: ""
   db_port: "5432"
+
+log_backups:
+  enabled: true
+  period_in_seconds: "30"
+  image: google/cloud-sdk:198.0.0-alpine
+  log_folder: /var/lib/postgresql/data/pg_log
+  account: 
+  key_file_path:
+  bucket:
+
 
 service:
   name: "db-svc"

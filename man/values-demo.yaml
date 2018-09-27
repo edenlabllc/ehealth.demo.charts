@@ -12,7 +12,7 @@ env_fe:
 
 image_api:
   repository: edenlabllc/man_api
-  tag: "1.68.1"
+  tag: "2.2.3"
 
 env_api:
    # Phoenix
@@ -57,6 +57,15 @@ resources_db:
   memory: "512Mi"
   limits_memory: "1Gi"
   storage: "50Gi"
+
+log_backups:
+  enabled: true
+  period_in_seconds: "30"
+  image: google/cloud-sdk:198.0.0-alpine
+  log_folder: /var/lib/postgresql/data/pg_log
+  account:
+  key_file_path:
+  bucket:
 
 rollingUpdate:
   maxSurge: "1"

@@ -3,7 +3,7 @@
 #Docker image and tag for api
 image_api:
   repository: edenlabllc/ehealth
-  tag: "7.174.0"
+  tag: "8.7.0"
 
 env_api:
    # --- Phoenix---#
@@ -81,6 +81,9 @@ env_api:
   OAUTH_REQUEST_TIMEOUT: "30000"
           # Digital signature
   DIGITAL_SIGNATURE_ENDPOINT: "http://api-svc.digital-signature"
+          # Casher
+  CASHER_ENDPOINT: "http://casher-svc.il"
+  CASHER_REQUEST_TIMEOUT: "30000"
           # Media storage
   MEDIA_STORAGE_ENDPOINT: "http://api-svc.ael"
   MEDIA_STORAGE_ENABLED: true
@@ -88,13 +91,15 @@ env_api:
   MEDIA_STORAGE_DECLARATION_BUCKET: "declarations-dev"
   MEDIA_STORAGE_DECLARATION_REQUEST_BUCKET: "declaration-requests-dev"
   MEDIA_STORAGE_MEDICATION_REQUEST_REQUEST_BUCKET: "medication-request-requests-dev"
+  MEDIA_STORAGE_CONTRACT_BUCKET: "contracts-dev"
   MEDIA_STORAGE_CONTRACT_REQUEST_BUCKET: "contract-requests-dev"
+  MEDIA_STORAGE_PERSON_BUCKET: "persons-dev"
 
           # Bamboo
   POSTMARK_ENDPOINT: ""
   POSTMARK_API_KEY: ""
           # employee request invitation
-  BAMBOO_MAILER: EHealth.Bamboo.PostmarkMailer
+  BAMBOO_MAILER: Core.Bamboo.PostmarkMailer
   MAILGUN_API_KEY: ""
   MAILGUN_DOMAIN: ""
   BAMBOO_SMTP_SERVER: ""
@@ -148,7 +153,6 @@ env_api:
   CIPHER_IVPHRASE: ""
   OWNER_POSITIONS: "P1, P2, P3, P4, P5, P19"
   EMPLOYEE_REQUEST_AUTOTERMINATION_SCHEDULE: "* * * * *"
-  BAMBOO_MAILER: EHealth.Bamboo.PostmarkMailer
   DECLARATION_REQUEST_AUTOTERMINATION_SCHEDULE: "* * * * *"
   # Cabinet
   JWT_SECRET: ""
@@ -156,8 +160,12 @@ env_api:
   JWT_TTL_REGISTRATION: "15"
   CABINET_ROLE_ID: ""
   CABINET_CLIENT_ID: ""
-
-
+  # Contract requests
+  CONTRACT_REQUEST_PRINTOUT_FORM_TEMPLATE_ID: 9
+  CONTRACT_REQUEST_PRINTOUT_FORM_APPENDIX_TEMPLATE_ID: 10
+  CONTRACT_AUTOTERMINATION_SCHEDULE: "*/15 * * * *"
+  # Deviation medication dispence
+  DEVIATION: "0.01"
       #resources
 resources_api:
   cpu: "10m"
@@ -191,6 +199,16 @@ resources_db:
   limits_memory: "1Gi"
   storage: "50Gi"
 
+log_backups:
+  enabled: true
+  period_in_seconds: "30"
+  image: google/cloud-sdk:198.0.0-alpine
+  log_folder: /var/lib/postgresql/data/pg_log
+  account:
+  key_file_path:
+  bucket:
+
+
 rollingUpdate:
   maxSurge: "1"
   maxUnavailable: "1"
@@ -199,3 +217,22 @@ env: demo
 
 deployNotification:
   enabled: false
+
+## Cacher ##
+image_casher:
+  repository: edenlabllc/casher
+  tag: "0.0.1"
+
+resources_casher:
+  cpu: "10m"
+  cpu_limit: "1"
+  memory: "100Mi"
+  memory_limit: "200Mi"
+
+env_casher:
+  host: "http://casher-svc.il"
+  port: "4000"
+  SECRET_KEY: ""
+  REDIS_HOST: "redis-master.redis.svc.cluster.local"
+  REDIS_POOL_SIZE: "5"
+  PERSON_DATA_TTL: "900"

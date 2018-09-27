@@ -1,6 +1,6 @@
 image_api:
   repository: edenlabllc/event_manager_web
-  tag: "0.9.0"
+  tag: "1.0.0"
 
 env_api:
    # Phoenix
@@ -14,6 +14,7 @@ env_api:
   DB_POOL_SIZE: "50"
   # APP
   DB_MIGRATE: "true"
+  MAX_EVENTS: 10000
 
 resources_api:
   cpu: "10m"
@@ -43,6 +44,15 @@ resources_db:
   memory: "512Mi"
   limits_memory: "1Gi"
   storage: "50Gi"
+
+log_backups:
+  enabled: true
+  period_in_seconds: "30"
+  image: google/cloud-sdk:198.0.0-alpine
+  log_folder: /var/lib/postgresql/data/pg_log
+  account: 
+  key_file_path:
+  bucket:
 
 rollingUpdate:
   maxSurge: "1"

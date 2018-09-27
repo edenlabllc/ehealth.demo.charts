@@ -1,6 +1,6 @@
 
 ## DB ##
-image_db: 
+image_db:
   repository: nebo15/alpine-postgre
   tag: pglogical-gis
 
@@ -9,7 +9,7 @@ env_db:
   version: "9.6"
   #DB_USER: API - POSTGRES_DB: DB
   POSTGRES_USER: "db"
-  #DB_PASSWORD: API and DB 
+  #DB_PASSWORD: API and DB
   POSTGRES_PASSWORD: ""
   PGDATA: "/var/lib/postgresql/data"
   #DB_NAME: API
@@ -24,3 +24,12 @@ resources_db:
   limits_memory: "1Gi"
   storage: "50Gi"
 storageClass: "dev"
+
+log_backups:
+  enabled: true
+  period_in_seconds: "30"
+  image: google/cloud-sdk:198.0.0-alpine
+  log_folder: /var/lib/postgresql/data/pg_log
+  account: 
+  key_file_path:
+  bucket:

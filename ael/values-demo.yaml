@@ -3,7 +3,7 @@
 #Docker image and tag for api
 image_api:
   repository: edenlabllc/ael_api
-  tag: "1.36.1"
+  tag: "2.0.0"
 
 env_api:
   # --- Phoenix---#

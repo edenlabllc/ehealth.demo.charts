@@ -1,0 +1,18 @@
+{{- if eq .Values.env "demo" }}
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: il
+  name: casher-svc
+  labels:
+    app: casher
+spec:
+  ports:
+  - port: 80
+    targetPort: 4000
+    protocol: TCP
+    name: http
+  selector:
+    app: casher
+  type: ClusterIP
+{{- end }}

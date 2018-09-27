@@ -1,0 +1,18 @@
+{{- if eq .Values.env "demo" }}
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: fe
+  name: admin-gatekeeper-web-svc
+  labels:
+    app: admin-gatekeeper-web
+spec:
+  ports:
+  - port: 80
+    targetPort: {{ .Values.admin_gatekeeper_web_env.PORT}}
+    protocol: TCP
+    name: public
+  selector:
+    app: admin-gatekeeper-web
+  type: ClusterIP
+{{- end }}
