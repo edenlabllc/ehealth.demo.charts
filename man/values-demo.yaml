@@ -26,6 +26,8 @@ env_api:
   DB_POOL_SIZE: "50"
     # App migrations
   DB_MIGRATE: "true"
+    # Auth_host
+  AUTH_HOST: ""
 
 resources_api:
   cpu: "10m"

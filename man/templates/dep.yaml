@@ -62,6 +62,8 @@ spec:
         # App migrations
         - name: DB_MIGRATE
           value: "{{ .Values.env_api.DB_MIGRATE }}"
+        - name: AUTH_HOST
+          value: "{{ .Values.env_api.AUTH_HOST }}"
         resources:
           requests:
             cpu: {{ .Values.resources_api.cpu }}
