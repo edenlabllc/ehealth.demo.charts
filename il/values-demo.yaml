@@ -94,6 +94,7 @@ env_api:
   MEDIA_STORAGE_CONTRACT_BUCKET: "contracts-dev"
   MEDIA_STORAGE_CONTRACT_REQUEST_BUCKET: "contract-requests-dev"
   MEDIA_STORAGE_PERSON_BUCKET: "persons-dev"
+  MEDIA_STORAGE_RELATED_LEGAL_ENTITY_BUCKET: "related-legal-entities-dev"
 
           # Bamboo
   POSTMARK_ENDPOINT: ""
