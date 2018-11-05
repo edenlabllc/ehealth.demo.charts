@@ -1,0 +1,59 @@
+{{- if or (eq .Values.env "dev") (eq .Values.env "demo") }}
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: fe
+  name: admin-gatekeeper-web
+  labels:
+    app: admin-gatekeeper-web
+    version: {{ .Values.image_gatekeeper_web.tag}}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: admin-gatekeeper-web
+  template:
+    metadata:
+      labels:
+        app: admin-gatekeeper-web
+        version: {{ .Values.image_gatekeeper_web.tag}}
+    spec:
+      containers:
+      - name: fe-admin-gatekeeper-web
+        image: {{ .Values.image_gatekeeper_web.image}}:{{ .Values.image_gatekeeper_web.tag}}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: {{ .Values.admin_gatekeeper_web_env.PORT}}
+          protocol: TCP
+        {{- if or (eq .Values.env "prod") (eq .Values.env "preprod") }}
+        readinessProbe:
+          tcpSocket:
+            port: {{ .Values.admin_gatekeeper_web_env.PORT}}
+          timeoutSeconds: 2
+          failureThreshold: 3
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: {{ .Values.admin_gatekeeper_web_env.PORT}}
+          timeoutSeconds: 2
+          failureThreshold: 3
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        {{ end }}
+        env:
+        {{- range $name, $value := .Values.admin_gatekeeper_web_env }}
+        {{- if not (empty $value) }}
+        - name: {{ $name | quote }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
+        resources:
+          requests:
+            cpu: 50m
+            memory: 50Mi
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+{{- end }}

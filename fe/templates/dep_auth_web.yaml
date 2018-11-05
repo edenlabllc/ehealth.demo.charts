@@ -2,29 +2,30 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   namespace: fe
-  name: admin-legacy-web
+  name: auth-web
   labels:
-    app: admin-legacy-web
-    version: {{ .Values.image_admin_legacy_web.tag}}
+    app: auth-web
+    version: {{ .Values.image_auth_web.tag}}
 spec:
   replicas: 1
   revisionHistoryLimit: 3
   selector:
     matchLabels:
-      app: admin-legacy-web
+      app: auth-web
   template:
     metadata:
       labels:
-        app: admin-legacy-web
-        version: {{ .Values.image_admin_legacy_web.tag}}
+        app: auth-web
+        version: {{ .Values.image_auth_web.tag}}
     spec:
       containers:
-      - name: fe-admin-legacy-web
-        image: {{ .Values.image_admin_legacy_web.image}}:{{ .Values.image_admin_legacy_web.tag}}
+      - name: fe-auth-web
+        image: {{ .Values.image_auth_web.image}}:{{ .Values.image_auth_web.tag}}
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
           protocol: TCP
+             {{- if or (eq .Values.env "prod") (eq .Values.env "preprod") }}
         readinessProbe:
           httpGet:
             path: /sign-in/
@@ -33,8 +34,9 @@ spec:
           timeoutSeconds: 5
           successThreshold: 2
           failureThreshold: 5
+             {{ end }}
         env:
-        {{- range $name, $value := .Values.admin_legacy_web_env }}
+        {{- range $name, $value := .Values.auth_web_env }}
         {{- if not (empty $value) }}
         - name: {{ $name | quote }}
           value: {{ $value | quote }}
@@ -47,3 +49,7 @@ spec:
           limits:
             memory: "128Mi"
             cpu: "100m"
+        {{- if .Values.nodeSelector_fe }}
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.nodeSelector_fe}}
+        {{ end }}
