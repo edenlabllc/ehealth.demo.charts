@@ -38,7 +38,7 @@ admin_legacy_web_env:
   REACT_APP_OAUTH_REDIRECT_URI: "<admin_legacy_url>/auth/redirect"
   REACT_APP_SIGNER_URL: "<auth_url>/sign"
   REACT_APP_APP_ENV: "demo"
-  REACT_APP_BI_URL: "https://app.powerbi.com/view?r=eyJrIjoiYTM5OGYzMjMtYjU3ZC00MjFjLWJlN2ItYjViNTY2MzkyMGQyIiwidCI6IjhjNzYwNTYxLTg0ZjUtNDYxNC05YjJkLTBkODU2ZmRjZWUyYSIsImMiOjl9"
+  REACT_APP_BI_URL: "<power_bi_url>"
 
 ## FE ADMIN LEGACY GATEKEEPER ##
 admin_legacy_gatekeeper_web_env:
