@@ -1,4 +1,3 @@
-{{- if eq .Values.env "demo" }}
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -54,4 +53,3 @@ spec:
           limits:
             memory: "128Mi"
             cpu: "100m"
-{{- end }}

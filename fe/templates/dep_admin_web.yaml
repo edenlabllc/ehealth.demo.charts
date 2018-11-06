@@ -1,0 +1,51 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: fe
+  name: admin-web
+  labels:
+    app: admin-web
+    version: {{ .Values.image_admin_web.tag}}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: admin-web
+  template:
+    metadata:
+      labels:
+        app: admin-web
+        version: {{ .Values.image_admin_web.tag}}
+    spec:
+      containers:
+      - name: fe-admin-web
+        image: {{ .Values.image_admin_web.image}}:{{ .Values.image_admin_web.tag}}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+          protocol: TCP
+             {{- if or (eq .Values.env "prod") (eq .Values.env "preprod") }}
+        readinessProbe:
+          httpGet:
+            path: /sign-in/
+            port: 80
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 2
+          failureThreshold: 5
+             {{ end }}
+        env:
+        {{- range $name, $value := .Values.admin_web_env }}
+        {{- if not (empty $value) }}
+        - name: {{ $name | quote }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
+        resources:
+          requests:
+            cpu: 50m
+            memory: 50Mi
+          limits:
+            memory: "128Mi"
+            cpu: "100m"

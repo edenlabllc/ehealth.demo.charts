@@ -6,13 +6,6 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: traefik
 spec:
-  rules:
-  - host: {{ .Values.ingress.nhs_admin_host }}
-    http:
-      paths:
-      - backend:
-          serviceName: admin-svc-traefik
-          servicePort: 80
   - host: {{ .Values.ingress.auth_host }}
     http:
       paths:
@@ -66,9 +59,4 @@ spec:
         backend:
           serviceName: polyfill-web-svc
           servicePort: 80
-  - host: {{ .Values.ingress.mock_server_host }}
-    http:
-      paths:
-      - backend:
-          serviceName: mock-server-web-svc
-          servicePort: 80
+
