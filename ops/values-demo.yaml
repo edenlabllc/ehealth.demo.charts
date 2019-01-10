@@ -77,7 +77,7 @@ resources_db:
   storage_ops: "2Gi"
 
 log_backups:
-  enabled: true
+  enabled: false
   period_in_seconds: "30"
   image: google/cloud-sdk:198.0.0-alpine
   log_folder: /var/lib/postgresql/data/pg_log
@@ -100,11 +100,11 @@ env_blocks_db:
   db_port: "5432"
   port_name: psql-blocks
 
-resources_db:
-  cpu: "50m"
-  memory: "512Mi"
-  limits_memory: "1Gi"
-  storage: "50Gi"
+# resources_db:
+#   cpu: "50m"
+#   memory: "128Mi"
+#   limits_memory: "1Gi"
+#   storage: "50Gi"
 
 rollingUpdate:
   maxSurge: "1"

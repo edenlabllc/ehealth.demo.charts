@@ -58,7 +58,7 @@ resources_db:
   storage: "50Gi"
 
 log_backups:
-  enabled: true
+  enabled: false
   period_in_seconds: "30"
   image:
   log_folder:

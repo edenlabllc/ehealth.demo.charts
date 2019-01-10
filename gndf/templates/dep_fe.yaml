@@ -1,7 +1,6 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  namespace: gndf
   name: fe
   labels:
     app: "fe"
@@ -52,5 +51,4 @@ spec:
           periodSeconds: 10
           successThreshold: 1
           timeoutSeconds: 60
-      nodeSelector:
-        cloud.google.com/gke-nodepool: monitoring
+

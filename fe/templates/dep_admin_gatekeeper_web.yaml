@@ -5,7 +5,7 @@ metadata:
   name: admin-gatekeeper-web
   labels:
     app: admin-gatekeeper-web
-    version: {{ .Values.image_gatekeeper_web.tag}}
+    version: {{ .Values.image_gatekeeper_web.tag }}
 spec:
   replicas: 1
   revisionHistoryLimit: 3
@@ -16,11 +16,11 @@ spec:
     metadata:
       labels:
         app: admin-gatekeeper-web
-        version: {{ .Values.image_gatekeeper_web.tag}}
+        version: {{ .Values.image_gatekeeper_web.tag }}
     spec:
       containers:
       - name: fe-admin-gatekeeper-web
-        image: {{ .Values.image_gatekeeper_web.image}}:{{ .Values.image_gatekeeper_web.tag}}
+        image: {{ .Values.image_gatekeeper_web.image }}:{{ .Values.image_gatekeeper_web.tag }}
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: {{ .Values.admin_gatekeeper_web_env.PORT}}

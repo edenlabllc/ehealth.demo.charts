@@ -25,7 +25,7 @@ resources_db:
   storage: "50Gi"
 
 log_backups:
-  enabled: true
+  enabled: false
   period_in_seconds: "30"
   image: google/cloud-sdk:198.0.0-alpine
   log_folder: /var/lib/postgresql/data/pg_log

@@ -73,10 +73,6 @@ spec:
             #            - $(POSTGRES_USER)
             #            - -d
             #            - $(POSTGRES_DB)
-      {{- if .Values.nodeSelector_db }}
-      nodeSelector:
-        cloud.google.com/gke-nodepool: {{ .Values.nodeSelector_db}}
-      {{- end}}
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -102,9 +98,6 @@ spec:
         app: "{{ .Values.env_blocks_db.app }}"
         version: "{{ .Values.env_blocks_db.version }}"
     spec:
-      {{- if ne .Values.storageClass "denovo" }}
-      storageClassName: ssd
-        {{- end}}
       accessModes:
         - ReadWriteOnce
       resources:

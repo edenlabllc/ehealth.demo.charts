@@ -5,7 +5,7 @@ metadata:
   name: admin-web
   labels:
     app: admin-web
-    version: {{ .Values.image_admin_web.tag}}
+    version: {{ .Values.image_admin_web.tag }}
 spec:
   replicas: 1
   revisionHistoryLimit: 3
@@ -16,11 +16,11 @@ spec:
     metadata:
       labels:
         app: admin-web
-        version: {{ .Values.image_admin_web.tag}}
+        version: {{ .Values.image_admin_web.tag }}
     spec:
       containers:
       - name: fe-admin-web
-        image: {{ .Values.image_admin_web.image}}:{{ .Values.image_admin_web.tag}}
+        image: {{ .Values.image_admin_web.image }}:{{ .Values.image_admin_web.tag }}
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80

@@ -37,6 +37,8 @@ spec:
           value: "{{ .Values.env_api.host }}"
         - name: APP_SECRET_KEY
           value: "{{ .Values.env_api.secret }}"
+        - name: ERLANG_COOKIE
+          value: "{{ .Values.env_api.ERLANG_COOKIE }}"
         - name: MAX_PERSONS_RESULT
           value: "{{ .Values.env_api.MAX_PERSONS_RESULT }}"
         # Database
@@ -84,6 +86,10 @@ spec:
           failureThreshold: 3
           tcpSocket:
             port: 4000
+        volumeMounts:
+          - mountPath: /app/config.toml
+            name: config
+            subPath: config.toml
       affinity:
         podAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -93,7 +99,7 @@ spec:
                 matchLabels:
                   app: postgres
               topologyKey: failure-domain.beta.kubernetes.io/zone
-        {{- if .Values.nodeSelector_api }}
-      nodeSelector:
-        cloud.google.com/gke-nodepool: {{ .Values.nodeSelector_api}}
-        {{ end }}
+      volumes:
+      - name: config
+        secret:
+          secretName: config-toml

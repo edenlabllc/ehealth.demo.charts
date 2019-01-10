@@ -48,7 +48,7 @@ proxyProtocol:
   trustedIPs:
   # - 10.0.0.0/8
 ssl:
-  enabled: true
+  enabled: false
   enforced: false
   insecureSkipVerify: false
   # https://docs.traefik.io/configuration/entrypoints/#specify-minimum-tls-version

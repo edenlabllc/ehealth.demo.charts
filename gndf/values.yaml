@@ -19,7 +19,7 @@ image_fe:
 
 env_fe:
   PORT: "8080"
-  API_ENDPOINT: ""
+  API_ENDPOINT: "http://api-svc.gndf.svc.cluster.local"
   API_CLIENTID: ""
   API_CLIENTSECRET: ""
 

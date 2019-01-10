@@ -1,7 +1,6 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  namespace: gndf
   name: db
   labels:
     app: mongodb
@@ -34,9 +33,7 @@ spec:
           requests:
             cpu: 200m
             memory: 512Mi
-      nodeSelector:
-        cloud.google.com/gke-nodepool: db-workloads
       volumes:
       - name: db-data
         persistentVolumeClaim:
-          claimName: gndf-pvc
+          claimName: gndf-db-data-claim
