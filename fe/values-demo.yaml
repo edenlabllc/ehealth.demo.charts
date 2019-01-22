@@ -8,7 +8,7 @@ admin_web_env:
   REACT_APP_CLIENT_ID: "<client_id>"
   REACT_APP_CLIENT_SECRET: "<client_secret>"
   REACT_APP_OAUTH_URL: "<auth_url>/sign-in"
-  REACT_APP_OAUTH_REDIRECT_URI: "https://admin.demo.asclepius.com.ua/auth/redirect"
+  REACT_APP_OAUTH_REDIRECT_URI: ""
   REACT_APP_SIGNER_URL: "<auth_url>/sign"
 
 ## FE ADMIN GATEKEEPER ##
