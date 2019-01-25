@@ -46,7 +46,7 @@ resources_db:
   cpu: "50m"
   memory: "112Mi"
   limits_memory: "1Gi"
-  storage: "50Gi"
+  storage: "10Gi"
 
 log_backups:
   enabled: false

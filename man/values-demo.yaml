@@ -12,7 +12,7 @@ env_fe:
 
 image_api:
   repository: edenlabllc/man_api
-  tag: "2.2.3"
+  tag: "2.3.7"
 
 env_api:
    # Phoenix
@@ -56,9 +56,9 @@ service:
 
 resources_db:
   cpu: "50m"
-  memory: "512Mi"
+  memory: "112Mi"
   limits_memory: "1Gi"
-  storage: "50Gi"
+  storage: "10Gi"
 
 log_backups:
   enabled: false

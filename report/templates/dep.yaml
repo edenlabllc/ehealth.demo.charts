@@ -64,14 +64,6 @@ spec:
         # App migrations
         - name: DB_MIGRATE
           value: "{{ .Values.env_api.DB_MIGRATE }}"
-        - name: GANDALF_DECISION_URL
-          value: "{{ .Values.env_api.GANDALF_DECISION_URL }}"
-        - name: GANDALF_USER
-          value: "{{ .Values.env_api.GANDALF_USER }}"
-        - name: GANDALF_PASSWORD
-          value: "{{ .Values.env_api.GANDALF_PASSWORD }}"
-        - name: GANDALF_APPLICATION_HEADER
-          value: "{{ .Values.env_api.GANDALF_APPLICATION_HEADER }}"
         - name: MEDIA_STORAGE_ENABLED
           value: "{{ .Values.env_api.MEDIA_STORAGE_ENABLED }}"
         - name: VALIDATE_SIGNED_CONTENT

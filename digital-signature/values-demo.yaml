@@ -49,7 +49,7 @@ env_db:
   REPLICATOR_USER: "pghoard"
   REPLICATOR_PASSWORD: ""
   db_port: "5432"
-  storage: "50Gi"
+  storage: "10Gi"
 
 log_backups:
   enabled: false
@@ -64,7 +64,7 @@ resources_db:
   cpu: "50m"
   memory: "512Mi"
   limits_memory: "1Gi"
-  storage: "50Gi"
+  storage: "10Gi"
 
 rollingUpdate:
   maxSurge: "1"

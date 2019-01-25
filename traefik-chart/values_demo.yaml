@@ -229,8 +229,8 @@ acme:
     ##
     # existingClaim:
 dashboard:
-  enabled: true
-  domain: dashboard.localhost
+  enabled: false
+  domain: local.exemple.com
   service:
     # annotations:
     #   key: value

@@ -6,6 +6,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: traefik
 spec:
+  rules:
   - host: {{ .Values.ingress.auth_host }}
     http:
       paths:

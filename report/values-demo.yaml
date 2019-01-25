@@ -16,10 +16,6 @@ env_api:
   SOURCE_NUMBER: "E-Health"
     # App migrations
   DB_MIGRATE: "true"
-  GANDALF_DECISION_URL: ""
-  GANDALF_USER: ""
-  GANDALF_PASSWORD: ""
-  GANDALF_APPLICATION_HEADER: ""
   MEDIA_STORAGE_ENABLED: true
   MEDIA_STORAGE_DECLARATIONS_BUCKET: "declarations-dev"
   MEDIA_STORAGE_CAPITATION_REPORT_BUCKET: "capitation-reports-dev"
@@ -33,7 +29,7 @@ env_api:
 resources_api:
   cpu: "10m"
   cpu_limit: "1"
-  memory: "128Mi"
+  memory: "112Mi"
   memory_limit: "350Mi"
 
 image_db:
@@ -65,9 +61,9 @@ service:
 
 resources_db:
   cpu: "50m"
-  memory: "128Mi"
+  memory: "112Mi"
   limits_memory: "1Gi"
-  storage: "50Gi"
+  storage: "10Gi"
 
 rollingUpdate:
   maxSurge: "1"

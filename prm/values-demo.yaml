@@ -22,7 +22,7 @@ resources_db:
   cpu: "50m"
   memory: "128Mi"
   limits_memory: "1Gi"
-  storage: "50Gi"
+  storage: "10Gi"
 storageClass: "dev"
 
 log_backups:
