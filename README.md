@@ -190,6 +190,8 @@ ewogICJ0eXBlIjogInRlc3Rfc2VydmljZV9hY2NvdW50IiwKICAicHJvamVjdF9pZCI6ICJ0ZXN0IiwK
   - `helm install -f uaddresses/values-demo.yaml --name uaddresses uaddresses --namespace uaddresses`
 
 12) Verification chart
+- create or copy `redis` secret to `verification` namespace
+  - `kubectl get secrets redis -n redis -o yaml | sed 's/namespace: redis/namespace: il/' | kubectl create -f -`
 - fill out `values.yaml`:
   - `HOST: "0.0.0.0"` - or some hostname
   - `SECRET: "<gen some value>"`
