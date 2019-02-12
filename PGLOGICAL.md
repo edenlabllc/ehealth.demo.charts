@@ -18,7 +18,7 @@ Currently there are four "provider" databases:
 * `OPS`,
 * `UADDRESSES`.
 
-There is 2 "subscriber" databases:
+And 2 "subscriber" databases:
 
 * `REPORT`
 * `FRAUD`
