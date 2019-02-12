@@ -31,6 +31,16 @@ spec:
         - containerPort: 4000
           protocol: TCP
         env:
+        - name: REDIS_HOST
+          value: redis-master.redis.svc.cluster.local
+        - name: REDIS_PORT
+          value: "6379"
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: redis-password
+              name: redis
+        env:
         # Phoenix
         - name: PORT
           value: "{{ .Values.env_api.port }}"
