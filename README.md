@@ -143,7 +143,7 @@ ewogICJ0eXBlIjogInRlc3Rfc2VydmljZV9hY2NvdW50IiwKICAicHJvamVjdF9pZCI6ICJ0ZXN0IiwK
   - `kubectl scale deployment -n kong --replicas 1 api`
 - fill out `redis` password in `kong-dev.yaml`
   - import config to `kong` app
-    - utility to do this with instruction can be found in `kongak` folder
+    - utility how to do it and instructions for it will be located in `kongak` folder
 
 7) Digital-signature chart
 - fill out `values.yaml`:
