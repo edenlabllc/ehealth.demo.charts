@@ -1,19 +1,19 @@
 # How to run cluster
 
-## Setup kubernetes
+## Create kubernetes cluster
 
 1) You can set up kubernetes in your environment using this instruction [kubernetes.io](https://kubernetes.io/docs/setup/)
 2) You can use `Google Kubernetes Engine`, more information about you can find here [GKE](https://cloud.google.com/kubernetes-engine/)
 
-## Install all charts
+## Deploy helm charts 
 
 1) Install `kubectl`, `kubedecode` and `helm`
 - Configure `kubectl` to connect the cluster
 - `helm init`
 
 2) Create all namespaces and secrets for db
-- This can be implemented in two ways
-  - You can create it manual
+- This can be implemented in two ways:
+  - You can create them manually
   - You can use script below  
 
 ```bash
