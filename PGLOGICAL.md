@@ -9,7 +9,7 @@ All necessary documentation can be found on [pglogical official webpage](https:/
 1. The pglogical extension must be installed on both provider and subscriber. You must run `CREATE EXTENSION pglogical` on both.
 2. Tables on the provider and subscriber must have the same names and be in the same schema.
 3. Tables on the provider and subscriber must have the same columns, with the same data types in each column. CHECK constraints, NOT NULL constraints, etc must be the same or weaker (more permissive) on the subscriber than the provider.
-4. You need to use db passwords generated in READMME.md, to insert it into `databasepassword` values into commands bellow.
+4. You need to use db passwords generated in paragraph 1 of the README.md file, to insert it into `databasepassword` values in commands bellow.
 
 Currently there are four "provider" databases:
 
