@@ -9,8 +9,7 @@ All necessary documentation can be found on [pglogical official webpage](https:/
 1. The pglogical extension must be installed on both provider and subscriber. You must run `CREATE EXTENSION pglogical` on both.
 2. Tables on the provider and subscriber must have the same names and be in the same schema.
 3. Tables on the provider and subscriber must have the same columns, with the same data types in each column. CHECK constraints, NOT NULL constraints, etc must be the same or weaker (more permissive) on the subscriber than the provider.
-
-## Prerequisites
+4. You need to use db passwords generated in paragraph 1 of the README.md file, to insert it into `databasepassword` values in commands bellow.
 
 Currently there are four "provider" databases:
 
@@ -19,31 +18,31 @@ Currently there are four "provider" databases:
 * `OPS`,
 * `UADDRESSES`.
 
-There is 2 "subscriber" databases:
+And 2 "subscriber" databases:
 
 * `REPORT`
 * `FRAUD`
 
-## How to configure providers databases?
+## How to configure databases providers (if needed), otherwise look at 'Configuring Logical replication'?
 
 For new pglogical deployment:
 
-1. run script on each database pod:
+1. Run script on each database pod:
 
     ```
     kubectl exec db-0 -it --namespace ops --context ehealth-dev bin/bash ./docker-entrypoint-initdb.d/replication.sh
     ```
 
-2. delete pod,
+2. Delete pod
 
-3. run:
+3. Execute sql request:
 
     ```sql
     CREATE EXTENSION pglogical;
     ```
 
 
-## Replicated tables for REPORT db
+## List of replicated tables for REPORT database
 
 ### PRM
 
@@ -96,7 +95,7 @@ For new pglogical deployment:
 | `contract_divisions`        |
 | `contract_employees`        |
 
-## Replicated tables for FRAUD db
+## List of replicated tables for FRAUD database
 
 ### PRM
 
@@ -132,7 +131,8 @@ For new pglogical deployment:
 | employee_requests    | `id,status,employee_id,inserted_at,updated_at`                                                         |
 | dictionaries         |                                                                                                        |
 
-### 1. Configuring Report database
+### Configuring Logical replication
+### 1. Setting up "subscribers" in REPORT and FRAUD databases
 
 To configure "subscriber" on REPORT or FRAUD databases, execute the following SQL scripts:
 
@@ -142,13 +142,13 @@ To configure "subscriber" on REPORT or FRAUD databases, execute the following SQ
     SELECT pglogical.drop_node('subscriber');
     ```
 
-* Create "subscriber" REPORT node:
+* Create "subscriber" in REPORT node:
 
     ```sql
     SELECT pglogical.create_node(node_name := 'subscriber', dsn := 'host=db-svc.reports.svc.cluster.local port=5432 dbname=report user=databaseuser password=databasepassword');
     ```
 
-* Create "subscriber" FRAUD node:
+* Create "subscriber" in FRAUD node:
 
     ```sql
     SELECT pglogical.create_node(node_name := 'subscriber', dsn := 'host=db-svc.fraud.svc.cluster.local port=5432 dbname=fraud user=databaseuser password=databasepassword');
@@ -209,13 +209,13 @@ To configure "provider" on PRM database, execute the following SQL scripts:
     SELECT pglogical.replication_set_add_table('fraud', 'program_medications', 'true');
     ```
 
-* Create subscription at REPORT databases:
+* Create subscription at REPORT database:
 
     ```sql
     SELECT pglogical.create_subscription(subscription_name := 'subscription_prm', provider_dsn := 'host=db-svc.prm.svc.cluster.local port=5432 dbname=prm user=databaseuser password=databasepassword');
     ```
 
-* Create subscription at FRAUD databases:
+* Create subscription at FRAUD database:
 
     ```sql
     SELECT pglogical.create_subscription(subscription_name := 'subscription_prm', provider_dsn := 'host=db-svc.prm.svc.cluster.local  port=5432 dbname=prm user=databaseuser password=databasepassword', replication_sets := '{fraud}');
@@ -294,7 +294,7 @@ To configure "provider" on MPI database, execute the following SQL scripts:
     SELECT pglogical.create_subscription(subscription_name := 'subscription_mpi', provider_dsn := 'host=db-svc.mpi.svc.cluster.local  port=5432 dbname=mpi user=databaseuser password=databasepassword');
     ```
 
-* Create subscription at FRAUD databases:
+* Create subscription at FRAUD database:
 
     ```sql
     SELECT pglogical.create_subscription(subscription_name := 'subscription_mpi', provider_dsn := 'host=db-svc.mpi.svc.cluster.local  port=5432 dbname=mpi user=databaseuser password=databasepassword', replication_sets := '{fraud}');
@@ -374,7 +374,7 @@ To configure "provider" on OPS database, execute the following SQL scripts:
     SELECT pglogical.create_subscription(subscription_name := 'subscription_ops', provider_dsn := 'host=db-svc.ops.svc.cluster.local  port=5432 dbname=ops user=databaseuser password=databasepassword');
     ```
 
-* Create subscription at FRAUD databases:
+* Create subscription at FRAUD database:
 
     ```sql
     SELECT pglogical.create_subscription(subscription_name := 'subscription_ops', provider_dsn := 'host=db-svc.ops.svc.cluster.local  port=5432 dbname=ops user=databaseuser password=databasepassword', replication_sets := '{fraud}');
@@ -411,7 +411,7 @@ To configure "provider" on IL database, execute the following SQL scripts:
    SELECT pglogical.replication_set_add_table('fraud', 'medication_request_requests', 'true');
    ```
 
-* Create subscription at FRAUD databases:
+* Create subscription at FRAUD database:
 
     ```sql
     SELECT pglogical.create_subscription(subscription_name := 'subscription_il', provider_dsn := 'host=db-svc.il.svc.cluster.local  port=5432 dbname=il user=databaseuser password=databasepassword', replication_sets := '{fraud}');
