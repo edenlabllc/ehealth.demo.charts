@@ -5,7 +5,7 @@ metadata:
   name: iit-proxy-web
   labels:
     app: iit-proxy-web
-    version: {{ .Values.image_iit_proxy_web.tag}}
+    version: {{ .Values.image_iit_proxy_web.tag }}
 spec:
   replicas: 1
   revisionHistoryLimit: 3
@@ -16,25 +16,25 @@ spec:
     metadata:
       labels:
         app: iit-proxy-web
-        version: {{ .Values.image_iit_proxy_web.tag}}
+        version: {{ .Values.image_iit_proxy_web.tag }}
     spec:
       containers:
       - name: fe-iit-proxy-web
-        image: {{ .Values.image_iit_proxy_web.image}}:{{ .Values.image_iit_proxy_web.tag}}
+        image: {{ .Values.image_iit_proxy_web.image }}:{{ .Values.image_iit_proxy_web.tag }}
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: {{ .Values.iit_proxy_web_env.PORT}}
+        - containerPort: {{ .Values.iit_proxy_web_env.PORT }}
           protocol: TCP
         readinessProbe:
           tcpSocket:
-            port: {{ .Values.iit_proxy_web_env.PORT}}
+            port: {{ .Values.iit_proxy_web_env.PORT }}
           timeoutSeconds: 2
           failureThreshold: 3
           initialDelaySeconds: 5
           periodSeconds: 10
         livenessProbe:
           tcpSocket:
-            port: {{ .Values.iit_proxy_web_env.PORT}}
+            port: {{ .Values.iit_proxy_web_env.PORT }}
           timeoutSeconds: 2
           failureThreshold: 3
           initialDelaySeconds: 5

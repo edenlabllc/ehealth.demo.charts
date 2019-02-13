@@ -5,7 +5,7 @@ metadata:
   name: admin-legacy-gatekeeper-web
   labels:
     app: admin-legacy-gatekeeper-web
-    version: {{ .Values.image_gatekeeper_web.tag}}
+    version: {{ .Values.image_gatekeeper_web.tag }}
 spec:
   replicas: 1
   revisionHistoryLimit: 3
@@ -16,25 +16,25 @@ spec:
     metadata:
       labels:
         app: admin-legacy-gatekeeper-web
-        version: {{ .Values.image_gatekeeper_web.tag}}
+        version: {{ .Values.image_gatekeeper_web.tag }}
     spec:
       containers:
       - name: fe-admin-legacy-gatekeeper-web
-        image: {{ .Values.image_gatekeeper_web.image}}:{{ .Values.image_gatekeeper_web.tag}}
+        image: {{ .Values.image_gatekeeper_web.image }}:{{ .Values.image_gatekeeper_web.tag }}
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: {{ .Values.admin_legacy_gatekeeper_web_env.PORT}}
+        - containerPort: {{ .Values.admin_legacy_gatekeeper_web_env.PORT }}
           protocol: TCP
         readinessProbe:
           tcpSocket:
-            port: {{ .Values.admin_legacy_gatekeeper_web_env.PORT}}
+            port: {{ .Values.admin_legacy_gatekeeper_web_env.PORT }}
           timeoutSeconds: 2
           failureThreshold: 3
           initialDelaySeconds: 5
           periodSeconds: 10
         livenessProbe:
           tcpSocket:
-            port: {{ .Values.admin_legacy_gatekeeper_web_env.PORT}}
+            port: {{ .Values.admin_legacy_gatekeeper_web_env.PORT }}
           timeoutSeconds: 2
           failureThreshold: 3
           initialDelaySeconds: 5

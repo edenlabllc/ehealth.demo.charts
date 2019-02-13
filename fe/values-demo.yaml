@@ -50,10 +50,6 @@ admin_legacy_gatekeeper_web_env:
   CLIENT_SECRET: "<client_secret>"
   COOKIE_DOMAIN: "<domain>"
 
-## FE GATEKEEPER ##
-image_gatekeeper_web:
-  image: edenlabllc/ehealth.gatekeeper-web
-  tag: "0.90.0"
 
 ## FE NHS AUTH ##
 image_AUTH:

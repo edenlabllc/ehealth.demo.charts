@@ -128,9 +128,6 @@ spec:
         app: "{{ .Values.env_db.app}}"
         version: "9.6"
     spec:
-      {{- if ne .Values.storageClass "denovo" }}
-      storageClassName: ssd
-        {{- end}}
       accessModes:
         - ReadWriteOnce
       resources:

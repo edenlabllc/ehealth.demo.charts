@@ -371,7 +371,4 @@ spec:
                 matchLabels:
                   app: postgres
               topologyKey: failure-domain.beta.kubernetes.io/zone
-        {{- if or (eq .Values.env "prod") (eq .Values.env "preprod") }}
-      nodeSelector:
-        cloud.google.com/gke-nodepool: {{ .Values.nodeSelector_api}}
-        {{ end }}
+

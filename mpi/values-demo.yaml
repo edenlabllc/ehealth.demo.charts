@@ -26,11 +26,8 @@ env_api:
 resources_api:
   cpu: "10m"
   cpu_limit: "1"
-  memory: "150Mi"
+  memory: "112Mi"
   memory_limit: "400Mi"
-
-
-
 
 ## DB ##
 image_db:
@@ -53,12 +50,12 @@ env_db:
 
 resources_db:
   cpu: "50m"
-  memory: "512Mi"
+  memory: "112Mi"
   limits_memory: "1Gi"
-  storage: "50Gi"
+  storage: "10Gi"
 
 log_backups:
-  enabled: true
+  enabled: false
   period_in_seconds: "30"
   image:
   log_folder:

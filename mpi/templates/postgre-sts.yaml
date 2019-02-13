@@ -115,6 +115,7 @@ spec:
                 matchLabels:
                   app: "{{ .Values.env_db.app}}"
               topologyKey: "kubernetes.io/hostname"
+      {{- if .Values.log_backups.enabled }}
       volumes:
       - name: service-account-config
         secret:
@@ -127,9 +128,6 @@ spec:
         app: "{{ .Values.env_db.app}}"
         version: "{{ .Values.env_db.version}}"
     spec:
-      {{- if ne .Values.storageClass "denovo" }}
-      storageClassName: ssd
-       {{- end}}
       accessModes:
         - ReadWriteOnce
       resources:

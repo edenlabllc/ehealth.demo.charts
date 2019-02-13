@@ -10,7 +10,7 @@ spec:
     spec:
       containers:
       - name: kong-migration
-        image: kong
+        image: {{ .Values.image_api.repository }}:{{ .Values.image_api.tag }}
         env:
           - name: KONG_PG_USER
             value: "{{ .Values.env_db.POSTGRES_USER }}"

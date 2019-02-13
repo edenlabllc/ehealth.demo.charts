@@ -1,4 +1,3 @@
-        {{- if or (eq .Values.env "dev") (eq .Values.env "demo") (eq .Values.env "denovo") (eq .Values.env "denovo-preprod")  }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -15,4 +14,3 @@ spec:
   selector:
     app: portal
   type: ClusterIP
-    {{ end }}
