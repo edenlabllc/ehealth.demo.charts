@@ -1,0 +1,19 @@
+{{- if ne .Values.env "prod" }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: postgresql
+  name: db-svc-nodeport
+  namespace: mithril
+spec:
+  ports:
+  - nodePort: 30015
+    port: 30015
+    protocol: TCP
+    targetPort: 5432
+  selector:
+    app: postgresql
+  #sessionAffinity: None
+  type: NodePort
+{{- end }}

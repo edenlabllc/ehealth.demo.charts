@@ -25,11 +25,20 @@ spec:
       containers:
       - name: ops-api
         image: {{ .Values.image_api.repository }}:{{ .Values.image_api.tag }}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
+        command: ["sh", "-c"]
+        args: ["POD_A_RECORD"]
+        args: ["export POD_A_RECORD=$(echo $POD_IP | sed 's/\\./\\-/g') && /app/bin/ops foreground"]
         ports:
         - containerPort: 4000
           protocol: TCP
         env:
+        - name: NAMESPACE
+          value: "{{ .Values.env_api.NAMESPACE }}"
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
         # Phoenix
         - name: PORT
           value: "{{ .Values.env_api.port }}"
@@ -59,6 +68,26 @@ spec:
           value: "{{ .Values.env_api.DB_PORT }}"
         - name: DB_POOL_SIZE
           value: "{{ .Values.env_api.DB_POOL_SIZE }}"
+        # Database read
+        - name: READ_DB_NAME
+          value: "{{ .Values.env_api.READ_DB_NAME }}"
+        - name: READ_DB_USER
+          value: "{{ .Values.env_api.READ_DB_USER }}"
+        - name: READ_DB_PASSWORD
+  {{- if .Values.env_db.POSTGRES_PASSWORD }}
+          value: "{{ .Values.env_db.POSTGRES_PASSWORD }}"
+  {{ else }}
+          valueFrom:
+             secretKeyRef:
+               name: db
+               key: DB_PASSWORD
+  {{ end }}
+        - name: READ_DB_HOST
+          value: "{{ .Values.env_api.READ_DB_HOST }}"
+        - name: READ_DB_PORT
+          value: "{{ .Values.env_api.READ_DB_PORT }}"
+        - name: READ_DB_POOL_SIZE
+          value: "{{ .Values.env_api.READ_DB_POOL_SIZE }}"
         # Blocks database
         - name: BLOCK_DB_NAME
           value: "{{ .Values.env_blocks_db.POSTGRES_DB }}"
@@ -110,6 +139,8 @@ spec:
         # App migrations
         - name: DB_MIGRATE
           value: "{{ .Values.env_api.DB_MIGRATE }}"
+        - name: IL_ENDPOINT
+          value: "{{ .Values.env_api.IL_ENDPOINT }}"
         resources:
           requests:
             cpu: {{ .Values.resources_api.cpu }}

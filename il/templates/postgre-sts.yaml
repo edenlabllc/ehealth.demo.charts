@@ -1,6 +1,7 @@
 apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
+  namespace: il
   name: db
   labels:
     app: "{{ .Values.env_db.app}}"
@@ -27,6 +28,7 @@ spec:
           gcloud auth activate-service-account \
             {{ .Values.log_backups.account }} \
             --key-file={{ .Values.log_backups.key_file_path }}
+           # TODO: skip logging for pghoard user
            gsutil -m rsync -r -J \
             {{ .Values.log_backups.log_folder }} \
             {{ .Values.log_backups.bucket }}
@@ -94,6 +96,10 @@ spec:
             - $(POSTGRES_USER)
             - -d
             - $(POSTGRES_DB)
+      {{- if .Values.nodeSelector_db }}
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.nodeSelector_db}}
+      {{- end}}
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:

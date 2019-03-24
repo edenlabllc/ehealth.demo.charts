@@ -1,0 +1,60 @@
+abac_api:
+  repository: edenlabllc/abac_api
+  tag: "1.0.1"
+  name: "api"
+
+abac_log_consumer:
+  repository: edenlabllc/abac_log_consumer
+  tag: "1.0.0"
+  name: "abac-log-consumer"
+
+env_api:
+  #RPC
+  NAMESPACE: abac
+   # Phoenix
+  PORT: "4000"
+  HOST: ""
+  SECRET_KEY: ""
+  ERLANG_COOKIE: ""
+    # Database
+  REDIS_HOST: "redis-master.redis.svc.cluster.local"
+  KAFKA_BROKERS: "kafka.kafka.svc.cluster.local:9092"
+
+
+env_abac_log_consumer:
+  #RPC
+  NAMESPACE: abac
+   # Phoenix
+  PORT: "4000"
+  HOST: ""
+  SECRET_KEY: ""
+  ERLANG_COOKIE: ""
+    # Database
+  REDIS_HOST: "redis-master.redis.svc.cluster.local"
+  DB_URL: mongodb://mongodb.me-db.svc.cluster.local:27017/abac_logs
+  KAFKA_BROKERS: "kafka.kafka.svc.cluster.local:9092"
+
+resources_api:
+  cpu: "10m"
+  cpu_limit: "1"
+  memory: "100Mi"
+  memory_limit: "300Mi"
+
+resources_abac_log_consumer:
+  cpu: "10m"
+  cpu_limit: "1"
+  memory: "100Mi"
+  memory_limit: "300Mi"
+
+rollingUpdate:
+  maxSurge: "1"
+  maxUnavailable: "1"
+
+env: demo
+
+deployNotification:
+  enabled: false
+  slackEndpoint:
+  slackChannel:
+  slackUsername:
+  slackEmoji:

@@ -25,11 +25,21 @@ spec:
       containers:
       - name: mpi-api
         image: {{ .Values.image_api.repository }}:{{ .Values.image_api.tag }}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
+        command: ["sh", "-c"]
+        args: ["POD_A_RECORD"]
+        args: ["export POD_A_RECORD=$(echo $POD_IP | sed 's/\\./\\-/g') && /app/bin/mpi foreground"]
         ports:
         - containerPort: 4000
           protocol: TCP
         env:
+        # RPC env
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: NAMESPACE
+          value: "{{ .Values.env_api.NAMESPACE }}"
         # Phoenix
         - name: APP_PORT
           value: "{{ .Values.env_api.port }}"
@@ -41,6 +51,12 @@ spec:
           value: "{{ .Values.env_api.ERLANG_COOKIE }}"
         - name: MAX_PERSONS_RESULT
           value: "{{ .Values.env_api.MAX_PERSONS_RESULT }}"
+        - name: DEDUPLICATION_SCORE
+          value: "{{ .Values.env_api.DEDUPLICATION_SCORE }}"
+        - name: DEDUPLICATION_MANUAL_SCORE_MIN
+          value: "{{ .Values.env_api.DEDUPLICATION_MANUAL_SCORE_MIN }}"
+        - name: DEDUPLICATION_MANUAL_SCORE_MAX
+          value: "{{ .Values.env_api.DEDUPLICATION_MANUAL_SCORE_MAX }}"
         # Database
         - name: DB_NAME
           value: "{{ .Values.env_db.POSTGRES_DB }}"
@@ -59,7 +75,7 @@ spec:
           value: "{{ .Values.env_api.DB_HOST }}"
         - name: DB_PORT
           value: "{{ .Values.env_api.DB_PORT }}"
-        - name: DB_POOL_SIZE
+        - name: POOL_SIZE
           value: "{{ .Values.env_api.DB_POOL_SIZE }}"
         # App migrations
         - name: DB_MIGRATE
@@ -67,6 +83,52 @@ spec:
         # App config
         - name: DEDUPLICATION_SCHEDULE
           value: "{{ .Values.env_api.DEDUPLICATION_SCHEDULE }}"
+        - name: DB_DEDUPLICATION_NAME
+          value: "{{ .Values.env_api.DB_DEDUPLICATION_NAME }}"
+        - name: DB_DEDUPLICATION_USER
+          value: "{{ .Values.env_api.DB_DEDUPLICATION_USER }}"
+        - name: DB_DEDUPLICATION_PASSWORD
+  {{- if .Values.env_db_dedup.POSTGRES_PASSWORD }}
+          value: "{{ .Values.env_db_dedup.POSTGRES_PASSWORD }}"
+  {{ else }}
+          valueFrom:
+             secretKeyRef:
+               name: db
+               key: DB_PASSWORD
+  {{ end }}
+        - name: DB_DEDUPLICATION_HOST
+          value: "{{ .Values.env_api.DB_DEDUPLICATION_HOST }}"
+        - name: DB_DEDUPLICATION_PORT
+          value: "{{ .Values.env_api.DB_DEDUPLICATION_PORT }}"
+        - name: DEDUPLICATION_POOL_SIZE
+          value: "{{ .Values.env_api.DEDUPLICATION_POOL_SIZE }}"
+        - name: KAFKA_BROKERS
+          value: "{{ .Values.env_api.KAFKA_BROKERS }}"
+          {{- if or (eq .Values.env "dev") (eq .Values.env "demo") (eq .Values.env "preprod") (eq .Values.env "prod") }}
+        - name: MAX_POSTPONED_MANUAL_MERGE_REQUESTS
+          value: "{{ .Values.env_api.MAX_POSTPONED_MANUAL_MERGE_REQUESTS }}"
+        - name: MANUAL_MERGE_QUORUM
+          value: "{{ .Values.env_api.MANUAL_MERGE_QUORUM }}"
+        - name: DB_READ_USER
+          value: "{{ .Values.env_api.DB_READ_USER }}"
+        - name: DB_READ_NAME
+          value: "{{ .Values.env_api.DB_READ_NAME }}"
+        - name: DB_READ_HOST
+          value: "{{ .Values.env_api.DB_READ_HOST }}"
+        - name: DB_READ_PORT
+          value: "{{ .Values.env_api.DB_READ_PORT }}"
+        - name: READ_POOL_SIZE
+          value: "{{ .Values.env_api.READ_POOL_SIZE }}"
+        - name: DB_READ_PASSWORD
+  {{- if .Values.env_api.DB_READ_PASSWORD }}
+          value: "{{ .Values.env_api.DB_READ_PASSWORD }}"
+  {{ else }}
+          valueFrom:
+             secretKeyRef:
+               name: db
+               key: DB_PASSWORD
+  {{ end }}
+          {{- end }}
         resources:
           requests:
             cpu: {{ .Values.resources_api.cpu }}
@@ -86,10 +148,6 @@ spec:
           failureThreshold: 3
           tcpSocket:
             port: 4000
-        volumeMounts:
-          - mountPath: /app/config.toml
-            name: config
-            subPath: config.toml
       affinity:
         podAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -99,7 +157,7 @@ spec:
                 matchLabels:
                   app: postgres
               topologyKey: failure-domain.beta.kubernetes.io/zone
-      volumes:
-      - name: config
-        secret:
-          secretName: config-toml
+        {{- if .Values.nodeSelector_api }}
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.nodeSelector_api}}
+        {{ end }}

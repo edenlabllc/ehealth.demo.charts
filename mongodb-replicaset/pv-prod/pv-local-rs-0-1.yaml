@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-mongodb-0-1
+spec:
+  storageClassName: local-storage
+  capacity:
+    storage: 700Gi
+  accessModes:
+  - ReadWriteOnce
+  hostPath:
+    path: "/mongodb/rs0-1"
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - k8s-mongodb-0-1

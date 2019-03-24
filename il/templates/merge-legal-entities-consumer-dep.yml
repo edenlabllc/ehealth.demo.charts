@@ -1,0 +1,420 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: il
+  name: merge-legal-entities-consumer
+  labels:
+    app: merge-legal-entities-consumer
+    version: {{ .Values.image_api.tag }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: merge-legal-entities-consumer
+  strategy:
+    rollingUpdate:
+      maxSurge: {{ .Values.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.rollingUpdate.maxUnavailable }}
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: merge-legal-entities-consumer
+        version: {{ .Values.image_merge_legal_entities_consumer.tag }}
+    spec:
+      containers:
+      - name: merge-legal-entities-consumer
+        image:  {{ .Values.image_merge_legal_entities_consumer.repository }}:{{ .Values.image_merge_legal_entities_consumer.tag }}
+        imagePullPolicy: Always
+        command: ["sh", "-c"]
+        args: ["POD_A_RECORD"]
+        args: ["export POD_A_RECORD=$(echo $POD_IP | sed 's/\\./\\-/g') && /app/bin/merge_legal_entities_consumer foreground"]
+        ports:
+        - containerPort: 4000
+          protocol: TCP
+        env:
+        # RPC env
+        - name: NAMESPACE
+          value: "{{ .Values.env_api.NAMESPACE }}"
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        # GraphQL env
+        - name: SECRET_KEY
+          value: "{{ .Values.env_graphql.SECRET_KEY }}"
+        # ENV from env_api
+        - name: LOG_LEVEL
+          value: "debug"
+        # Phoenix
+        - name: ERLANG_COOKIE
+          value: "{{ .Values.env_api.ERLANG_COOKIE }}"
+        # Database
+        - name: MONGO_DB_URL
+          value: "{{ .Values.env_graphql.MONGO_DB_URL }}"
+        - name: DB_NAME
+          value: "{{ .Values.env_api.DB_NAME }}"
+        - name: DB_USER
+          value: "{{ .Values.env_api.DB_USER }}"
+        - name: DB_PASSWORD
+  {{- if .Values.env_db.POSTGRES_PASSWORD }}
+          value: "{{ .Values.env_db.POSTGRES_PASSWORD }}"
+  {{ else }}
+          valueFrom:
+             secretKeyRef:
+               name: db
+               key: DB_PASSWORD
+  {{ end }}
+        - name: DB_HOST
+          value: "{{ .Values.env_api.DB_HOST }}"
+        - name: DB_PORT
+          value: "{{ .Values.env_api.DB_PORT }}"
+        - name: DB_POOL_SIZE
+          value: "{{ .Values.env_api.DB_POOL_SIZE }}"
+        # DB READ ENV
+        - name: READ_DB_NAME
+          value: "{{ .Values.env_api.READ_DB_NAME }}"
+        - name: READ_DB_USER
+          value: "{{ .Values.env_api.READ_DB_USER }}"
+        - name: READ_DB_PASSWORD
+  {{- if .Values.env_db.POSTGRES_PASSWORD }}
+          value: "{{ .Values.env_db.POSTGRES_PASSWORD }}"
+  {{ else }}
+          valueFrom:
+             secretKeyRef:
+               name: db
+               key: DB_PASSWORD
+  {{ end }}
+        - name: READ_DB_HOST
+          value: "{{ .Values.env_api.READ_DB_HOST }}"
+        - name: READ_DB_PORT
+          value: "{{ .Values.env_api.READ_DB_PORT }}"
+        - name: READ_DB_POOL_SIZE
+          value: "{{ .Values.env_api.READ_DB_POOL_SIZE }}"
+        # PRM Database
+        - name: PRM_DB_NAME
+          value: "{{ .Values.env_api.PRM_DB_NAME }}"
+        - name: PRM_DB_USER
+          value: "{{ .Values.env_api.PRM_DB_USER }}"
+        - name: PRM_DB_PASSWORD
+  {{- if .Values.env_api.PRM_DB_PASSWORD }}
+          value: "{{ .Values.env_api.PRM_DB_PASSWORD }}"
+  {{ else }}
+          valueFrom:
+             secretKeyRef:
+               name: db
+               key: PRM_PASSWORD
+  {{ end }}
+        - name: PRM_DB_HOST
+          value: "{{ .Values.env_api.PRM_DB_HOST }}"
+        - name: PRM_DB_PORT
+          value: "{{ .Values.env_api.PRM_DB_PORT }}"
+        - name: PRM_DB_POOL_SIZE
+          value: "{{ .Values.env_api.PRM_DB_POOL_SIZE }}"
+          # PRM READ Database
+        - name: READ_PRM_DB_NAME
+          value: "{{ .Values.env_api.READ_PRM_DB_NAME }}"
+        - name: READ_PRM_DB_USER
+          value: "{{ .Values.env_api.READ_PRM_DB_USER }}"
+        - name: READ_PRM_DB_PASSWORD
+  {{- if .Values.env_api.READ_PRM_DB_PASSWORD }}
+          value: "{{ .Values.env_api.READ_PRM_DB_PASSWORD }}"
+  {{ else }}
+          valueFrom:
+             secretKeyRef:
+               name: db
+               key: PRM_PASSWORD
+  {{ end }}
+        - name: READ_PRM_DB_HOST
+          value: "{{ .Values.env_api.READ_PRM_DB_HOST }}"
+        - name: READ_PRM_DB_PORT
+          value: "{{ .Values.env_api.READ_PRM_DB_PORT }}"
+        - name: READ_PRM_DB_POOL_SIZE
+          value: "{{ .Values.env_api.READ_PRM_DB_POOL_SIZE }}"
+        {{- if .Values.env_api.EM_ENABLED }}
+        # EventManager Database
+        - name: EVENT_MANAGER_DB_NAME
+          value: "{{ .Values.env_api.EVENT_MANAGER_DB_NAME }}"
+        - name: EVENT_MANAGER_DB_USER
+          value: "{{ .Values.env_api.EVENT_MANAGER_DB_USER }}"
+        - name: EVENT_MANAGER_DB_PASSWORD
+  {{- if .Values.env_api.EVENT_MANAGER_DB_PASSWORD }}
+          value: "{{ .Values.env_api.EVENT_MANAGER_DB_PASSWORD }}"
+  {{ else }}
+          valueFrom:
+             secretKeyRef:
+               name: db
+               key: EM_PASSWORD
+  {{ end }}
+        - name: EVENT_MANAGER_DB_HOST
+          value: "{{ .Values.env_api.EVENT_MANAGER_DB_HOST }}"
+        - name: EVENT_MANAGER_DB_PORT
+          value: "{{ .Values.env_api.EVENT_MANAGER_DB_PORT }}"
+        - name: EVENT_MANAGER_DB_POOL_SIZE
+          value: "{{ .Values.env_api.EVENT_MANAGER_DB_POOL_SIZE }}"
+         {{ end }}
+        # Block Database
+        - name: BLOCK_DB_NAME
+          value: "{{ .Values.env_api.BLOCK_DB_NAME }}"
+        - name: BLOCK_DB_USER
+          value: "{{ .Values.env_api.BLOCK_DB_USER }}"
+        - name: BLOCK_DB_PASSWORD
+  {{- if .Values.env_api.BLOCK_DB_PASSWORD }}
+          value: "{{ .Values.env_api.BLOCK_DB_PASSWORD }}"
+  {{ else }}
+          valueFrom:
+             secretKeyRef:
+               name: db
+               key: BLOCKS_PASSWORD
+  {{ end }}
+        - name: BLOCK_DB_HOST
+          value: "{{ .Values.env_api.BLOCK_DB_HOST }}"
+        - name: BLOCK_DB_PORT
+          value: "{{ .Values.env_api.BLOCK_DB_PORT }}"
+        - name: BLOCK_DB_POOL_SIZE
+          value: "{{ .Values.env_api.BLOCK_DB_POOL_SIZE }}"
+        # Fraud Database
+        - name: FRAUD_DB_NAME
+          value: "{{ .Values.env_api.FRAUD_DB_NAME }}"
+        - name: FRAUD_DB_USER
+          value: "{{ .Values.env_api.FRAUD_DB_USER }}"
+        - name: FRAUD_DB_PASSWORD
+  {{- if .Values.env_api.FRAUD_DB_PASSWORD }}
+          value: "{{ .Values.env_api.FRAUD_DB_PASSWORD }}"
+  {{ else }}
+          valueFrom:
+             secretKeyRef:
+               name: db
+               key: FRAUD_PASSWORD
+  {{ end }}
+        - name: FRAUD_DB_HOST
+          value: "{{ .Values.env_api.FRAUD_DB_HOST }}"
+        - name: FRAUD_DB_PORT
+          value: "{{ .Values.env_api.FRAUD_DB_PORT }}"
+        - name: FRAUD_DB_POOL_SIZE
+          value: "{{ .Values.env_api.FRAUD_DB_POOL_SIZE }}"
+        # App migrations & seeds
+        - name: DB_MIGRATE
+          value: "{{ .Values.env_api.DB_MIGRATE }}"
+        - name: DB_SEED
+          value: "{{ .Values.env_graphql.DB_SEED }}"
+        # Endpoints
+          # PRM
+        - name: PRM_ENDPOINT
+          value: "{{ .Values.env_api.PRM_ENDPOINT }}"
+        - name: PRM_REQUEST_TIMEOUT
+          value: "{{ .Values.env_api.PRM_REQUEST_TIMEOUT }}"
+          # MPI
+        - name: MPI_ENDPOINT
+          value: "{{ .Values.env_api.MPI_ENDPOINT }}"
+        - name: MPI_REQUEST_TIMEOUT
+          value: "{{ .Values.env_api.MPI_REQUEST_TIMEOUT }}"
+          # MAN
+        - name: MAN_ENDPOINT
+          value: "{{ .Values.env_api.MAN_ENDPOINT }}"
+        - name: MAN_REQUEST_TIMEOUT
+          value: "{{ .Values.env_api.MAN_REQUEST_TIMEOUT }}"
+          # UAddress
+        - name: UADDRESS_ENDPOINT
+          value: "{{ .Values.env_api.UADDRESS_ENDPOINT }}"
+        - name: UADDRESS_REQUEST_TIMEOUT
+          value: "{{ .Values.env_api.UADDRESS_REQUEST_TIMEOUT }}"
+          # OPS
+        - name: OPS_ENDPOINT
+          value: "{{ .Values.env_api.OPS_ENDPOINT }}"
+        - name: OPS_REQUEST_TIMEOUT
+          value: "{{ .Values.env_api.OPS_REQUEST_TIMEOUT }}"
+          # OTP
+        - name: OTP_VERIFICATION_ENDPOINT
+          value: "{{ .Values.env_api.OTP_VERIFICATION_ENDPOINT }}"
+        - name: OTP_VERIFICATION_REQUEST_TIMEOUT
+          value: "{{ .Values.env_api.OTP_VERIFICATION_REQUEST_TIMEOUT }}"
+          # Report
+        - name: REPORT_ENDPOINT
+          value: "{{ .Values.env_api.REPORT_ENDPOINT }}"
+        - name: REPORT_REQUEST_TIMEOUT
+          value: "{{ .Values.env_api.REPORT_REQUEST_TIMEOUT }}"
+          # OAuth
+        - name: OAUTH_ENDPOINT
+          value: "{{ .Values.env_api.OAUTH_ENDPOINT }}"
+        - name: OAUTH_CLIENT_TYPE_ID
+          value: "{{ .Values.env_api.OAUTH_CLIENT_TYPE_ID }}"
+        - name: OAUTH_REQUEST_TIMEOUT
+          value: "{{ .Values.env_api.OAUTH_REQUEST_TIMEOUT }}"
+          # Digital signature
+        - name: DIGITAL_SIGNATURE_ENDPOINT
+          value: "{{ .Values.env_api.DIGITAL_SIGNATURE_ENDPOINT }}"
+          # Media storage
+        - name: MEDIA_STORAGE_ENDPOINT
+          value: "{{ .Values.env_api.MEDIA_STORAGE_ENDPOINT }}"
+        - name: MEDIA_STORAGE_ENABLED
+          value: "{{ .Values.env_api.MEDIA_STORAGE_ENABLED }}"
+        - name: MEDIA_STORAGE_LEGAL_ENTITY_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_LEGAL_ENTITY_BUCKET }}"
+        - name: MEDIA_STORAGE_RELATED_LEGAL_ENTITY_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_RELATED_LEGAL_ENTITY_BUCKET }}"
+        - name: MEDIA_STORAGE_DECLARATION_REQUEST_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_DECLARATION_REQUEST_BUCKET }}"
+        - name: MEDIA_STORAGE_DECLARATION_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_DECLARATION_BUCKET }}"
+        - name: MEDIA_STORAGE_MEDICATION_REQUEST_REQUEST_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_MEDICATION_REQUEST_REQUEST_BUCKET }}"
+        - name: MEDIA_STORAGE_CONTRACT_REQUEST_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_CONTRACT_REQUEST_BUCKET }}"
+        - name: MEDIA_STORAGE_CONTRACT_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_CONTRACT_BUCKET }}"
+        - name: MEDIA_STORAGE_PERSON_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_PERSON_BUCKET }}"
+        - name: MEDIA_STORAGE_MEDICATION_DISPENSE_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_MEDICATION_DISPENSE_BUCKET }}"
+        - name: MEDIA_STORAGE_MEDICATION_REQUEST_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_MEDICATION_REQUEST_BUCKET }}"
+        - name: MEDIA_STORAGE_MERGED_LEGAL_ENTITIES_RESOURCE_NAME
+          value: "{{ .Values.env_api.MEDIA_STORAGE_MERGED_LEGAL_ENTITIES_RESOURCE_NAME }}"
+        - name: OAUTH_REQUEST_TIMEOUT
+          value: "{{ .Values.env_api.OAUTH_REQUEST_TIMEOUT }}"
+          # Postmark
+        - name: POSTMARK_ENDPOINT
+          value: "{{ .Values.env_api.POSTMARK_ENDPOINT }}"
+        - name: POSTMARK_API_KEY
+          value: "{{ .Values.env_api.POSTMARK_API_KEY }}"
+          # Bamboo
+        - name: BAMBOO_MAILER
+          value: "{{ .Values.env_api.BAMBOO_MAILER }}"
+        - name: MAILGUN_API_KEY
+          value: "{{ .Values.env_api.MAILGUN_API_KEY }}"
+        - name: MAILGUN_DOMAIN
+          value: "{{ .Values.env_api.MAILGUN_DOMAIN }}"
+        - name: BAMBOO_SMTP_SERVER
+          value: "{{ .Values.env_api.BAMBOO_SMTP_SERVER }}"
+        - name: BAMBOO_SMTP_HOSTNAME
+          value: "{{ .Values.env_api.BAMBOO_SMTP_HOSTNAME }}"
+        - name: BAMBOO_SMTP_PORT
+          value: "{{ .Values.env_api.BAMBOO_SMTP_PORT }}"
+        - name: BAMBOO_SMTP_USERNAME
+          value: "{{ .Values.env_api.BAMBOO_SMTP_USERNAME }}"
+        - name: BAMBOO_SMTP_PASSWORD
+          value: "{{ .Values.env_api.BAMBOO_SMTP_PASSWORD }}"
+          # employee request invitation
+        - name: BAMBOO_EMPLOYEE_REQUEST_INVITATION_FROM
+          value: "{{ .Values.env_api.BAMBOO_EMPLOYEE_REQUEST_INVITATION_FROM }}"
+        - name: BAMBOO_EMPLOYEE_REQUEST_INVITATION_SUBJECT
+          value: "{{ .Values.env_api.BAMBOO_EMPLOYEE_REQUEST_INVITATION_SUBJECT }}"
+        - name: BAMBOO_EMPLOYEE_REQUEST_UPDATE_INVITATION_FROM
+          value: "{{ .Values.env_api.BAMBOO_EMPLOYEE_REQUEST_INVITATION_FROM }}"
+        - name: BAMBOO_EMPLOYEE_REQUEST_UPDATE_INVITATION_SUBJECT
+          value: "{{ .Values.env_api.BAMBOO_EMPLOYEE_REQUEST_INVITATION_SUBJECT }}"
+        - name: EMPLOYEE_REQUEST_INVITATION_TEMPLATE_ID
+          value: "{{ .Values.env_api.EMPLOYEE_REQUEST_INVITATION_TEMPLATE_ID }}"
+        - name: EMPLOYEE_REQUEST_INVITATION_TEMPLATE_FORMAT
+          value: "{{ .Values.env_api.EMPLOYEE_REQUEST_INVITATION_TEMPLATE_FORMAT }}"
+        - name: EMPLOYEE_REQUEST_INVITATION_TEMPLATE_LOCALE
+          value: "{{ .Values.env_api.EMPLOYEE_REQUEST_INVITATION_TEMPLATE_LOCALE }}"
+        - name: EMPLOYEE_REQUEST_UPDATE_INVITATION_TEMPLATE_ID
+          value: "{{ .Values.env_api.EMPLOYEE_REQUEST_UPDATE_INVITATION_TEMPLATE_ID }}"
+        - name: EMPLOYEE_REQUEST_UPDATE_INVITATION_TEMPLATE_FORMAT
+          value: "{{ .Values.env_api.EMPLOYEE_REQUEST_INVITATION_TEMPLATE_FORMAT }}"
+        - name: EMPLOYEE_REQUEST_UPDATE_INVITATION_TEMPLATE_LOCALE
+          value: "{{ .Values.env_api.EMPLOYEE_REQUEST_INVITATION_TEMPLATE_LOCALE }}"
+          # employee created notification
+        - name: BAMBOO_EMPLOYEE_CREATED_NOTIFICATION_FROM
+          value: "{{ .Values.env_api.BAMBOO_EMPLOYEE_CREATED_NOTIFICATION_FROM }}"
+        - name: BAMBOO_EMPLOYEE_CREATED_NOTIFICATION_SUBJECT
+          value: "{{ .Values.env_api.BAMBOO_EMPLOYEE_CREATED_NOTIFICATION_SUBJECT }}"
+        - name: EMPLOYEE_CREATED_NOTIFICATION_TEMPLATE_ID
+          value: "{{ .Values.env_api.EMPLOYEE_CREATED_NOTIFICATION_TEMPLATE_ID }}"
+        - name: EMPLOYEE_CREATED_NOTIFICATION_TEMPLATE_FORMAT
+          value: "{{ .Values.env_api.EMPLOYEE_CREATED_NOTIFICATION_TEMPLATE_FORMAT }}"
+        - name: EMPLOYEE_CREATED_NOTIFICATION_TEMPLATE_LOCALE
+          value: "{{ .Values.env_api.EMPLOYEE_CREATED_NOTIFICATION_TEMPLATE_LOCALE }}"
+        - name: DECLARATION_REQUEST_PRINTOUT_FORM_TEMPLATE_ID
+          value: "{{ .Values.env_api.DECLARATION_REQUEST_PRINTOUT_FORM_TEMPLATE_ID }}"
+        - name: DECLARATION_REQUEST_PRINTOUT_FORM_TEMPLATE_FORMAT
+          value: "{{ .Values.env_api.DECLARATION_REQUEST_PRINTOUT_FORM_TEMPLATE_FORMAT }}"
+        - name: DECLARATION_REQUEST_PRINTOUT_FORM_TEMPLATE_LOCALE
+          value: "{{ .Values.env_api.DECLARATION_REQUEST_PRINTOUT_FORM_TEMPLATE_LOCALE }}"
+        # Credentials recovery requests
+        - name: CREDENTIALS_RECOVERY_REQUEST_TTL
+          value: "{{ .Values.env_api.CREDENTIALS_RECOVERY_REQUEST_TTL }}"
+        - name: BAMBOO_CREDENTIALS_RECOVERY_REQUEST_INVITATION_FROM
+          value: "{{ .Values.env_api.BAMBOO_CREDENTIALS_RECOVERY_REQUEST_INVITATION_FROM }}"
+        - name: BAMBOO_CREDENTIALS_RECOVERY_REQUEST_INVITATION_SUBJECT
+          value: "{{ .Values.env_api.BAMBOO_CREDENTIALS_RECOVERY_REQUEST_INVITATION_SUBJECT }}"
+        - name: CREDENTIALS_RECOVERY_REQUEST_INVITATION_TEMPLATE_ID
+          value: "{{ .Values.env_api.CREDENTIALS_RECOVERY_REQUEST_INVITATION_TEMPLATE_ID }}"
+        - name: CREDENTIALS_RECOVERY_REQUEST_INVITATION_TEMPLATE_FORMAT
+          value: "{{ .Values.env_api.CREDENTIALS_RECOVERY_REQUEST_INVITATION_TEMPLATE_FORMAT }}"
+        - name: CREDENTIALS_RECOVERY_REQUEST_INVITATION_TEMPLATE_LOCALE
+          value: "{{ .Values.env_api.CREDENTIALS_RECOVERY_REQUEST_INVITATION_TEMPLATE_LOCALE }}"
+        - name: TOKENS_TYPES_PERSONAL
+          value: "{{ .Values.env_api.TOKENS_TYPES_PERSONAL }}"
+        - name: TOKENS_TYPES_MIS
+          value: "{{ .Values.env_api.TOKENS_TYPES_MIS }}"
+        - name: TOKENS_TYPES_ADMIN
+          value: "{{ .Values.env_api.TOKENS_TYPES_ADMIN }}"
+        - name: DIGITAL_SIGNATURE_ENABLED
+          value: "{{ .Values.env_api.DIGITAL_SIGNATURE_ENABLED }}"
+        - name: CHAIN_VERIFICATION_FAILED_NOTIFICATION_FROM
+          value: "{{ .Values.env_api.CHAIN_VERIFICATION_FAILED_NOTIFICATION_FROM }}"
+        - name: CHAIN_VERIFICATION_FAILED_NOTIFICATION_TO
+          value: "{{ .Values.env_api.CHAIN_VERIFICATION_FAILED_NOTIFICATION_TO }}"
+        - name: CHAIN_VERIFICATION_FAILED_NOTIFICATION_SUBJECT
+          value: "{{ .Values.env_api.CHAIN_VERIFICATION_FAILED_NOTIFICATION_SUBJECT }}"
+        - name: CHAIN_VERIFICATION_FAILED_NOTIFICATION_ID
+          value: "{{ .Values.env_api.CHAIN_VERIFICATION_FAILED_NOTIFICATION_ID }}"
+        - name: CHAIN_VERIFICATION_FAILED_NOTIFICATION_FORMAT
+          value: "{{ .Values.env_api.CHAIN_VERIFICATION_FAILED_NOTIFICATION_FORMAT }}"
+        - name: CHAIN_VERIFICATION_FAILED_NOTIFICATION_LOCALE
+          value: "{{ .Values.env_api.CHAIN_VERIFICATION_FAILED_NOTIFICATION_LOCALE }}"
+        - name: CIPHER_KEYPHRASE
+          value: "{{ .Values.env_api.CIPHER_KEYPHRASE }}"
+        - name: CIPHER_IVPHRASE
+          value: "{{ .Values.env_api.CIPHER_IVPHRASE }}"
+        - name: OWNER_POSITIONS
+          value: "{{ .Values.env_api.OWNER_POSITIONS }}"
+        - name: EMAIL_VERIFICATION_TEMPLATE_ID
+          value: "{{ .Values.env_api.EMAIL_VERIFICATION_TEMPLATE_ID }}"
+        - name: EMAIL_VERIFICATION_FROM
+          value: "{{ .Values.env_api.EMAIL_VERIFICATION_FROM }}"
+        - name: EMAIL_VERIFICATION_SUBJECT
+          value: "{{ .Values.env_api.EMAIL_VERIFICATION_SUBJECT }}"
+        - name: EMAIL_VERIFICATION_TEMPLATE_FORMAT
+          value: "{{ .Values.env_api.EMAIL_VERIFICATION_TEMPLATE_FORMAT }}"
+        - name: EMAIL_VERIFICATION_TEMPLATE_LOCALE
+          value: "{{ .Values.env_api.EMAIL_VERIFICATION_TEMPLATE_LOCALE }}"
+          # Cabinet
+        - name: JWT_SECRET
+          value: "{{ .Values.env_api.JWT_SECRET }}"
+        - name: JWT_TTL_EMAIL
+          value: "{{ .Values.env_api.JWT_TTL_EMAIL }}"
+        - name: JWT_TTL_REGISTRATION
+          value: "{{ .Values.env_api.JWT_TTL_REGISTRATION }}"
+        - name: CABINET_ROLE_ID
+          value: "{{ .Values.env_api.CABINET_ROLE_ID }}"
+        - name: CABINET_CLIENT_ID
+          value: "{{ .Values.env_api.CABINET_CLIENT_ID }}"
+        # Contract requests
+        - name: CAPITATION_CONTRACT_REQUEST_PRINTOUT_FORM_TEMPLATE_ID
+          value : "{{ .Values.env_api.CAPITATION_CONTRACT_REQUEST_PRINTOUT_FORM_TEMPLATE_ID }}"
+        - name: CAPITATION_CONTRACT_REQUEST_PRINTOUT_FORM_APPENDIX_TEMPLATE_ID
+          value : "{{ .Values.env_api.CAPITATION_CONTRACT_REQUEST_PRINTOUT_FORM_APPENDIX_TEMPLATE_ID }}"
+        # Kafka
+        - name: KAFKA_BROKERS_HOST
+          value: "{{ .Values.env_graphql.KAFKA_BROKERS_HOST }}"
+        - name: KAFKA_BROKERS
+          value: "{{ .Values.env_graphql.KAFKA_BROKERS_HOST }}"
+        - name: SMS_PROVIDER
+          value : "{{ .Values.env_api.SMS_PROVIDER }}"
+        # Mithril
+        - name: CLIENT_TYPE_MSP_LIMITED_ID
+          value: "{{ .Values.env_graphql.CLIENT_TYPE_MSP_LIMITED_ID }}"
+        - name: CASHER_ENDPOINT
+          value: "{{ .Values.env_api.CASHER_ENDPOINT }}"
+        resources:
+          requests:
+            cpu: {{ .Values.resources_graphql.cpu }}
+            memory: {{ .Values.resources_graphql.memory }}
+          limits:
+            cpu: {{ .Values.resources_graphql.cpu_limit }}
+            memory: {{ .Values.resources_graphql.memory_limit }}

@@ -18,7 +18,7 @@
 
 ```bash
 ### Create namespace's
-NAMESPACES=(ael digital-signature em fe fraud il gndf kong logging man me mithril monitoring mpi ops prm redis replication reports traefik uaddresses verification)
+NAMESPACES=(ael digital-signature em fe fraud il gndf kong logging man me mithril monitoring mpi ops prm redis replication reports traefik uaddresses verification kafka me-db abac )
 for namespace in ${NAMESPACES[@]}; do
  kubectl create ns $namespace
 done
@@ -68,7 +68,25 @@ kubectl create secret generic db -n il --from-literal=DB_PASSWORD=$(openssl rand
 il=$(kubectl get secret --namespace il db -o jsonpath="{.data.DB_PASSWORD}" | base64 --decode ; echo);
 ```
 
-3) Redis chart
+3) Kafka
+- fill out `values.yaml`:
+ memory, cpu  limits or update image version if you want
+- deploy kafka chart:
+  - `helm install --name kafka -f kafka-denovo/values-demo.yaml --namespace kafka kafka`
+Create topic for `ds.api` service named `digital_signature`:
+  - `/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic digital_signature`
+Create topic for `il` service:
+  - deactivate_declaration_events
+  - deactivate_legal_entity_event
+  - deactivate_person_events
+  - merge_legal_entities
+
+4) Mongodb
+- fill out `values.yaml`,you can enable password or edit resources limits
+- deploy kafka chart:
+  - `helm install --name mongodb -f mongodb/values.yaml --namespace me-db mongodb`
+
+5) Redis chart
 - set redis password in `values.yaml` section `password` or if it's empty it would generate password
 - deploy redis
   - `helm install -f redis/values.yaml --name redis redis --namespace redis`
@@ -77,12 +95,45 @@ il=$(kubectl get secret --namespace il db -o jsonpath="{.data.DB_PASSWORD}" | ba
 - get `redis` password with
   - `kubedecode redis redis`
 
-4) Traefik chart
+6) Kong chart
+- set in `tamplates/dep.yaml` value `replicas:` to `0` its need for migrations database
+- deploy `kong` chart
+  - `helm install -f kong/values-demo.yaml --name kong kong --namespace kong`
+- wait while db pod will be in running state `1/1`
+- edit `values-demo.yaml`: `log_backups: enabled: false/true `
+- __(log_backup save postgresql log to google bucket use it to other charts too)__
+- set `run_migration: true` and upgrade `kong` with `helm`
+  - `helm upgrade -f kong/values-demo.yaml kong kong`
+- set `run_migration: false` and upgrade `kong` this step remove migration pod from cluster
+  - `helm upgrade -f kong/values-demo.yaml kong kong`
+- scale api pods with
+  - `kubectl scale deployment -n kong --replicas 1 api`
+- fill out `redis` password in `kong-dev.yaml`
+  - import config to `kong` app
+    - utility how to do it and instructions for it will be located in `kongak` folder
+
+7) Traefik chart
 - if you use ssl, need to add certs in `"values_demo.yaml"` in the section  `ssl "defaultCert:"` and `"defaultKey:"` otherwise set `"ssl:  enabled: false"`
 - deploy traefik chart 
   - `helm install -f traefik-chart/values_demo.yaml --name traefik traefik-chart --namespace kube-system`
 
-5) AEL chart
+8) Fraud chart
+- install chart with helm
+  - `helm install -f fraud/values-demo.yaml --name fraud fraud --namespace fraud`
+
+
+9) Abac
+- fill out `values.yaml`, check `REDIS_HOST, DB_URL, KAFKA_BROKERS` values
+  - `HOST: "0.0.0.0"` - or some hostname
+  - `SECRET: "<gen some value>"`
+  - `ERLANG_COOKIE: "<gen some value>"`
+- create `abac_logs` db in mongodb
+- you need to create redis secret in `abac` namespace, to do that you can copy existing redis password:
+  - `kubectl get secrets redis -n redis -o yaml | sed 's/namespace: redis/namespace: abac/' | kubectl create -f -`
+- deploy abac chart:
+  - `helm install -f abac-api/values-demo.yaml --name abac-api  --namespace abac  abac-api`
+
+10) AEL chart
 - fill out `values.yaml`:
   - `HOST: "0.0.0.0"` - or some hostname
   - `SECRET: "<gen some value>"`
@@ -128,33 +179,12 @@ ewogICJ0eXBlIjogInRlc3Rfc2VydmljZV9hY2NvdW50IiwKICAicHJvamVjdF9pZCI6ICJ0ZXN0IiwK
 - deploy ael with helm
   - `helm install -f ael/values-demo.yaml --name ael ael --namespace ael`
 
-6) Kong chart
-- set in `tamplates/dep.yaml` value `replicas:` to `0` its need for migrations database
-- deploy `kong` chart
-  - `helm install -f kong/values-demo.yaml --name kong kong --namespace kong`
-- wait while db pod will be in running state `1/1`
-- edit `values-demo.yaml`: `log_backups: enabled: false/true `
-- __(log_backup save postgresql log to google bucket use it to other charts too)__
-- set `run_migration: true` and upgrade `kong` with `helm`
-  - `helm upgrade -f kong/values-demo.yaml kong kong`
-- set `run_migration: false` and upgrade `kong` this step remove migration pod from cluster
-  - `helm upgrade -f kong/values-demo.yaml kong kong`
-- scale api pods with
-  - `kubectl scale deployment -n kong --replicas 1 api`
-- fill out `redis` password in `kong-dev.yaml`
-  - import config to `kong` app
-    - utility how to do it and instructions for it will be located in `kongak` folder
+11) ds.api
+- fill out `values.yaml`, check `KAFKA_BROKERS, SECRET_KEY and all emails` values configured, also check that topic `digital_signature` exist
+- deploy ds.api chart:
+  - `helm install -f ds.api/values-demo.yaml --name ds.api --namespace digital-signature ds.api`
 
-7) Digital-signature chart
-- fill out `values.yaml`:
-  - `HOST: "0.0.0.0"` - or some hostname
-  - `SECRET: "<gen some value>"`
-  - `ERLANG_COOKIE: "<gen some value>"`
-- install chart with helm
-  - `helm install -f digital-signature/values-demo.yaml --name digital-signature digital-signature --namespace digital-signature`
-- fill table `certs` in `digital-signature` db for correct work of the system
-
-8) Event-manager chart
+12) Event-manager chart
 - fill out `values.yaml`:
   - `HOST: "0.0.0.0"` - or some hostname
   - `SECRET: "<gen some value>"`
@@ -162,49 +192,17 @@ ewogICJ0eXBlIjogInRlc3Rfc2VydmljZV9hY2NvdW50IiwKICAicHJvamVjdF9pZCI6ICJ0ZXN0IiwK
 - install chart with helm
   - `helm install -f em/values-demo.yaml --name em em --namespace em`
 
-9) Fraud chart
-- install chart with helm
-  - `helm install -f fraud/values-demo.yaml --name fraud fraud --namespace fraud`
-
-10) Report chart
+13) Man chart
 - fill out `values.yaml`:
   - `HOST: "0.0.0.0"` - or some hostname
   - `SECRET: "<gen some value>"`
   - `ERLANG_COOKIE: "<gen some value>"`
+- need to fill `  AUTH_HOST: ""` with the `url` of `auth` endpoint `auth.exemple.com`
+  - `AUTH_HOST: "http://auth.example.com"`
 - install chart with helm
-  - `helm install -f report/values-demo.yaml --name reports report --namespace reports`
+  - `helm install -f man/values-demo.yaml --name man man --namespace man`
 
-11) Uaddresses chart
-- fill out `values.yaml`:
-  - `HOST: "0.0.0.0"` - or some hostname
-  - `SECRET: "<gen some value>"`
-  - `ERLANG_COOKIE: "<gen some value>"`
-  - `CLIENT_ID:  ""`
-  - `CLIENT_SECRET: ""`
-  - `host: uaddresses.example.com`
-  - `API_ENDPOINT: "http://api.example.com/api/uaddresses"`
-  - `AUTH_ENDPOINT: "http://api.example.com"`
-  - `OAUTH_REDIRECT_URL: "http://uaddresses.example.com/auth/redirect"`
-  - `OAUTH_URL: "http://auth.example.com/sign-in"`
-- install chart with helm
-  - `helm install -f uaddresses/values-demo.yaml --name uaddresses uaddresses --namespace uaddresses`
-
-12) Verification chart
-- create or copy `redis` secret to `verification` namespace
-  - `kubectl get secrets redis -n redis -o yaml | sed 's/namespace: redis/namespace: il/' | kubectl create -f -`
-- fill out `values.yaml`:
-  - `HOST: "0.0.0.0"` - or some hostname
-  - `SECRET: "<gen some value>"`
-  - `ERLANG_COOKIE: "<gen some value>"`
-- if you have api andpoint of ypur sms provider you can fill out those values
-  - `GATEWAY_URL: ""`
-  - `GATEWAY_LOGIN: ""`
-  - `GATEWAY_PASSWORD: ""`
-  - `GATEWAY_STATUS_URL: ""`
-- install chart with helm
-  - `helm install -f verification/values-demo.yaml --name verification verification --namespace verification`
-
-13) Mithril chart
+14) Mithril chart
 - fill out `values.yaml`:
   - `HOST: "0.0.0.0"` - or some hostname
   - `SECRET: "<gen some value>"`
@@ -218,16 +216,6 @@ ewogICJ0eXBlIjogInRlc3Rfc2VydmljZV9hY2NvdW50IiwKICAicHJvamVjdF9pZCI6ICJ0ZXN0IiwK
   - `host: mithril.example.com`
 - install chart with helm
   - `helm install -f mithril/values-demo.yaml --name mithril mithril --namespace mithril`
-
-14) Man chart
-- fill out `values.yaml`:
-  - `HOST: "0.0.0.0"` - or some hostname
-  - `SECRET: "<gen some value>"`
-  - `ERLANG_COOKIE: "<gen some value>"`
-- need to fill `  AUTH_HOST: ""` with the `url` of `auth` endpoint `auth.exemple.com`
-  - `AUTH_HOST: "http://auth.example.com"`
-- install chart with helm
-  - `helm install -f man/values-demo.yaml --name man man --namespace man`
 
 15) Mpi chart
 - fill out `values.yaml`:
@@ -248,7 +236,45 @@ ewogICJ0eXBlIjogInRlc3Rfc2VydmljZV9hY2NvdW50IiwKICAicHJvamVjdF9pZCI6ICJ0ZXN0IiwK
 - install chart with helm
   - `helm install -f mpi/values-demo.yaml --name mpi mpi --namespace mpi`
 
-16) Ops chart
+16) Report chart
+- fill out `values.yaml`:
+  - `HOST: "0.0.0.0"` - or some hostname
+  - `SECRET: "<gen some value>"`
+  - `ERLANG_COOKIE: "<gen some value>"`
+- install chart with helm
+  - `helm install -f report/values-demo.yaml --name reports report --namespace reports`
+
+17) Uaddresses chart
+- fill out `values.yaml`:
+  - `HOST: "0.0.0.0"` - or some hostname
+  - `SECRET: "<gen some value>"`
+  - `ERLANG_COOKIE: "<gen some value>"`
+  - `CLIENT_ID:  ""`
+  - `CLIENT_SECRET: ""`
+  - `host: uaddresses.example.com`
+  - `API_ENDPOINT: "http://api.example.com/api/uaddresses"`
+  - `AUTH_ENDPOINT: "http://api.example.com"`
+  - `OAUTH_REDIRECT_URL: "http://uaddresses.example.com/auth/redirect"`
+  - `OAUTH_URL: "http://auth.example.com/sign-in"`
+- install chart with helm
+  - `helm install -f uaddresses/values-demo.yaml --name uaddresses uaddresses --namespace uaddresses`
+
+18) Verification chart
+- create or copy `redis` secret to `verification` namespace
+  - `kubectl get secrets redis -n redis -o yaml | sed 's/namespace: redis/namespace: il/' | kubectl create -f -`
+- fill out `values.yaml`:
+  - `HOST: "0.0.0.0"` - or some hostname
+  - `SECRET: "<gen some value>"`
+  - `ERLANG_COOKIE: "<gen some value>"`
+- if you have api andpoint of ypur sms provider you can fill out those values
+  - `GATEWAY_URL: ""`
+  - `GATEWAY_LOGIN: ""`
+  - `GATEWAY_PASSWORD: ""`
+  - `GATEWAY_STATUS_URL: ""`
+- install chart with helm
+  - `helm install -f verification/values-demo.yaml --name verification verification --namespace verification`
+
+19) Ops chart
 - fill out `values.yaml`:
   - `HOST: "0.0.0.0"` - or some hostname
   - `SECRET: "<gen some value>"`
@@ -256,11 +282,17 @@ ewogICJ0eXBlIjogInRlc3Rfc2VydmljZV9hY2NvdW50IiwKICAicHJvamVjdF9pZCI6ICJ0ZXN0IiwK
 - install chart with helm
   - `helm install -f ops/values-demo.yaml --name ops ops --namespace ops`
 
-17) Prm chart
-- install chart with helm
-  - `helm install -f prm/values-demo.yaml --name prm prm --namespace prm`
+20) Me
+- fill out `values.yaml`, check `KAFKA_BROKERS, MONGO_URL, AUDIT_LOG_DB_URL` values are configured:
+  - `HOST: "0.0.0.0"` - or some hostname
+  - `SECRET: "<gen some value>"`
+  - `ERLANG_COOKIE: "<gen some value>"`
+- you need to create redis secret in `me` namespace, to do that you can copy existing redis password:
+  - `kubectl get secrets redis -n redis -o yaml | sed 's/namespace: redis/namespace: me/' | kubectl create -f -`
+- deploy me chart:
+  - `helm install -f medical-events-api/values-demo.yaml --name me --namespace me medical-events-api`
 
-18) Il chart
+21) Il chart
 - create or copy `redis` secret to `il` namespace
   - `kubectl get secrets redis -n redis -o yaml | sed 's/namespace: redis/namespace: il/' | kubectl create -f -`
 - fill out `values.yaml`:
@@ -293,7 +325,7 @@ ewogICJ0eXBlIjogInRlc3Rfc2VydmljZV9hY2NvdW50IiwKICAicHJvamVjdF9pZCI6ICJ0ZXN0IiwK
 - install chart with helm
   - `helm install -f il/values-demo.yaml --name il il --namespace il`
 
-19) Fe chart
+22) Fe chart
 - For correct work it's must fill out all values with correct names of dns
   - `## FE ADMIN ##` section
     - `REACT_APP_API_URL: ""` <- url to `api` endpoint
@@ -341,9 +373,9 @@ ewogICJ0eXBlIjogInRlc3Rfc2VydmljZV9hY2NvdW50IiwKICAicHJvamVjdF9pZCI6ICJ0ZXN0IiwK
 - install chart with helm
   - `helm install -f fe/values-demo.yaml --name fe fe --namespace fe`
 
-20) For logical replication, it's needed manually to add tables into provider and subscriber, all steps described in `PGLOGICAL.md`
+23) For logical replication, it's needed manually to add tables into provider and subscriber, all steps described in `PGLOGICAL.md`
 
-21) For accessing to admin panel it's needed to create user, role, client and connection in mithril database.
+24) For accessing to admin panel it's needed to create user, role, client and connection in mithril database.
 - Creating user (login: example@example.com, password: example | and password created in htpasswd)
 ```sql
 INSERT INTO public.users (id, email, password, settings, priv_settings, inserted_at, updated_at, is_blocked, block_reason, password_set_at, tax_id, person_id) VALUES ('f4b30887-07b6-427a-a34d-9e29d88bf497', 'example@example.com', '$apr1$sqVKfHmh$2Ng0qlKlNRCeDZVJZ3Tct.', '{}', '{"login_hstr": [{"time": "2018-07-26T05:31:10.760552", "type": "otp", "is_success": true}, {"time": "2018-07-05T08:48:26.989428", "type": "otp", "is_success": true}, {"time": "2018-07-05T08:47:10.871498", "type": "otp", "is_success": true}], "otp_error_counter": 0}', '2017-05-28 08:25:46.547953', '2019-01-22 09:57:21.824112', 'false', NULL, '2019-01-20 12:00:00.000000', '', '');
@@ -385,7 +417,7 @@ INSERT INTO public.client_types (id, name, scope, inserted_at, updated_at) VALUE
 
 - More details about scopes can be found at the [following link](https://edenlab.atlassian.net/wiki/x/v5Ue)
 
-22) MIS creating
+25) MIS creating
 - create user in mithril db
 ```sql
 INSERT INTO public.users (id, email, password, settings, priv_settings, inserted_at, updated_at, is_blocked, block_reason, password_set_at, tax_id, person_id) VALUES ('f0245119-59f8-4a9c-a811-90d48d26af40', 'example2@examle.com', '$apr1$Us5UCc.q$Eo1CJAlrP.1s3vORuwhEg1', '{}', '{"otp_error_counter": 0, "login_error_counter": 0}', '2017-05-18 09:20:35.887753', '2017-05-18 09:20:35.887838', 'false', NULL, '2020-05-12 13:03:14.335000', '', '');

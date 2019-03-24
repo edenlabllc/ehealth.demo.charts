@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.image_medical_events_api.name }}
+  labels:
+    app: {{ .Values.image_medical_events_api.name }}
+spec:
+  ports:
+  - port: 80
+    targetPort: 4000
+    protocol: TCP
+    name: http
+  selector:
+    app: {{ .Values.image_medical_events_api.name }}
+  type: ClusterIP

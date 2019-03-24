@@ -1,6 +1,7 @@
 apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
+  namespace: verification
   name: db
   labels:
     app: "{{ .Values.env_db.app}}"

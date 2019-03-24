@@ -26,11 +26,21 @@ spec:
       containers:
       - name: il-api
         image:  {{ .Values.image_api.repository }}:{{ .Values.image_api.tag }}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
+        command: ["sh", "-c"]
+        args: ["POD_A_RECORD"]
+        args: ["export POD_A_RECORD=$(echo $POD_IP | sed 's/\\./\\-/g') && /app/bin/ehealth foreground"]
         ports:
         - containerPort: 4000
           protocol: TCP
         env:
+        # RPC env
+        - name: NAMESPACE
+          value: "{{ .Values.env_api.NAMESPACE }}"
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
         - name: LOG_LEVEL
           value: "debug"
         # Phoenix
@@ -43,6 +53,8 @@ spec:
         - name: ERLANG_COOKIE
           value: "{{ .Values.env_api.ERLANG_COOKIE }}"
         # Database
+        - name: MONGO_DB_URL
+          value: "{{ .Values.env_graphql.MONGO_DB_URL }}"
         - name: DB_NAME
           value: "{{ .Values.env_api.DB_NAME }}"
         - name: DB_USER
@@ -62,6 +74,26 @@ spec:
           value: "{{ .Values.env_api.DB_PORT }}"
         - name: DB_POOL_SIZE
           value: "{{ .Values.env_api.DB_POOL_SIZE }}"
+        # DB READ ENV
+        - name: READ_DB_NAME
+          value: "{{ .Values.env_api.READ_DB_NAME }}"
+        - name: READ_DB_USER
+          value: "{{ .Values.env_api.READ_DB_USER }}"
+        - name: READ_DB_PASSWORD
+  {{- if .Values.env_db.POSTGRES_PASSWORD }}
+          value: "{{ .Values.env_db.POSTGRES_PASSWORD }}"
+  {{ else }}
+          valueFrom:
+             secretKeyRef:
+               name: db
+               key: DB_PASSWORD
+  {{ end }}
+        - name: READ_DB_HOST
+          value: "{{ .Values.env_api.READ_DB_HOST }}"
+        - name: READ_DB_PORT
+          value: "{{ .Values.env_api.READ_DB_PORT }}"
+        - name: READ_DB_POOL_SIZE
+          value: "{{ .Values.env_api.READ_DB_POOL_SIZE }}"
         # PRM Database
         - name: PRM_DB_NAME
           value: "{{ .Values.env_api.PRM_DB_NAME }}"
@@ -82,6 +114,26 @@ spec:
           value: "{{ .Values.env_api.PRM_DB_PORT }}"
         - name: PRM_DB_POOL_SIZE
           value: "{{ .Values.env_api.PRM_DB_POOL_SIZE }}"
+          # PRM READ Database
+        - name: READ_PRM_DB_NAME
+          value: "{{ .Values.env_api.READ_PRM_DB_NAME }}"
+        - name: READ_PRM_DB_USER
+          value: "{{ .Values.env_api.READ_PRM_DB_USER }}"
+        - name: READ_PRM_DB_PASSWORD
+  {{- if .Values.env_api.READ_PRM_DB_PASSWORD }}
+          value: "{{ .Values.env_api.READ_PRM_DB_PASSWORD }}"
+  {{ else }}
+          valueFrom:
+             secretKeyRef:
+               name: db
+               key: PRM_PASSWORD
+  {{ end }}
+        - name: READ_PRM_DB_HOST
+          value: "{{ .Values.env_api.READ_PRM_DB_HOST }}"
+        - name: READ_PRM_DB_PORT
+          value: "{{ .Values.env_api.READ_PRM_DB_PORT }}"
+        - name: READ_PRM_DB_POOL_SIZE
+          value: "{{ .Values.env_api.READ_PRM_DB_POOL_SIZE }}"
         {{- if .Values.env_api.EM_ENABLED }}
         # EventManager Database
         - name: EVENT_MANAGER_DB_NAME
@@ -195,6 +247,11 @@ spec:
           # Digital signature
         - name: DIGITAL_SIGNATURE_ENDPOINT
           value: "{{ .Values.env_api.DIGITAL_SIGNATURE_ENDPOINT }}"
+          # Casher
+        - name: CASHER_ENDPOINT
+          value: "{{ .Values.env_api.CASHER_ENDPOINT }}"
+        - name: CASHER_REQUEST_TIMEOUT
+          value: "{{ .Values.env_api.CASHER_REQUEST_TIMEOUT }}"
           # Media storage
         - name: MEDIA_STORAGE_ENDPOINT
           value: "{{ .Values.env_api.MEDIA_STORAGE_ENDPOINT }}"
@@ -202,6 +259,8 @@ spec:
           value: "{{ .Values.env_api.MEDIA_STORAGE_ENABLED }}"
         - name: MEDIA_STORAGE_LEGAL_ENTITY_BUCKET
           value: "{{ .Values.env_api.MEDIA_STORAGE_LEGAL_ENTITY_BUCKET }}"
+        - name: MEDIA_STORAGE_RELATED_LEGAL_ENTITY_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_RELATED_LEGAL_ENTITY_BUCKET }}"
         - name: MEDIA_STORAGE_DECLARATION_REQUEST_BUCKET
           value: "{{ .Values.env_api.MEDIA_STORAGE_DECLARATION_REQUEST_BUCKET }}"
         - name: MEDIA_STORAGE_DECLARATION_BUCKET
@@ -210,6 +269,16 @@ spec:
           value: "{{ .Values.env_api.MEDIA_STORAGE_MEDICATION_REQUEST_REQUEST_BUCKET }}"
         - name: MEDIA_STORAGE_CONTRACT_REQUEST_BUCKET
           value: "{{ .Values.env_api.MEDIA_STORAGE_CONTRACT_REQUEST_BUCKET }}"
+        - name: MEDIA_STORAGE_CONTRACT_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_CONTRACT_BUCKET }}"
+        - name: MEDIA_STORAGE_PERSON_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_PERSON_BUCKET }}"
+        - name: MEDIA_STORAGE_MEDICATION_DISPENSE_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_MEDICATION_DISPENSE_BUCKET }}"
+        - name: MEDIA_STORAGE_MEDICATION_REQUEST_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_MEDICATION_REQUEST_BUCKET }}"
+        - name: MEDIA_STORAGE_MERGED_LEGAL_ENTITIES_RESOURCE_NAME
+          value: "{{ .Values.env_api.MEDIA_STORAGE_MERGED_LEGAL_ENTITIES_RESOURCE_NAME }}"
         - name: OAUTH_REQUEST_TIMEOUT
           value: "{{ .Values.env_api.OAUTH_REQUEST_TIMEOUT }}"
           # Postmark
@@ -272,6 +341,9 @@ spec:
           value: "{{ .Values.env_api.DECLARATION_REQUEST_PRINTOUT_FORM_TEMPLATE_FORMAT }}"
         - name: DECLARATION_REQUEST_PRINTOUT_FORM_TEMPLATE_LOCALE
           value: "{{ .Values.env_api.DECLARATION_REQUEST_PRINTOUT_FORM_TEMPLATE_LOCALE }}"
+        # Deviation medication dispence
+        - name: DEVIATION
+          value: "{{ .Values.env_api.DEVIATION }}"
         # Credentials recovery requests
         - name: CREDENTIALS_RECOVERY_REQUEST_TTL
           value: "{{ .Values.env_api.CREDENTIALS_RECOVERY_REQUEST_TTL }}"
@@ -311,6 +383,8 @@ spec:
           value: "{{ .Values.env_api.CIPHER_IVPHRASE }}"
         - name: OWNER_POSITIONS
           value: "{{ .Values.env_api.OWNER_POSITIONS }}"
+        - name: DECLARATION_REQUEST_AUTOTERMINATION_BATCH
+          value: "{{ .Values.env_api.DECLARATION_REQUEST_AUTOTERMINATION_BATCH}}"
         - name: DECLARATION_REQUEST_AUTOTERMINATION_SCHEDULE
           value: "{{ .Values.env_api.DECLARATION_REQUEST_AUTOTERMINATION_SCHEDULE }}"
         - name: EMPLOYEE_REQUEST_AUTOTERMINATION_SCHEDULE
@@ -340,9 +414,54 @@ spec:
           value: "{{ .Values.env_api.CABINET_CLIENT_ID }}"
         - name: SENSITIVE_DATA_IN_RESPONSE_ENABLED
           value: "{{ .Values.env_api.SENSITIVE_DATA_IN_RESPONSE_ENABLED }}"
-        # Contract requests
-        - name: CONTRACT_REQUEST_PRINTOUT_FORM_TEMPLATE_ID
-          value : "{{ .Values.env_api.CONTRACT_REQUEST_PRINTOUT_FORM_TEMPLATE_ID }}"
+        - name: CAPITATION_CONTRACT_REQUEST_PRINTOUT_FORM_TEMPLATE_ID
+          value : "{{ .Values.env_api.CAPITATION_CONTRACT_REQUEST_PRINTOUT_FORM_TEMPLATE_ID }}"
+        - name: CAPITATION_CONTRACT_REQUEST_PRINTOUT_FORM_APPENDIX_TEMPLATE_ID
+          value : "{{ .Values.env_api.CAPITATION_CONTRACT_REQUEST_PRINTOUT_FORM_APPENDIX_TEMPLATE_ID }}"
+        - name: CONTRACT_AUTOTERMINATION_SCHEDULE
+          value : "{{ .Values.env_api.CONTRACT_AUTOTERMINATION_SCHEDULE }}"
+        # Kafka
+        - name: KAFKA_BROKERS_HOST
+          value: "{{ .Values.env_api.KAFKA_BROKERS_HOST }}"
+        - name: KAFKA_BROKERS
+          value: "{{ .Values.env_api.KAFKA_BROKERS_HOST }}"
+        - name: PEDIATRICIAN_DECLARATION_LIMIT
+          value: "{{ .Values.env_api.PEDIATRICIAN_DECLARATION_LIMIT }}"
+        - name: THERAPIST_DECLARATION_LIMIT
+          value: "{{ .Values.env_api.THERAPIST_DECLARATION_LIMIT }}"
+        - name: FAMILY_DOCTOR_DECLARATION_LIMIT
+          value: "{{ .Values.env_api.FAMILY_DOCTOR_DECLARATION_LIMIT }}"
+        - name: USE_PHONE_NUMBER_AUTH_LIMIT
+          value: "{{ .Values.env_api.USE_PHONE_NUMBER_AUTH_LIMIT }}"
+        # Medication request request
+        - name: MEDICATION_REQUEST_REQUEST_EXPIRATION
+          value: "{{ .Values.env_api.MEDICATION_REQUEST_REQUEST_EXPIRATION }}"
+        - name: MEDICATION_REQUEST_REQUEST_OTP_CODE_LENGTH
+          value: "{{ .Values.env_api.MEDICATION_REQUEST_REQUEST_OTP_CODE_LENGTH }}"
+        - name: MEDICATION_REQUEST_REQUEST_DELAY_INPUT
+          value: "{{ .Values.env_api.MEDICATION_REQUEST_REQUEST_DELAY_INPUT }}"
+        - name: MEDICATION_REQUEST_REQUEST_STANDARD_DURATION
+          value: "{{ .Values.env_api.MEDICATION_REQUEST_REQUEST_STANDARD_DURATION }}"
+        - name: MEDICATION_REQUEST_MIN_RENEW_DAY
+          value: "{{ .Values.env_api.MEDICATION_REQUEST_MIN_RENEW_DAY }}"
+        - name: MEDICATION_REQUEST_MAX_RENEW_DAY
+          value: "{{ .Values.env_api.MEDICATION_REQUEST_MAX_RENEW_DAY }}"
+        - name: REIMBURSEMENT_CONTRACT_REQUEST_PRINTOUT_FORM_TEMPLATE_ID
+          value: "{{ .Values.env_api.REIMBURSEMENT_CONTRACT_REQUEST_PRINTOUT_FORM_TEMPLATE_ID }}"
+        - name: CLIENT_TYPE_MSP_LIMITED_ID
+          value: "{{ .Values.env_api.CLIENT_TYPE_MSP_LIMITED_ID }}"
+        - name: SMS_PROVIDER
+          value : "{{ .Values.env_api.SMS_PROVIDER }}"
+        - name: LEGAL_ENTITY_MSP_EMPLOYEE_TYPES
+          value : "{{ .Values.env_api.LEGAL_ENTITY_MSP_EMPLOYEE_TYPES }}"
+        - name: LEGAL_ENTITY_MSP_PHARMACY_EMPLOYEE_TYPES
+          value : "{{ .Values.env_api.LEGAL_ENTITY_MSP_PHARMACY_EMPLOYEE_TYPES }}"
+        - name: LEGAL_ENTITY_PHARMACY_EMPLOYEE_TYPES
+          value : "{{ .Values.env_api.LEGAL_ENTITY_PHARMACY_EMPLOYEE_TYPES }}"
+        - name: DOCTOR_SPECIALITY_LEVELS
+          value : "{{ .Values.env_api.DOCTOR_SPECIALITY_LEVELS }}"
+        - name: PHARMACIST_SPECIALITY_LEVELS
+          value : "{{ .Values.env_api.PHARMACIST_SPECIALITY_LEVELS }}"
         resources:
           requests:
             cpu: {{ .Values.resources_api.cpu }}
@@ -371,4 +490,3 @@ spec:
                 matchLabels:
                   app: postgres
               topologyKey: failure-domain.beta.kubernetes.io/zone
-

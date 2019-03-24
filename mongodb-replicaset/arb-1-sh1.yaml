@@ -1,0 +1,26 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: mongodb-arb-1-sh1
+  name: arb-1-sh1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mongodb-replicaset
+        component: arb-1-sh1
+    spec:
+      containers:
+        - name: arb-1-sh1
+          image: mongo:4.0.2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: mongodb
+              containerPort: 27017
+          command:
+            - mongod
+            - --port=27017
+            - --bind_ip=0.0.0.0
+            - --replSet=sh1

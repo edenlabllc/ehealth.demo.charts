@@ -5,9 +5,9 @@ env_fe:
   containerPort: 8080
   CLIENT_ID:  ""
   CLIENT_SECRET: ""
-  OAUTH_REDIRECT_URL: ""
-  API_ENDPOINT: ""
-  OAUTH_URL: ""
+  OAUTH_REDIRECT_URL: "http://mithril.<example.com>/auth/redirect"
+  API_ENDPOINT: "http://api.<example.com>"
+  OAUTH_URL: "http://auth.<example.com>/sign-in"
   cpu: 50m
   memory: 50Mi
   replicas: 1
@@ -17,24 +17,31 @@ loadBalancerIP:
 
 ingress:
   active: true
-  host:
+  host: mithril.<example.com>
 
 ## API ##
 #Docker image and tag for api
 image_api:
   repository: edenlabllc/mithril_api
-  tag: "3.3.2"
+  tag: "4.1.2"
+
+image_mithril_scheduler:
+  repository: edenlabllc/mithril_scheduler
+  tag: "0.1.1"
+  name: "mithril-scheduler"
 
 env_api:
+  #RPC
+  NAMESPACE: mithril
    # --- Phoenix---#
    #APP_PORT
   LOG_LEVEL: "info"
   port: "4000"
   #APP_HOST
-  host: "0.0.0.0"
+  host: ""
   #APP_SECRET_KEY
-  secret: "iyg86go4fiahw4p9g7haw"
-  ERLANG_COOKIE: "fq93ho8v3hbv8uhruhgaw84hfao8wh4fuh4aehrgo8aheg"
+  secret: ""
+  ERLANG_COOKIE: ""
     # Database
   DB_HOST: "db-svc"
   DB_PORT: "5432"
@@ -62,19 +69,80 @@ env_api:
   OTP_LENGTH: "4"
   OTP_MAX_ATTEMPTS: "3"
   OTP_SEND_TIMEOUT: "1" # minutes
+  MAX_FAILED_LOGINS_PERIOD: "5" # minutes
   OTP_EXPIRATION_SCHEDULE: "*/5 * * * *"
+  TOKEN_DELETING_SCHEDULE: "0,30 1-4 * * *"    
   TOKEN_EXPIRATION_SCHEDULE: "* * * * *"
-  TOKEN_DELETING_SCHEDULE: "0,30 1-4 * * *"
-  JWT_SECRET: "a4OFUHW94GH9EHG9AUHGAUBRGASFiaseuhrisuehrgua"
+  JWT_SECRET: ""
+    # ReCAPTCHA
+  RECAPTCHA_ENABLED: "false"  
+  RECAPTCHA_VERIFY_URL: "https://www.google.com/recaptcha/api/siteverify"
+  RECAPTCHA_SECRET: ""  
   # tokens
   AUTH_ACCESS_TOKEN_LIFETIME: "3600"
   AUTH_REFRESH_TOKEN_LIFETIME: "1209600"
   # minutes
-  PASSWORD_EXPIRATION_DAYS: "90"
+  PASSWORD_EXPIRATION_DAYS: "900"
   TOKEN_TTL_AFTER_EXPIRATION_DAYS: "30"
   JWT_LOGIN_TTL: "15"
   SENSITIVE_DATA_IN_RESPONSE_ENABLED: "true"
   TRUSTED_CLIENT_IDS: ""
+
+env_mithril_scheduler:
+  #RPC
+  NAMESPACE: mithril
+  TOKEN_EXPIRATION_SCHEDULE: "* 0-4 * * *"
+  TOKEN_DELETING_SCHEDULE: "* 1-4 * * *"
+  OTP_EXPIRATION_SCHEDULE: "*/5 * * * *"
+  TOKEN_TTL_AFTER_EXPIRATION_DAYS: "30"
+  #APP_SECRET_KEY
+  ERLANG_COOKIE: "admin"
+    # Database
+  DB_HOST: "db-svc"
+  DB_PORT: "5432"
+  DB_POOL_SIZE: "50"
+  DB_USER: "db"
+  DB_NAME: "mithril"
+  PASSWORD_EXPIRATION_DAYS: "900"
+  OTP_ENDPOINT: "http://api-svc.verification"
+  OTP_REQUEST_TIMEOUT: "30000"
+  # MPI
+  MPI_ENDPOINT: "http://api-svc.mpi"
+  MPI_REQUEST_TIMEOUT: "30000"
+  # Digital signature
+  DIGITAL_SIGNATURE_ENDPOINT: "http://api-svc.digital-signature"
+  DIGITAL_SIGNATURE_REQUEST_TIMEOUT: "30000"
+  DIGITAL_SIGNATURE_ENABLED: "true"
+  # two-factor authentication
+  USER_2FA_ENABLED: "false"
+  SMS_ENABLED: "true"
+  OTP_SMS_TEMPLATE: "Код підтвердження: <otp.code>"
+  USER_LOGIN_ERROR_MAX: "3"
+  USER_OTP_ERROR_MAX: "3"
+  OTP_LIFETIME: "300" # seconds
+  OTP_LENGTH: "4"
+  OTP_MAX_ATTEMPTS: "3"
+  OTP_SEND_TIMEOUT: "1" # minutes
+  MAX_FAILED_LOGINS_PERIOD: "1" # minutes
+  OTP_EXPIRATION_SCHEDULE: "*/5 * * * *"
+  TOKEN_DELETING_SCHEDULE: "* 1-4 * * *"
+  TOKEN_EXPIRATION_SCHEDULE: "* * * * *"
+  JWT_SECRET: ""
+  # ReCAPTCHA
+  RECAPTCHA_ENABLED: "false"
+  RECAPTCHA_VERIFY_URL: "https://www.google.com/recaptcha/api/siteverify"
+  RECAPTCHA_SECRET: ""
+  # tokens
+  AUTH_ACCESS_TOKEN_LIFETIME: "2592000"
+  AUTH_REFRESH_TOKEN_LIFETIME: "1209600"
+  # minutes
+  TOKEN_TTL_AFTER_EXPIRATION_DAYS: "30"
+  JWT_LOGIN_TTL: "15"
+  SENSITIVE_DATA_IN_RESPONSE_ENABLED: "true"
+  TRUSTED_CLIENT_IDS: ""  
+
+
+storageClass: "dev"  
 
 resources_api:
   cpu: "10m"
@@ -120,6 +188,7 @@ rollingUpdate:
   maxSurge: "1"
   maxUnavailable: "1"
 
+storageClass: demo
 env: demo
 
 deployNotification:

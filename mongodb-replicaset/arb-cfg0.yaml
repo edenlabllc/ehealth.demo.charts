@@ -1,0 +1,26 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: mongodb-arb-cfg0
+  name: arb-cfg0
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mongodb-replicaset
+        component: arb-cfg0
+    spec:
+      containers:
+        - name: arb-cfg0
+          image: mongo:4.0.2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: mongodb
+              containerPort: 27017
+          command:
+            - mongod
+            - --port=27017
+            - --bind_ip=0.0.0.0
+            - --replSet=cfg0

@@ -1,0 +1,13 @@
+{{- if eq .Values.env "demo" }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ds-config
+data:
+  config.toml: |
+      [kafka_ex]
+      {{ if eq .Values.env "demo" }}
+      brokers = "kafka.kafka.svc.cluster.local:9092"
+      {{ end }}
+      consumer_group = "digital_signature"
+{{- end }}

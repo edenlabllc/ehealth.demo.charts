@@ -1,0 +1,167 @@
+
+## API ##
+#Docker image and tag for api
+image_api:
+  repository: edenlabllc/ds_api
+  tag: "1.4.1"
+  name: "ds-api"
+
+## CRL ##
+#Docker image and tag for crl
+image_crl:
+  repository: edenlabllc/synchronizer_crl
+  tag: "1.4.1"
+  name: "synchronizer-crl"
+
+## OCSP ##
+#Docker image and tag for ocsp
+image_ocsp:
+  repository: edenlabllc/ocsp_service
+  tag: "1.4.0"
+  name: "ocsp-service"
+
+## DIGITAL SIGNATURE API ##
+env_api:
+  PORT: 4000
+  HOST: "api-svc.digital-signature.svc.cluster.local"
+  SECRET_KEY: ""
+  # OCSP SERVICE DATABASE
+  DB_NAME: "ds"
+  DB_USER: "db"
+  DB_PASSWORD: ""
+  DB_HOST: "db-svc"
+  DB_PORT: "5432"
+  DB_POOL_SIZE: "5"
+  DB_MIGRATE: "true"
+  ## NIF ##
+  CALL_RESPONSE_THRESHOLD: 100
+  CERTS_CACHE_TTL: "1800000"
+  SERVICE_CALL_TIMEOUT: "5000"
+  OCS_CALL_TIMEOUT: "2000"
+  # KAFKA
+  CONSUMER_GROUP: "digital_signature"
+  KAFKA_TOPIC: "digital_signature"
+  KAFKA_BROKERS: "kafka.kafka.svc.cluster.local:9092"
+  DS_KAFKA_PARTITIONS: 1
+
+
+## SYNCHRONIZER CRL ##
+
+#TODO: check correct name
+env_crl:
+  #API
+  PORT: 4000
+  HOST: "crl-svc.digital-signature.svc.cluster.local"
+  SECRET_KEY: ""
+  #DB
+  DB_NAME: "ds"
+  DB_USER: "db"
+  DB_PASSWORD: ""
+  DB_HOST: "db-svc"
+  DB_PORT: "5432"
+  DB_POOL_SIZE: "5"
+  DB_MIGRATE: "false"
+  KAFKA_BROKERS: "kafka.kafka.svc.cluster.local:9092"
+
+
+
+## OCSP SERVICE  ##
+
+#TODO: check correct name
+env_ocsp:
+  # OCSP SERVICE DATABASE
+  DB_NAME: "ds"
+  DB_USER: "db"
+  DB_PASSWORD: ""
+  DB_HOST: "db-svc"
+  DB_PORT: "5432"
+  DB_POOL_SIZE: "5"
+  DB_MIGRATE: "false"
+  MAX_RECHEK_TRIES: "5"
+  RECHEK_TIMEOUT: "3000"
+
+  # EMAIL
+  OCSP_SERVICE_REQUEST_TIMEOUT: 5000
+  EHEALTH_EMAIL_ENDPOINT: "http://api-svc.il"
+  TEMPLATE_ID: 11
+  SENDER: "ehealthtest@ehealth.gov.ua"
+  SMTP_WARNING_RECEIVERS: "example@gmail.com"
+  # KAFKA
+  CONSUMER_GROUP: "digital_signature"
+  KAFKA_TOPIC: "digital_signature"
+  KAFKA_BROKERS: "kafka.kafka.svc.cluster.local:9092"
+  DS_KAFKA_PARTITIONS: 1
+  # NIF
+  CALL_RESPONSE_THRESHOLD: 100
+  CERTS_CACHE_TTL: "1800000"
+  SERVICE_CALL_TIMEOUT: "5000"
+  OCS_CALL_TIMEOUT: "2000"
+
+
+resources_api:
+  cpu: "10m"
+  cpu_limit: "1"
+  memory: "100Mi"
+  memory_limit: "200Mi"
+
+resources_clr:
+  cpu: "10m"
+  cpu_limit: "1"
+  memory: "100Mi"
+  memory_limit: "2Gi"
+
+resources_ocsp:
+  cpu: "10m"
+  cpu_limit: "1"
+  memory: "100Mi"
+  memory_limit: "200Mi"
+
+## DB ##
+image_db:
+  repository: nebo15/alpine-postgre
+  tag: pglogical
+
+env_db:
+  app: "ds-postgresql"
+  version: "9.6"
+  #DB_USER: API - POSTGRES_DB: DB
+  POSTGRES_USER: "db"
+  #DB_PASSWORD: API and DB
+  POSTGRES_PASSWORD: ""
+  PGDATA: "/var/lib/postgresql/data"
+  #DB_NAME: API
+  POSTGRES_DB: "ds"
+  REPLICATOR_USER: "pghoard"
+  REPLICATOR_PASSWORD: ""
+  db_port: "5432"
+  storage: "50Gi"
+
+resources_db:
+  cpu: "50m"
+  cpu_limit: "200m"
+  memory: "112Mi"
+  limits_memory: "1Gi"
+  storage: "2Gi"
+
+log_backups:
+  enabled: false
+  period_in_seconds: "30"
+  image: google/cloud-sdk:198.0.0-alpine
+  log_folder: /var/lib/postgresql/data/pg_log
+  account: 
+  key_file_path: 
+  bucket: 
+
+rollingUpdate:
+  maxSurge: "1"
+  maxUnavailable: "1"
+
+storageClass: demo
+env: demo
+
+deployNotification:
+  enabled: false
+  slackEndpoint:
+  slackChannel:
+  slackUsername:
+  slackEmoji:

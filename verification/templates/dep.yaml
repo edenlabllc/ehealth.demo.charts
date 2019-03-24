@@ -26,20 +26,10 @@ spec:
       containers:
       - name: verification-api
         image:  {{ .Values.image_api.repository }}:{{ .Values.image_api.tag }}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         ports:
         - containerPort: 4000
           protocol: TCP
-        env:
-        - name: REDIS_HOST
-          value: redis-master.redis.svc.cluster.local
-        - name: REDIS_PORT
-          value: "6379"
-        - name: REDIS_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              key: redis-password
-              name: redis
         env:
         # Phoenix
         - name: PORT
@@ -86,11 +76,41 @@ spec:
           value: "{{ .Values.env_api.TWILIO_ACCOUNT_SID }}"
         - name: TWILIO_AUTH_TOKEN
           value: "{{ .Values.env_api.TWILIO_AUTH_TOKEN }}"
+        - name: SMS2IP_GATEWAY_ADAPTER
+          value: "{{ .Values.env_api.SMS2IP_GATEWAY_ADAPTER }}"
+        - name: SMS2IP_SOURCE_NUMBER
+          value: "{{ .Values.env_api.SMS2IP_SOURCE_NUMBER }}"
+        - name: SMS2IP_GATEWAY_URL
+          value: "{{ .Values.env_api.SMS2IP_GATEWAY_URL }}"
+        - name: SMS2IP_GATEWAY_STATUS_URL
+          value: "{{ .Values.env_api.SMS2IP_GATEWAY_STATUS_URL }}"
+        - name: SMS2IP_GATEWAY_LOGIN
+          value: "{{ .Values.env_api.SMS2IP_GATEWAY_LOGIN }}"
+        - name: SMS2IP_GATEWAY_PASSWORD
+          value: "{{ .Values.env_api.SMS2IP_GATEWAY_PASSWORD }}"
+        - name: SMS2IP_HOST
+          value: "{{ .Values.env_api.SMS2IP_HOST }}"
+        - name: SMS2IP_ACCOUNT_SID
+          value: "{{ .Values.env_api.SMS2IP_ACCOUNT_SID }}"
+        - name: SMS2IP_AUTH_TOKEN
+          value: "{{ .Values.env_api.SMS2IP_AUTH_TOKEN }}"
         - name: CODE_EXPIRATION_PERIOD_MINUTES
           value: "{{ .Values.env_api.CODE_EXPIRATION_PERIOD_MINUTES }}"
+        - name: REDIS_HOST
+          value: "{{ .Values.env_api.REDIS_HOST }}"
+        - name: REDIS_PORT
+          value: "{{ .Values.env_api.REDIS_PORT }}"
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis
+              key: redis-password
         # App migrations
         - name: DB_MIGRATE
-          value: "true"
+          value: "{{ .Values.env_api.DB_MIGRATE }}"
+        # Timiout for sms
+        - name: HACKNEY_REQUEST_TIMEOUT
+          value: "{{ .Values.env_api.HACKNEY_REQUEST_TIMEOUT }}"
         resources:
           requests:
             cpu: {{ .Values.resources_api.cpu }}
@@ -119,7 +139,3 @@ spec:
                 matchLabels:
                   app: postgres
               topologyKey: failure-domain.beta.kubernetes.io/zone
-        {{- if or (eq .Values.env "prod") (eq .Values.env "preprod") }}
-      nodeSelector:
-        cloud.google.com/gke-nodepool: {{ .Values.nodeSelector_api}}
-        {{ end }}

@@ -1,0 +1,65 @@
+apiVersion: apps/v1beta2
+kind: StatefulSet
+metadata:
+  labels:
+    app: mongodb-arb-sh0
+    component: arb-sh0
+  name: arb-sh0
+  namespace: me-db
+spec:
+  selector:
+    matchLabels:
+      app: mongodb-arb-sh0
+      component: arb-sh0
+  replicas: 1
+  serviceName:  arb-sh0
+  template:
+    metadata:
+      labels:
+        app: mongodb-arb-sh0
+        component: arb-sh0
+    spec:
+      containers:
+        - name: arb-sh0
+          image: mongo:4.0.4
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: mongodb
+              containerPort: 27017
+          command:
+            - mongod
+            - --port=27017
+            - --bind_ip=0.0.0.0
+            - --replSet=sh0
+            - --keyFile=/data/configdb/key.txt
+          volumeMounts:
+            - name: configdir
+              mountPath: /data/configdb
+      volumes:
+        - name: keydir
+          secret:
+            defaultMode: 0400
+            secretName: mongodb-sh0-mongodb-replicaset-keyfile
+        - name: workdir
+          emptyDir: {}
+        - name: configdir
+          emptyDir: {}
+      initContainers:
+        - name: copy-config
+          image: busybox
+          command:
+            - "sh"
+          args:
+            - "-c"
+            - |
+              set -e
+              set -x
+              cp /keydir-readonly/key.txt /data/configdb/key.txt
+              chmod 600 /data/configdb/key.txt
+          volumeMounts:
+            - name: keydir
+              mountPath: /keydir-readonly
+            - name: configdir
+              mountPath: /data/configdb
+      nodeSelector:
+        databases: mongodb

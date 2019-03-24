@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: mpi
+  name: db-svc-dedup
+  labels:
+    app: postgresql-dedup
+spec:
+  ports:
+  - name: postgresql
+    port: 5432
+    targetPort: 5432
+  selector:
+    app: postgresql-dedup
+  type: ClusterIP
+  clusterIP: "None"

@@ -12,7 +12,7 @@ env_fe:
 
 image_api:
   repository: edenlabllc/man_api
-  tag: "2.3.7"
+  tag: "3.1.5"
 
 env_api:
    # Phoenix
@@ -27,14 +27,13 @@ env_api:
     # App migrations
   DB_MIGRATE: "true"
     # Auth_host
-  AUTH_HOST: ""
+  AUTH_HOST: "http://auth.<example.com>"
 
 resources_api:
   cpu: "10m"
   cpu_limit: "1"
   memory: "100Mi"
   memory_limit: "300Mi"
-
 
 image_db:
   repository: nebo15/alpine-postgre
@@ -56,9 +55,9 @@ service:
 
 resources_db:
   cpu: "50m"
-  memory: "112Mi"
+  memory: "512Mi"
   limits_memory: "1Gi"
-  storage: "10Gi"
+  storage: "1Gi"
 
 log_backups:
   enabled: false
@@ -73,6 +72,7 @@ rollingUpdate:
   maxSurge: "1"
   maxUnavailable: "1"
 
+storageClass: demo
 env: demo
 
 deployNotification:

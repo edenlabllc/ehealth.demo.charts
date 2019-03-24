@@ -1,0 +1,70 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Values.abac_api.name }}
+  labels:
+    app: {{ .Values.abac_api.name }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: {{ .Values.abac_api.name }}
+  strategy:
+    rollingUpdate:
+      maxSurge: {{ .Values.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.rollingUpdate.maxUnavailable }}
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.abac_api.name }}
+    spec:
+      containers:
+      - name: {{ .Values.abac_api.name }}
+        image: {{ .Values.abac_api.repository }}:{{ .Values.abac_api.tag }}
+        imagePullPolicy: Always
+        command: ["sh", "-c"]
+        args: ["POD_A_RECORD"]
+        args: ["export POD_A_RECORD=$(echo $POD_IP | sed 's/\\./\\-/g') && /app/bin/abac_api foreground"]
+        ports:
+        - containerPort: 4000
+          protocol: TCP
+        env:
+        {{- range $name, $value := .Values.env_api }}
+        {{- if not (empty $value) }}
+        - name: {{ $name | quote }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis
+              key: redis-password
+        # RPC env
+        - name: NAMESPACE
+          value: "{{ .Values.env_api.NAMESPACE }}"
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        resources:
+          requests:
+            cpu: {{ .Values.resources_api.cpu }}
+            memory: {{ .Values.resources_api.memory }}
+          limits:
+            cpu: {{ .Values.resources_api.cpu_limit }}
+            memory: {{ .Values.resources_api.memory_limit }}
+        readinessProbe:
+          timeoutSeconds: 2
+          initialDelaySeconds: 5
+          failureThreshold: 3
+          tcpSocket:
+            port: 4000
+        livenessProbe:
+          timeoutSeconds: 2
+          initialDelaySeconds: 5
+          failureThreshold: 3
+          tcpSocket:
+            port: 4000

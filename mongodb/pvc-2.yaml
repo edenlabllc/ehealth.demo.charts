@@ -1,0 +1,12 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: datadir-mongodb-primary-0
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: primary
+  resources:
+    requests:
+      storage: 40000Gi
+ # volumeName: pv-mongo-master

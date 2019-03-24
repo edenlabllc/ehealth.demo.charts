@@ -5,12 +5,12 @@ image_fe:
    tag: "0.1.21"
 env_fe:
   containerPort: 8080
-  API_ENDPOINT: ""
-  AUTH_ENDPOINT: ""
+  API_ENDPOINT: "http://api.<example.com>/api/uaddresses"
+  AUTH_ENDPOINT: "http://api.<example.com>"
   CLIENT_ID:  ""
   CLIENT_SECRET: ""
-  OAUTH_REDIRECT_URL: ""
-  OAUTH_URL: ""
+  OAUTH_REDIRECT_URL: "http://uaddresses.<example.com>/auth/redirect"
+  OAUTH_URL: "http://auth.<example.com>/sign-in"
   cpu: 50m
   memory: 50Mi
   replicas: 1
@@ -18,15 +18,17 @@ env_fe:
   app: fe
 
 ingress:
-  host:
+  host: uaddresses.<example.com>
 
 ## API ##
 #Docker image and tag for api
 image_api:
   repository: edenlabllc/uaddresses_api
-  tag: "2.1.0"
+  tag: "3.1.1"
 
 env_api:
+##RPC
+  NAMESPACE: "uaddresses"
    # --- Phoenix---#
    #APP_PORT
   port: "4000"
@@ -72,7 +74,7 @@ resources_db:
   cpu: "50m"
   memory: "112Mi"
   limits_memory: "1Gi"
-  storage: "10Gi"
+  storage: "2Gi"
 
 log_backups:
   enabled: false
@@ -88,6 +90,7 @@ rollingUpdate:
   maxUnavailable: "1"
 
 env: demo
+storageClass: demo
 
 deployNotification:
   enabled: false

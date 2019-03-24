@@ -1,0 +1,135 @@
+image_audit_log_consumer:
+  repository: edenlabllc/audit_log_consumer
+  tag: "2.7.1"
+  name: "audit-log-consumer"
+
+image_event_consumer:
+  repository: edenlabllc/event_consumer
+  tag: "2.7.1"
+  name: "event-consumer"
+
+image_medical_events_api:
+  repository: edenlabllc/medical_events_api
+  tag: "2.7.1"
+  name: "api-medical-events"
+
+image_person_consumer:
+  repository: edenlabllc/person_consumer
+  tag: "2.7.1"
+  name: "person-consumer"
+
+image_secondary_events_consumer:
+  repository: edenlabllc/secondary_events_consumer
+  tag: "2.7.1"
+  name: "secondary-events-consumer"
+
+image_number_generator:
+  repository: edenlabllc/number_generator
+  tag: "0.3.1"
+  name: "number-generator"
+
+image_me_transactions:
+  repository: edenlabllc/me_transactions
+  tag: "1.0.2"
+  name: "me-transactions"
+
+image_medical_events_scheduler:
+  repository: edenlabllc/medical_events_scheduler
+  tag: "develop"
+  name: "medical-events-scheduler"
+
+env_api:
+#RPC env
+  NAMESPACE: "me"
+   # Phoenix
+  PORT: "4000"
+  HOST: ""
+  SECRET_KEY: ""
+  ERLANG_COOKIE: ""
+    # Database
+  DB_URL: mongodb://mongodb.me-db.svc.cluster.local:27017/medical_data
+  AUDIT_LOG_DB_URL: mongodb://mongodb.me-db.svc.cluster.local:27017/medical_data
+  REDIS_HOST: "redis-master.redis.svc.cluster.local"
+  # APP
+  DB_MIGRATE: "true"
+  JSON_SCHEMA_ERRORS_LIMIT: "6"
+  # Misc
+  DIGITAL_SIGNATURE_ENABLED: "true"
+  ENCOUNTER_MAX_DAYS_PASSED: "7"
+  CONDITION_MAX_DAYS_PASSED: "54750"
+  OBSERVATION_MAX_DAYS_PASSED: "54750"
+  ALLERGY_INTOLERANCE_MAX_DAYS_PASSED: "54750"
+  IMMUNIZATION_MAX_DAYS_PASSED: "54750"
+  APPROVAL_EXPIRATION: "1440"
+  MEDICAL_EVENTS_PARTITIONS: "4"
+  PERSON_EVENTS_PARTITIONS: "4"
+  MONGO_EVENTS_PARTITIONS: "4"
+  ENCOUNTER_PACKAGE_EVENTS_PARTITIONS: "4"
+  SECONDARY_EVENTS_PARTITIONS: "4"
+  JOB_UPDATE_EVENTS_PARTITIONS: "4"
+  PERSON_PK_KEYPHRASE: "1gks51gt12rsa1bwer"
+  PERSON_PK_IVPHRASE: "9lab355Fv1qj2g2bwer"
+  KAFKA_BROKERS: "kafka.kafka.svc.cluster.local:9092"
+
+env_medical_events_scheduler:
+  NAMESPACE: "me"
+   # Phoenix
+  PORT: "4000"
+  HOST: ""
+  SECRET_KEY: ""
+  ERLANG_COOKIE: ""
+    # Database
+  DB_URL: mongodb://mongodb.me-db.svc.cluster.local:27017/medical_data
+  AUDIT_LOG_DB_URL: mongodb://mongodb.me-db.svc.cluster.local:27017/medical_data
+  REDIS_HOST: "redis-master.redis.svc.cluster.local"
+  # APP
+  SERVICE_REQUEST_AUTOEXPIRATION_SCHEDULE: "*/15 * * * *"
+  DB_MIGRATE: "true"
+  JSON_SCHEMA_ERRORS_LIMIT: "6"
+  # Misc
+  DIGITAL_SIGNATURE_ENABLED: "false"
+  ENCOUNTER_MAX_DAYS_PASSED: "7"
+  CONDITION_MAX_DAYS_PASSED: "54750"
+  OBSERVATION_MAX_DAYS_PASSED: "54750"
+  ALLERGY_INTOLERANCE_MAX_DAYS_PASSED: "54750"
+  IMMUNIZATION_MAX_DAYS_PASSED: "54750"
+  APPROVAL_EXPIRATION: "1440"
+  MEDICAL_EVENTS_PARTITIONS: "4"
+  PERSON_EVENTS_PARTITIONS: "4"
+  MONGO_EVENTS_PARTITIONS: "4"
+  SECONDARY_EVENTS_PARTITIONS: "4"
+  JOB_UPDATE_EVENTS_PARTITIONS: "4"
+  PERSON_PK_KEYPHRASE: ""
+  PERSON_PK_IVPHRASE: ""
+  KAFKA_BROKERS: "kafka.kafka.svc.cluster.local:9092"
+
+
+env_number_generator:
+  NUMBER_GENERATOR_KEY: ""
+
+env_me_transactions:
+  #rpc
+  NAMESPACE: "me"
+  ERLANG_COOKIE: "admin"
+  MONGO_URL: "mongodb://mongodb.me-db.svc.cluster.local:27017/medical_data"
+  #DEBUG
+  DEBUG: "false"
+
+resources_api:
+  cpu: "10m"
+  cpu_limit: "1"
+  memory: "100Mi"
+  memory_limit: "500Mi"
+
+rollingUpdate:
+  maxSurge: "1"
+  maxUnavailable: "1"
+
+env: demo
+
+deployNotification:
+  enabled: false
+  slackEndpoint:
+  slackChannel:
+  slackUsername:
+  slackEmoji:

@@ -1,0 +1,62 @@
+{{- if or (eq .Values.env "dev") (eq .Values.env "demo") }}
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Values.image_medical_events_scheduler.name }}
+  labels:
+    app: {{ .Values.image_medical_events_scheduler.name }}
+    version: {{ .Values.image_medical_events_scheduler.tag }}    
+spec:
+  {{- if or (eq .Values.env "demo") (eq .Values.env "preprod") }}
+  replicas: 0
+  {{- end }}
+  {{- if eq .Values.env "dev" }}
+  replicas: 1
+  {{- end }}
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: {{ .Values.image_medical_events_scheduler.name }}
+  strategy:
+    rollingUpdate:
+      maxSurge: {{ .Values.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.rollingUpdate.maxUnavailable }}
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.image_medical_events_scheduler.name }}
+    spec:
+      containers:
+      - name: {{ .Values.image_medical_events_scheduler.name }}
+        image: {{ .Values.image_medical_events_scheduler.repository }}:{{ .Values.image_medical_events_scheduler.tag }}
+        imagePullPolicy: Always
+        command: ["sh", "-c"]
+        args: ["POD_A_RECORD"]
+        args: ["export POD_A_RECORD=$(echo $POD_IP | sed 's/\\./\\-/g') && /app/bin/medical_events_scheduler foreground"]
+        # ports:
+        # - containerPort: 4000
+        #   protocol: TCP
+        env:
+        {{- range $name, $value := .Values.env_medical_events_scheduler }}
+        {{- if not (empty $value) }}
+        - name: {{ $name | quote }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        resources:
+          requests:
+            cpu: {{ .Values.resources_api.cpu }}
+            memory: {{ .Values.resources_api.memory }}
+          limits:
+            cpu: {{ .Values.resources_api.cpu_limit }}
+            memory: {{ .Values.resources_api.memory_limit }}
+        {{- if or (eq .Values.env "prod") (eq .Values.env "preprod") }}
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.nodeSelector_api}}
+        {{ end }}
+{{- end }}

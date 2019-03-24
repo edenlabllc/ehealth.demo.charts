@@ -1,0 +1,63 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  labels:
+    name: capitation
+  name: capitation-cronjob
+  namespace: reports
+spec:
+  schedule: "{{ .Values.image_capitation.schedule }}"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 4
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: {{ .Values.image_capitation.name }}
+            image: {{ .Values.image_capitation.repository }}:{{ .Values.image_capitation.tag }}
+            imagePullPolicy: Always
+            command: ["sh", "-c"]
+            args: ["POD_A_RECORD"]
+            args: ["export POD_A_RECORD=$(echo $POD_IP | sed 's/\\./\\-/g') && /app/bin/capitation foreground"]
+            env:
+              # RPC env
+              - name: NAMESPACE
+                value: "{{ .Values.env_api.NAMESPACE }}"
+              - name: POD_IP
+                valueFrom:
+                  fieldRef:
+                    fieldPath: status.podIP
+              - name: CAPITATION_REPORT_VALIDATE_SIGNATURE
+                value: "{{ .Values.env_api.CAPITATION_REPORT_VALIDATE_SIGNATURE }}"
+              - name: ERLANG_COOKIE
+                value: "{{ .Values.env_api.ERLANG_COOKIE }}"
+              - name: CAPITATION_APP_STOP
+                value: "{{ .Values.env_api.CAPITATION_APP_STOP }}"
+              - name: DB_NAME
+                value: "{{ .Values.env_db.POSTGRES_DB }}"
+              - name: DB_USER
+                value: "{{ .Values.env_db.POSTGRES_USER }}"
+              - name: DB_PASSWORD
+        {{- if .Values.env_db.POSTGRES_PASSWORD }}
+                value: "{{ .Values.env_db.POSTGRES_PASSWORD }}"
+        {{ else }}
+                valueFrom:
+                  secretKeyRef:
+                    name: db
+                    key: DB_PASSWORD
+        {{ end }}
+              - name: DB_HOST
+                value: "{{ .Values.env_api.DB_HOST }}"
+              - name: DB_PORT
+                value: "{{ .Values.env_api.DB_PORT }}"
+              - name: DB_POOL_SIZE
+                value: "{{ .Values.env_api.DB_POOL_SIZE }}"
+              - name: MEDIA_STORAGE_DECLARATIONS_BUCKET
+                value: "{{ .Values.env_api.MEDIA_STORAGE_DECLARATIONS_BUCKET }}"
+              - name: MEDIA_STORAGE_CAPITATION_REPORT_BUCKET
+                value: "{{ .Values.env_api.MEDIA_STORAGE_CAPITATION_REPORT_BUCKET }}"
+              - name: MEDIA_STORAGE_ENABLED
+                value: "{{ .Values.env_api.MEDIA_STORAGE_ENABLED }}"
+          restartPolicy: Never

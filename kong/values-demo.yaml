@@ -3,7 +3,7 @@
 #Docker image and tag for api
 image_api:
   repository: edenlabllc/kong
-  tag: "0.1.0"
+  tag: "0.2.8"
 
 run_migration:
   false
@@ -13,7 +13,7 @@ env_api:
   KONG_ADMIN_ACCESS_LOG: "/dev/stdout"
   KONG_PROXY_ERROR_LOG: "/dev/stderr"
   KONG_ADMIN_ERROR_LOG: "/dev/stderr"
-  KONG_CUSTOM_PLUGINS: "mithril,stdout-log"
+  KONG_PLUGINS: "mithril,correlation-id,rate-limiting,cors"
   KONG_REAL_IP_HEADER: "CF-Connecting-IP"
   KONG_TRUSTED_IPS: "0.0.0.0/0,::/0"
     # Database
@@ -25,6 +25,7 @@ resources_api:
   memory: "100Mi"
   memory_limit: "500Mi"
 
+storageClass: "google"
 ## DB ##
 image_db:
   repository: nebo15/alpine-postgre
@@ -60,6 +61,7 @@ log_backups:
 nodeSelector:
   enabled: false
 
+env: demo
 rollingUpdate:
   maxSurge: "1"
   maxUnavailable: "1"

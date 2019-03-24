@@ -1,0 +1,63 @@
+{{- if .Values.deployNotification.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{.Release.Name}}"
+  labels:
+    heritage: {{.Release.Service | quote }}
+    release: {{.Release.Name | quote }}
+    chart: "{{.Chart.Name}}-{{.Chart.Version}}"
+  annotations:
+    "helm.sh/hook": post-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      name: "{{.Release.Name}}"
+      labels:
+        heritage: {{.Release.Service | quote }}
+        release: {{.Release.Name | quote }}
+        chart: "{{.Chart.Name}}-{{.Chart.Version}}"
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: post-upgrade-job
+        image: "edenlabllc/basic-utils:1.0"
+        env:
+        - name: SERVICE
+          value: "{{.Chart.Name}}"
+        - name: VERSION
+          value: "{{.Values.image_medical_events_api.tag}}"
+        - name: SLACK_ENDPOINT
+          value: "{{.Values.deployNotification.slackEndpoint}}"
+        - name: SLACK_CHANNEL
+          value: "{{.Values.deployNotification.slackChannel}}"
+        - name: SLACK_USERNAME
+          value: "{{.Values.deployNotification.slackUsername}}"
+        - name: SLACK_EMOJI
+          value: "{{.Values.deployNotification.slackEmoji}}"
+        command:
+          - sh
+          - -c
+          - |
+            payload=$(
+              jq \
+                --null-input \
+                --raw-output \
+                --arg username "$SLACK_USERNAME" \
+                --arg text "$SERVICE was upgraded to version $VERSION on production" \
+                --arg channel "$SLACK_CHANNEL" \
+                --arg icon_emoji "$SLACK_EMOJI" \
+                '{
+                   username: $username,
+                   text: $text,
+                   channel: $channel,
+                   icon_emoji: $icon_emoji
+                 }'
+            )
+
+            curl --request POST \
+                 --silent \
+                 --data "$payload" \
+                 $SLACK_ENDPOINT
+{{ end }}

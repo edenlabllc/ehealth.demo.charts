@@ -25,11 +25,21 @@ spec:
       containers:
       - name: report-api
         image: {{ .Values.image_api.repository }}:{{ .Values.image_api.tag }}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
+        command: ["sh", "-c"]
+        args: ["POD_A_RECORD"]
+        args: ["export POD_A_RECORD=$(echo $POD_IP | sed 's/\\./\\-/g') && /app/bin/report_api foreground"]
         ports:
         - containerPort: 4000
           protocol: TCP
         env:
+        # RPC env
+        - name: NAMESPACE
+          value: "{{ .Values.env_api.NAMESPACE }}"
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
         # Phoenix
         - name: PORT
           value: "{{ .Values.env_api.port }}"
@@ -64,12 +74,22 @@ spec:
         # App migrations
         - name: DB_MIGRATE
           value: "{{ .Values.env_api.DB_MIGRATE }}"
+        - name: GANDALF_DECISION_URL
+          value: "{{ .Values.env_api.GANDALF_DECISION_URL }}"
+        - name: GANDALF_USER
+          value: "{{ .Values.env_api.GANDALF_USER }}"
+        - name: GANDALF_PASSWORD
+          value: "{{ .Values.env_api.GANDALF_PASSWORD }}"
+        - name: GANDALF_APPLICATION_HEADER
+          value: "{{ .Values.env_api.GANDALF_APPLICATION_HEADER }}"
         - name: MEDIA_STORAGE_ENABLED
           value: "{{ .Values.env_api.MEDIA_STORAGE_ENABLED }}"
-        - name: VALIDATE_SIGNED_CONTENT
-          value: "{{ .Values.env_api.VALIDATE_SIGNED_CONTENT }}"
+        - name: CAPITATION_REPORT_VALIDATE_SIGNATURE
+          value: "{{ .Values.env_api.CAPITATION_REPORT_VALIDATE_SIGNATURE }}"
         - name: MEDIA_STORAGE_CAPITATION_REPORT_BUCKET
           value: "{{ .Values.env_api.MEDIA_STORAGE_CAPITATION_REPORT_BUCKET }}"
+        - name: CAPITATION_SCHEDULE
+          value: "{{ .Values.env_api.CAPITATION_SCHEDULE }}"
         - name: MEDIA_STORAGE_DECLARATIONS_BUCKET
           value: "{{ .Values.env_api.MEDIA_STORAGE_DECLARATIONS_BUCKET }}"
         - name: REGIONS_STATS_CACHE_TTL

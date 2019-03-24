@@ -1,9 +1,22 @@
 
 image_api:
   repository: edenlabllc/report_api
-  tag: "2.3.2"
+  tag: "2.7.1"
+
+image_capitation:
+  repository: edenlabllc/capitation
+  tag: "1.3.0"
+  name: "capitation"
+  schedule: "*/15 * * * *"
+
+image_report_cache:
+  repository: edenlabllc/report_cache
+  tag: "1.2.0"
+  name: "cache"
 
 env_api:
+# RPC env
+  NAMESPACE: "reports"
    # Phoenix
   port: "4000"
   host: ""
@@ -16,11 +29,16 @@ env_api:
   SOURCE_NUMBER: "E-Health"
     # App migrations
   DB_MIGRATE: "true"
+  GANDALF_DECISION_URL: ""
+  GANDALF_USER: ""
+  GANDALF_PASSWORD: ""
+  GANDALF_APPLICATION_HEADER: ""
   MEDIA_STORAGE_ENABLED: true
   MEDIA_STORAGE_DECLARATIONS_BUCKET: "declarations-dev"
   MEDIA_STORAGE_CAPITATION_REPORT_BUCKET: "capitation-reports-dev"
-  CAPITATION_REPORT_VALIDATE_SIGNATURE: true
+  CAPITATION_REPORT_VALIDATE_SIGNATURE: false
   CAPITATION_SCHEDULE: "0 0 1 * *"
+  CAPITATION_APP_STOP: true
   MAIN_STATS_CACHE_TTL: "60000"
   REGIONS_STATS_CACHE_TTL: "300000"
   HISTOGRAM_STATS_CACHE_TTL: "300000"
@@ -29,7 +47,13 @@ env_api:
 resources_api:
   cpu: "10m"
   cpu_limit: "1"
-  memory: "112Mi"
+  memory: "150Mi"
+  memory_limit: "350Mi"
+
+resources_report_cache:
+  cpu: "10m"
+  cpu_limit: "1"
+  memory: "150Mi"
   memory_limit: "350Mi"
 
 image_db:
@@ -63,12 +87,13 @@ resources_db:
   cpu: "50m"
   memory: "112Mi"
   limits_memory: "1Gi"
-  storage: "10Gi"
+  storage: "2Gi"
 
 rollingUpdate:
   maxSurge: "1"
   maxUnavailable: "1"
 
+storageClass: demo
 env: demo
 
 deployNotification:

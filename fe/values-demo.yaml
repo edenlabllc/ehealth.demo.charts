@@ -1,25 +1,30 @@
 ## FE ADMIN ##
 image_admin_web:
   image: edenlabllc/ehealth.admin-web
-  tag: "0.111.0"
-  loadBalancerIP:
+  tag: "1.52.0"
+  loadBalancerIP: <lb_ip>
 admin_web_env:
-  REACT_APP_API_URL: "<url_to_api>"
-  REACT_APP_CLIENT_ID: "<client_id>"
-  REACT_APP_CLIENT_SECRET: "<client_secret>"
-  REACT_APP_OAUTH_URL: "<auth_url>/sign-in"
-  REACT_APP_OAUTH_REDIRECT_URI: ""
-  REACT_APP_SIGNER_URL: "<auth_url>/sign"
+  REACT_APP_API_URL: "http://api.<example.com>"
+  REACT_APP_CLIENT_ID: <client_id>
+  REACT_APP_CLIENT_SECRET: "qkh3isJG$uKGKyabW3mFvWx8Zrt1AS"
+  REACT_APP_OAUTH_URL: "http://auth.<example.com>/sign-in"
+  REACT_APP_OAUTH_REDIRECT_URI: "http://admin.<example.com>/auth/redirect"
+  REACT_APP_SIGNER_URL: "http://auth.<example.com>/auth/redirect"
+  REACT_APP_ENVIRONMENT: "demo"
+  REACT_APP_STAMP_URL: "https://auth.<example.com>/stamp"
+  REACT_APP_ADMIN_LEGACY_URL: "https://admin-legacy.<example.com>"
+  REACT_APP_SENTRY_DSN: ""
+  REACT_APP_FEATURES: "legacy"
 
 ## FE ADMIN GATEKEEPER ##
 admin_gatekeeper_web_env:
   PORT: "4000"
   API_URL: "http://api-svc.mithril"
   OAUTH_REDIRECT_PATH: "/auth/redirect"
-  OAUTH_REDIRECT_URI: "<admin_url>/auth/redirect"
-  CLIENT_ID: "<client_id>"
-  CLIENT_SECRET: "<client_secret>"
-  COOKIE_DOMAIN: "<domain>"
+  OAUTH_REDIRECT_URI: "http://admin.<example.com>/auth/redirect"
+  CLIENT_ID: <client_id>
+  CLIENT_SECRET: "qkh3isJG$uKGKyabW3mFvWx8Zrt1AS"
+  COOKIE_DOMAIN: ".<example.com>"
 
 ## FE GATEKEEPER ##
 image_gatekeeper_web:
@@ -29,26 +34,28 @@ image_gatekeeper_web:
 ## FE ADMIN LEGACY ##
 image_admin_legacy_web:
   image: edenlabllc/ehealth.admin-legacy-web
-  tag: "0.90.0"
-  loadBalancerIP:
+  tag: "1.51.2"
+  loadBalancerIP: <lb_ip>
 admin_legacy_web_env:
-  REACT_APP_API_HOST:  "<api_url>"
-  REACT_APP_CLIENT_ID: "<client_id>"
-  REACT_APP_OAUTH_URL: "<auth_url>/sign-in"
-  REACT_APP_OAUTH_REDIRECT_URI: "<admin_legacy_url>/auth/redirect"
-  REACT_APP_SIGNER_URL: "<auth_url>/sign"
+  REACT_APP_API_HOST:  "http://api.<example.com>"
+  REACT_APP_CLIENT_ID: <client_id>
+  REACT_APP_OAUTH_URL: "http://auth.<example.com>/sign-in"
+  REACT_APP_OAUTH_REDIRECT_URI: "http://admin.<example.com>/auth/redirect"
+  REACT_APP_SIGNER_URL: "http://auth.<example.com>/sign"
   REACT_APP_APP_ENV: "demo"
-  REACT_APP_BI_URL: "<power_bi_url>"
+  REACT_APP_BI_URL: ""
+  REACT_APP_STAMP_URL: "https://auth.<example.com>/stamp"
+  REACT_APP_ADMIN_URL: "https://admin.<example.com>"
 
 ## FE ADMIN LEGACY GATEKEEPER ##
 admin_legacy_gatekeeper_web_env:
   PORT: "4000"
   API_URL: "http://api-svc.mithril"
   OAUTH_REDIRECT_PATH: "/auth/redirect"
-  OAUTH_REDIRECT_URI: "<admin_legacy_url>/auth/redirect"
-  CLIENT_ID: "<client_id>"
-  CLIENT_SECRET: "<client_secret>"
-  COOKIE_DOMAIN: "<domain>"
+  OAUTH_REDIRECT_URI: "http://admin.<example.com>/auth/redirect"
+  CLIENT_ID: <client_id>
+  CLIENT_SECRET: "qkh3isJG$uKGKyabW3mFvWx8Zrt1AS"
+  COOKIE_DOMAIN: ".<example.com>"
 
 
 ## FE NHS AUTH ##
@@ -58,42 +65,34 @@ image_AUTH:
    loadBalancerIP: <lb_ip>
 AUTH_env:
    PORT: "8080"
-   API_ENDPOINT: "<api_url>"
-   AUTH_ENDPOINT: "<api_url>"
-   CLIENT_ID: "<client_id>"
+   API_ENDPOINT: "http://api.<example.com>"
+   AUTH_ENDPOINT: "http://api.<example.com>"
+   CLIENT_ID: <client_id>
 
-## FE STATUS ##
-image_status:
-   image: edenlabllc/annon.status.web
-   tag: "0.1.8"
-STATUS_env:
-   PORT: "8080"
-   API_ENDPOINT: "<api_url>"
-   PROJECT_NAME: "eHealth Demo Dashboard"
-   PROJECT_DESCRIPTION: "This dashboard discloses status of public eHealth endpoints in demo environment."
 
 ## FE PORTAL ##
 image_PORTAL:
    image: edenlabllc/nhs.portal.web
-   tag: "1.3.40"
+   tag: "1.3.72"
    loadBalancerIP: <lb_ip>
 PORTAL_env:
-   API_ENDPOINT: "<api_url>"
+   API_ENDPOINT: "http://api.<example.com>"
 
 ## FE AUTH ##
 image_auth_web:
   image: edenlabllc/ehealth.auth-web
-  tag: "0.76.0"
+  tag: "1.57.2"
   loadBalancerIP: <lb_ip>
 auth_web_env:
-  REACT_APP_API_URL: "<api_url>"
-  REACT_APP_AUTH_URL: "<api_url>"
-  REACT_APP_PROXY_URL: "<proxy_url>"
-  REACT_APP_CLIENT_ID: "<client_id>"
-  REACT_APP_PATIENT_ACCOUNT_CLIENT_ID: "<client_id>"
-  REACT_APP_PATIENT_ACCOUNT_REDIRECT_URI: "<account_url>/auth/redirect"
+  REACT_APP_API_URL: "http://api.<example.com>"
+  REACT_APP_AUTH_URL: "http://api.<example.com>"
+  REACT_APP_PROXY_URL: "http://proxy.<example.com>"
+  REACT_APP_CLIENT_ID: <client_id>
+  REACT_APP_PATIENT_ACCOUNT_CLIENT_ID: <client_id>
+  REACT_APP_PATIENT_ACCOUNT_REDIRECT_URI: "http://account.<example.com>/auth/redirect"
   REACT_APP_DIGITAL_SIGNATURE_ENABLED: "true"
-  REACT_APP_ALLOWED_SIGN_ORIGINS: "<admin_url>,<account_url>"
+  REACT_APP_ALLOWED_SIGN_ORIGINS: "http://admin.<example.com>,http://account.<example.com>"
+  REACT_APP_RECAPTCHA_KEY: ""
 
 ## FE IIT PROXY ##
 image_iit_proxy_web:
@@ -102,20 +101,21 @@ image_iit_proxy_web:
   loadBalancerIP:
 iit_proxy_web_env:
   PORT: "5000"
+  NODE_TLS_REJECT_UNAUTHORIZED: "0"
 
 ## FE POLYFILL ##
 image_polyfill_web:
   image: edenlabllc/ehealth.polyfill-web
-  tag: "0.73.0"
+  tag: "0.140.0"
 polyfill_web_env:
   PORT: "4000"
 
 ingress:
-  admin_host: <admin_host_url>
-  admin_legacy_host: <admin_legacy_host_url>
-  auth_host: <auth_host_url>
-  nhs_portal_host: <portal_host_url>
-  proxy_host: <prixy_host_url>
+  admin_host: admin.<example.com>
+  admin_legacy_host: admin-legacy.<example.com>
+  auth_host: auth.<example.com>
+  nhs_portal_host: portal.<example.com>
+  proxy_host: proxy.<example.com>
 env: demo
 
 deployNotification:

@@ -3,9 +3,16 @@
 #Docker image and tag for api
 image_api:
   repository: edenlabllc/ehealth
-  tag: "8.7.0"
+  tag: "8.12.4"
+
+image_ehealth_scheduler:
+  repository: edenlabllc/ehealth_scheduler
+  tag: "1.1.3"
+  name: "ehealth-scheduler"
 
 env_api:
+  # RPC env
+  NAMESPACE: "il"
    # --- Phoenix---#
    #APP_PORT
   port: "4000"
@@ -14,7 +21,6 @@ env_api:
   #APP_SECRET_KEY
   secret: ""
   ERLANG_COOKIE: ""
-  GATEWAY_ADAPTER: Mouth.IP2SMSAdapter
         # Database
   DB_NAME: "il"
   DB_USER: "db"
@@ -22,6 +28,13 @@ env_api:
   DB_HOST: "db-svc"
   DB_PORT: "5432"
   DB_POOL_SIZE: "50"
+          # Read db env
+  READ_DB_NAME: "il"
+  READ_DB_USER: "db"
+  READ_DB_PASSWORD: ""
+  READ_DB_HOST: "db-svc"
+  READ_DB_PORT: "5432"
+  READ_DB_POOL_SIZE: "50"
         # PRM Database
   PRM_DB_NAME: "prm"
   PRM_DB_USER: "db"
@@ -29,7 +42,7 @@ env_api:
   PRM_DB_HOST: "db-svc.prm.svc.cluster.local"
   PRM_DB_PORT: "5432"
   PRM_DB_POOL_SIZE: "50"
-          # EventManager Database
+              # EventManager Database
   EVENT_MANAGER_DB_NAME: "event_manager"
   EVENT_MANAGER_DB_USER: "db"
   EVENT_MANAGER_DB_PASSWORD: ""
@@ -37,6 +50,13 @@ env_api:
   EVENT_MANAGER_DB_PORT: "5432"
   EVENT_MANAGER_DB_POOL_SIZE: "50"
   EM_ENABLED: true
+          # PRM READ Database
+  READ_PRM_DB_NAME: "prm"
+  READ_PRM_DB_USER: "db"
+  READ_PRM_DB_PASSWORD: ""
+  READ_PRM_DB_HOST: "db-svc.prm.svc.cluster.local"
+  READ_PRM_DB_PORT: "5432"
+  READ_PRM_DB_POOL_SIZE: "50"
           # Blocks database
   BLOCK_DB_NAME: "blocks"
   BLOCK_DB_USER: "db"
@@ -54,6 +74,8 @@ env_api:
         # App migrations & seeds
   DB_MIGRATE: "true"
   DB_SEED: "true"
+    # Deviation medication dispence
+  DEVIATION: "0.01"
         # Endpoints
           # PRM
   PRM_ENDPOINT: "http://api-svc.prm/api"
@@ -88,27 +110,30 @@ env_api:
   MEDIA_STORAGE_ENDPOINT: "http://api-svc.ael"
   MEDIA_STORAGE_ENABLED: true
   MEDIA_STORAGE_LEGAL_ENTITY_BUCKET: "legal-entities-dev"
+  MEDIA_STORAGE_RELATED_LEGAL_ENTITY_BUCKET: "related-legal-entities-demo"
   MEDIA_STORAGE_DECLARATION_BUCKET: "declarations-dev"
   MEDIA_STORAGE_DECLARATION_REQUEST_BUCKET: "declaration-requests-dev"
   MEDIA_STORAGE_MEDICATION_REQUEST_REQUEST_BUCKET: "medication-request-requests-dev"
   MEDIA_STORAGE_CONTRACT_BUCKET: "contracts-dev"
   MEDIA_STORAGE_CONTRACT_REQUEST_BUCKET: "contract-requests-dev"
   MEDIA_STORAGE_PERSON_BUCKET: "persons-dev"
-  MEDIA_STORAGE_RELATED_LEGAL_ENTITY_BUCKET: "related-legal-entities-dev"
+  MEDIA_STORAGE_MEDICATION_DISPENSE_BUCKET: "medication-dispenses-dev"
+  MEDIA_STORAGE_MEDICATION_REQUEST_BUCKET: "medication-requests-dev"
+  MEDIA_STORAGE_MERGED_LEGAL_ENTITIES_RESOURCE_NAME: "merged-legal-entities-dev"
 
           # Bamboo
   POSTMARK_ENDPOINT: ""
   POSTMARK_API_KEY: ""
           # employee request invitation
   BAMBOO_MAILER: Core.Bamboo.PostmarkMailer
-  MAILGUN_API_KEY: ""
-  MAILGUN_DOMAIN: ""
-  BAMBOO_SMTP_SERVER: ""
-  BAMBOO_SMTP_HOSTNAME: ""
+  MAILGUN_API_KEY: "key-c732dbb778daa9bc458c5ae6cb15f666"
+  MAILGUN_DOMAIN: "sandbox3d79326f34f04f72ae37de8fa7fc5666.mailgun.org"
+  BAMBOO_SMTP_SERVER: "smtp.mailgun.org"
+  BAMBOO_SMTP_HOSTNAME: "sandbox3d79326f34f04f72ae37de8fa7fc5666.mailgun.org"
   BAMBOO_SMTP_PORT: 587
-  BAMBOO_SMTP_USERNAME: ""
-  BAMBOO_SMTP_PASSWORD: ""
-  BAMBOO_EMPLOYEE_REQUEST_INVITATION_FROM: ""
+  BAMBOO_SMTP_USERNAME: "postmaster@sandbox3d79326f34f04f72ae37de8fa7fc5666.mailgun.org"
+  BAMBOO_SMTP_PASSWORD: "bfa5decf6612cb57dfc07c18ab2c0666Manage"
+  BAMBOO_EMPLOYEE_REQUEST_INVITATION_FROM: "example@example.com"
   BAMBOO_EMPLOYEE_REQUEST_INVITATION_SUBJECT: "Запрошення до співпраці з eHealth"
   EMPLOYEE_REQUEST_INVITATION_TEMPLATE_ID: "1"
   EMPLOYEE_REQUEST_INVITATION_TEMPLATE_FORMAT: "text/html"
@@ -116,10 +141,10 @@ env_api:
   EMPLOYEE_REQUEST_UPDATE_INVITATION_TEMPLATE_ID: "7"
   EMPLOYEE_REQUEST_UPDATE_INVITATION_TEMPLATE_FORMAT: "text/html"
   EMPLOYEE_REQUEST_UPDATE_INVITATION_TEMPLATE_LOCALE: "uk_UA"
-  BAMBOO_EMPLOYEE_REQUEST_UPDATE_INVITATION_FROM: ""
+  BAMBOO_EMPLOYEE_REQUEST_UPDATE_INVITATION_FROM: "example@example.com"
   BAMBOO_EMPLOYEE_REQUEST_UPDATE_INVITATION_SUBJECT: "Запрошення до співпраці з eHealth"
           # employee created notification
-  BAMBOO_EMPLOYEE_CREATED_NOTIFICATION_FROM: ""
+  BAMBOO_EMPLOYEE_CREATED_NOTIFICATION_FROM: "example@example.com"
   BAMBOO_EMPLOYEE_CREATED_NOTIFICATION_SUBJECT: "Вас зареєстровано у медичному закладі"
   EMPLOYEE_CREATED_NOTIFICATION_TEMPLATE_ID: "2"
   EMPLOYEE_CREATED_NOTIFICATION_TEMPLATE_FORMAT: "text/html"
@@ -129,51 +154,122 @@ env_api:
   DECLARATION_REQUEST_PRINTOUT_FORM_TEMPLATE_LOCALE: "uk_UA"
         # Credentials recovery requests
   CREDENTIALS_RECOVERY_REQUEST_TTL: "1500"
-  BAMBOO_CREDENTIALS_RECOVERY_REQUEST_INVITATION_FROM: ""
+  BAMBOO_CREDENTIALS_RECOVERY_REQUEST_INVITATION_FROM: "example@example.com"
   BAMBOO_CREDENTIALS_RECOVERY_REQUEST_INVITATION_SUBJECT: "Посилання для відновлення доступу до порталу eHealth"
   CREDENTIALS_RECOVERY_REQUEST_INVITATION_TEMPLATE_ID: "5"
   CREDENTIALS_RECOVERY_REQUEST_INVITATION_TEMPLATE_FORMAT: "text/html"
   CREDENTIALS_RECOVERY_REQUEST_INVITATION_TEMPLATE_LOCALE: "uk_UA"
   # Email verification
-  EMAIL_VERIFICATION_TEMPLATE_ID: ""
-  EMAIL_VERIFICATION_FROM: ""
+  EMAIL_VERIFICATION_TEMPLATE_ID: "11"
+  EMAIL_VERIFICATION_FROM: "example@example.com"
   EMAIL_VERIFICATION_SUBJECT: "Посилання для підтвердження електронної пошти для порталу eHealth"
   EMAIL_VERIFICATION_TEMPLATE_FORMAT: "text/html"
   EMAIL_VERIFICATION_TEMPLATE_LOCALE: "uk_UA"
-  TOKENS_TYPES_PERSONAL: "MSP,PHARMACY"
+  TOKENS_TYPES_PERSONAL: "MSP,PHARMACY,MSP_PHARMACY"
   TOKENS_TYPES_MIS: "MIS"
-  TOKENS_TYPES_ADMIN: "NHS ADMIN"
+  TOKENS_TYPES_ADMIN: "NHS,NHS ADMIN"
   DIGITAL_SIGNATURE_ENABLED: "true"
-  CHAIN_VERIFICATION_FAILED_NOTIFICATION_FROM: ""
-  CHAIN_VERIFICATION_FAILED_NOTIFICATION_TO: ""
-  CHAIN_VERIFICATION_FAILED_NOTIFICATION_SUBJECT: ""
+  CHAIN_VERIFICATION_FAILED_NOTIFICATION_FROM: "example@example.com"
+  CHAIN_VERIFICATION_FAILED_NOTIFICATION_TO: "example@example.com"
+  CHAIN_VERIFICATION_FAILED_NOTIFICATION_SUBJECT: "IMPORTANT! The chain has been mangled."
   CHAIN_VERIFICATION_FAILED_NOTIFICATION_ID: 6
   CHAIN_VERIFICATION_FAILED_NOTIFICATION_FORMAT: "text/html"
   CHAIN_VERIFICATION_FAILED_NOTIFICATION_LOCALE: "uk_UA"
-  CIPHER_KEYPHRASE: ""
-  CIPHER_IVPHRASE: ""
+  CIPHER_KEYPHRASE: "admin"
+  CIPHER_IVPHRASE: "admin"
   OWNER_POSITIONS: "P1, P2, P3, P4, P5, P19"
   EMPLOYEE_REQUEST_AUTOTERMINATION_SCHEDULE: "* * * * *"
   DECLARATION_REQUEST_AUTOTERMINATION_SCHEDULE: "* * * * *"
+  DECLARATION_REQUEST_AUTOTERMINATION_BATCH: 10  
   # Cabinet
-  JWT_SECRET: ""
+  SENSITIVE_DATA_IN_RESPONSE_ENABLED: "true"
+  JWT_SECRET: "admin"
   JWT_TTL_EMAIL: "72"
   JWT_TTL_REGISTRATION: "15"
   CABINET_ROLE_ID: ""
   CABINET_CLIENT_ID: ""
   # Contract requests
-  CONTRACT_REQUEST_PRINTOUT_FORM_TEMPLATE_ID: 9
-  CONTRACT_REQUEST_PRINTOUT_FORM_APPENDIX_TEMPLATE_ID: 10
+  CAPITATION_CONTRACT_REQUEST_PRINTOUT_FORM_TEMPLATE_ID: "9"
+  CAPITATION_CONTRACT_REQUEST_PRINTOUT_FORM_APPENDIX_TEMPLATE_ID: "10"
   CONTRACT_AUTOTERMINATION_SCHEDULE: "*/15 * * * *"
-  # Deviation medication dispence
-  DEVIATION: "0.01"
+
+  PEDIATRICIAN_DECLARATION_LIMIT: "2700"
+  THERAPIST_DECLARATION_LIMIT: "6000"
+  FAMILY_DOCTOR_DECLARATION_LIMIT: "5400"
+  USE_PHONE_NUMBER_AUTH_LIMIT: "true"
+  # Medication request request
+  MEDICATION_REQUEST_REQUEST_EXPIRATION: 10
+  MEDICATION_REQUEST_REQUEST_OTP_CODE_LENGTH: 4
+  MEDICATION_REQUEST_REQUEST_DELAY_INPUT: 3
+  MEDICATION_REQUEST_REQUEST_STANDARD_DURATION: 21
+  MEDICATION_REQUEST_MIN_RENEW_DAY: 3
+  MEDICATION_REQUEST_MAX_RENEW_DAY: 7
+  #REIMBURSEMENT
+  REIMBURSEMENT_CONTRACT_REQUEST_PRINTOUT_FORM_TEMPLATE_ID: "16"
+  KAFKA_BROKERS_HOST: "kafka.kafka.svc.cluster.local:9092"
+  CLIENT_TYPE_MSP_LIMITED_ID: ""
+  SMS_PROVIDER: "mouth_sms2ip"
+  #LEGAL_ENTITY
+  LEGAL_ENTITY_MSP_EMPLOYEE_TYPES: "OWNER,HR,DOCTOR,ADMIN"
+  LEGAL_ENTITY_MSP_PHARMACY_EMPLOYEE_TYPES: "OWNER,HR,DOCTOR,ADMIN,PHARMACIST"
+  LEGAL_ENTITY_PHARMACY_EMPLOYEE_TYPES: "PHARMACY_OWNER,OWNER,PHARMACIST,HR"
+  #EMPLOYEE_REQUEST
+  DOCTOR_SPECIALITY_LEVELS: "BASIC,FIRST,SECOND,HIGHEST"
+  PHARMACIST_SPECIALITY_LEVELS: "FIRST,SECOND,HIGHEST,NOT_APPLICABLE"
+
       #resources
 resources_api:
   cpu: "10m"
   cpu_limit: "1"
-  memory: "112Mi"
+  memory: "200Mi"
   memory_limit: "500Mi"
 
+env_ehealth_scheduler:
+  # RPC env
+  NAMESPACE: "il"
+  ERLANG_COOKIE: "admin"
+        # Database
+  DB_NAME: "il"
+  DB_USER: "db"
+  DB_PASSWORD: ""
+  DB_HOST: "db-svc"
+  DB_PORT: "5432"
+  DB_POOL_SIZE: "50"
+        # PRM Database
+  PRM_DB_NAME: "prm"
+  PRM_DB_USER: "db"
+  PRM_DB_PASSWORD: ""
+  PRM_DB_HOST: "db-svc.prm.svc.cluster.local"
+  PRM_DB_PORT: "5432"
+  PRM_DB_POOL_SIZE: "50"
+        # Blocks database
+  BLOCK_DB_NAME: "blocks"
+  BLOCK_DB_USER: "db"
+  BLOCK_DB_PASSWORD: ""
+  BLOCK_DB_HOST: "blocks-db-svc.ops.svc.cluster.local"
+  BLOCK_DB_PORT: "5432"
+  BLOCK_DB_POOL_SIZE: "50"
+          # FRAUD database
+  FRAUD_DB_NAME: "fraud"
+  FRAUD_DB_USER: "db"
+  FRAUD_DB_PASSWORD: ""
+  FRAUD_DB_HOST: "db-svc.fraud.svc.cluster.local"
+  FRAUD_DB_PORT: "5432"
+  FRAUD_DB_POOL_SIZE: "50"
+          # EventManager Database
+  EVENT_MANAGER_DB_NAME: "event_manager"
+  EVENT_MANAGER_DB_USER: "db"
+  EVENT_MANAGER_DB_PASSWORD: ""
+  EVENT_MANAGER_DB_HOST: "db-svc.em.svc.cluster.local"
+  EVENT_MANAGER_DB_PORT: "5432"
+  EVENT_MANAGER_DB_POOL_SIZE: "50"
+  CONTRACT_REQUESTS_AUTO_TERMINATOR_SCHEDULE: "15 0-23 * * *"
+  CONTRACT_AUTOTERMINATION_SCHEDULE: "*/15 * * * *"
+  DECLARATION_REQUEST_AUTOTERMINATION_BATCH: 10
+  DECLARATION_REQUEST_AUTOTERMINATION_SCHEDULE: "* * * * *"
+  EMPLOYEE_REQUEST_AUTOTERMINATION_SCHEDULE: "* * * * *"
+  KAFKA_BROKERS_HOST: "kafka.kafka.svc.cluster.local:9092"
+  KAFKA_BROKERS: "kafka.kafka.svc.cluster.local:9092"
 
 ## DB ##
 image_db:
@@ -195,10 +291,10 @@ env_db:
   db_port: "5432"
 
 resources_db:
-#  cpu: "50m"
-  memory: "112Mi"
+  cpu: "50m"
+  memory: "512Mi"
   limits_memory: "1Gi"
-  storage: "10Gi"
+  storage: "50Gi"
 
 log_backups:
   enabled: false
@@ -209,6 +305,7 @@ log_backups:
   key_file_path:
   bucket:
 
+storageClass: demo
 
 rollingUpdate:
   maxSurge: "1"
@@ -222,7 +319,7 @@ deployNotification:
 ## Cacher ##
 image_casher:
   repository: edenlabllc/casher
-  tag: "0.0.1"
+  tag: "1.3.2"
 
 resources_casher:
   cpu: "10m"
@@ -237,3 +334,99 @@ env_casher:
   REDIS_HOST: "redis-master.redis.svc.cluster.local"
   REDIS_POOL_SIZE: "5"
   PERSON_DATA_TTL: "900"
+
+## GraphQL ##
+image_graphql:
+  repository: edenlabllc/graphql
+  tag: "1.5.5"
+
+resources_graphql:
+  cpu: "10m"
+  cpu_limit: "1"
+  memory: "100Mi"
+  memory_limit: "400Mi"
+
+env_graphql:
+  HOST: "http://graphql-svc.il"
+  PORT: "4000"
+  SECRET_KEY: "s7jt"
+  # TasKafka
+  KAFKA_BROKERS_HOST: "kafka.kafka.svc.cluster.local:9092"
+  MONGO_DB_URL: "mongodb://mongodb.me-db.svc.cluster.local:27017/taskafka"
+  CLIENT_TYPE_MSP_LIMITED_ID: ""
+  DB_MIGRATE: "false"
+  DB_SEED: "false"
+  REIMBURSEMENT_CONTRACT_REQUEST_PRINTOUT_FORM_TEMPLATE_ID: "16"
+
+## Merge LegalEntities consumer ##
+image_merge_legal_entities_consumer:
+  repository: edenlabllc/merge_legal_entities_consumer
+  tag: "1.3.2"
+
+resources_merge_legal_entities_consumer:
+  cpu: "10m"
+  cpu_limit: "1"
+  memory: "100Mi"
+  memory_limit: "200Mi"
+
+env_merge_legal_entities_consumer:
+  # Kafka
+  KAFKA_BROKERS_HOST: "kafka.kafka.svc.cluster.local:9092"
+  CLIENT_TYPE_MSP_LIMITED_ID: ""
+  MONGO_DB_URL: "mongodb://mongodb.me-db.svc.cluster.local:27017/taskafka"
+
+
+## Deactivate LegalEntity consumer ##
+image_deactivate_legal_entity_consumer:
+  repository: edenlabllc/deactivate_legal_entity_consumer
+  tag: "0.1.5"
+  name: "deactivate-legal-entity-consumer"
+
+resources_deactivate_legal_entity_consumer:
+  cpu: "10m"
+  cpu_limit: "1"
+  memory: "100Mi"
+  memory_limit: "200Mi"
+
+env_deactivate_legal_entity_consumer:
+  #RPC
+  NAMESPACE: "il"
+  ERLANG_COOKIE: "admin"
+  # Kafka
+  KAFKA_BROKERS_HOST: "kafka.kafka.svc.cluster.local:9092"
+  DB_NAME: "il"
+  DB_USER: "db"
+  DB_PASSWORD: ""
+  DB_HOST: "db-svc"
+  DB_PORT: "5432"
+  DB_POOL_SIZE: "50"
+        # PRM Database
+  PRM_DB_NAME: "prm"
+  PRM_DB_USER: "db"
+  PRM_DB_PASSWORD: ""
+  PRM_DB_HOST: "db-svc.prm.svc.cluster.local"
+  PRM_DB_PORT: "5432"
+  PRM_DB_POOL_SIZE: "50"
+        # Blocks database
+  BLOCK_DB_NAME: "blocks"
+  BLOCK_DB_USER: "db"
+  BLOCK_DB_PASSWORD: ""
+  BLOCK_DB_HOST: "blocks-db-svc.ops.svc.cluster.local"
+  BLOCK_DB_PORT: "5432"
+  BLOCK_DB_POOL_SIZE: "50"
+          # FRAUD database
+  FRAUD_DB_NAME: "fraud"
+  FRAUD_DB_USER: "db"
+  FRAUD_DB_PASSWORD: ""
+  FRAUD_DB_HOST: "db-svc.fraud.svc.cluster.local"
+  FRAUD_DB_PORT: "5432"
+  FRAUD_DB_POOL_SIZE: "50"
+          # EventManager Database
+  EVENT_MANAGER_DB_NAME: "event_manager"
+  EVENT_MANAGER_DB_USER: "db"
+  EVENT_MANAGER_DB_PASSWORD: ""
+  EVENT_MANAGER_DB_HOST: "db-svc.em.svc.cluster.local"
+  EVENT_MANAGER_DB_PORT: "5432"
+  EVENT_MANAGER_DB_POOL_SIZE: "50"
+  MONGO_DB_URL: "mongodb://mongodb.me-db.svc.cluster.local:27017/taskafka"
+  KAFKA_BROKERS: "kafka.kafka.svc.cluster.local:9092"

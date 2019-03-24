@@ -3,7 +3,12 @@
 #Docker image and tag for api
 image_api:
   repository: edenlabllc/otp_verification_api
-  tag: "2.1.0"
+  tag: "2.7.1"
+
+image_scheduler:
+    repository: edenlabllc/otp_verification_scheduler
+    tag: "1.3.0"
+    name: "otp-verification-scheduler"
 
 env_api:
    # --- Phoenix---#
@@ -14,26 +19,61 @@ env_api:
   #APP_SECRET_KEY
   secret: ""
   ERLANG_COOKIE: ""
+  # Twilio sms adapter (defult)
   GATEWAY_ADAPTER: Mouth.IP2SMSAdapter
   SOURCE_NUMBER: "E-Health"
   GATEWAY_URL: ""
   GATEWAY_LOGIN: ""
   GATEWAY_PASSWORD: ""
   CODE_EXPIRATION_PERIOD_MINUTES: "15"
-  GATEWAY_STATUS_URL: ""
+  GATEWAY_STATUS_URL: ""  
+  TWILIO_ACCOUNT_SID: ""
+  TWILIO_AUTH_TOKEN: ""
+  
+  # SMS2IP sms adapter
+  SMS2IP_GATEWAY_ADAPTER: Mouth.TestAdapter
+  SMS2IP_SOURCE_NUMBER: "E-health"
+  SMS2IP_GATEWAY_URL: ""
+  SMS2IP_GATEWAY_STATUS_URL: ""
+  SMS2IP_GATEWAY_LOGIN: ""
+  SMS2IP_GATEWAY_PASSWORD: ""
+  SMS2IP_HOST: ""
+  SMS2IP_ACCOUNT_SID: ""
+  SMS2IP_AUTH_TOKEN: ""
     # Database
   DB_HOST: "db-svc"
   DB_PORT: "5432"
   DB_POOL_SIZE: "50"
     # App migrations
   DB_MIGRATE: "true"
+  # REDIS_HOST
+  REDIS_HOST: "redis-master.redis.svc.cluster.local"
+  REDIS_PORT: "6379"
+  REDIS_PASSWORD: ""
+  SMS_STATUSES_EXPIRATION_MINUTES: "32"
+  # Timiout for sms
+  HACKNEY_REQUEST_TIMEOUT: "20000"
+
 resources_api:
   cpu: "10m"
   cpu_limit: "1"
-  memory: "128Mi"
+  memory: "150Mi"
   memory_limit: "400Mi"
 
+env_scheduler:
+  TERMINATOR_SCHEDULE: "*/15 * * * *"
+  DEACTIVATOR_SCHEDULE: "*/15 * * * *"
+  SMS_STATUS_UPDATER_SCHEDULE: "*/15 * * * *"
+  VALIDATIONS_EXPIRATION_PERIOD_DAYS: "30"
+  SMS_STATUSES_EXPIRATION_MINUTES: "32"
+  SMS_UPDATE_TIMEOUT_MINUTES: "30"
+  SMS_COLLECT_TIMEOUT: "20000"
 
+resources_scheduler:
+  cpu: "10m"
+  cpu_limit: "1"
+  memory: "150Mi"
+  memory_limit: "400Mi"
 
 ## DB ##
 image_db:
@@ -58,7 +98,7 @@ resources_db:
   cpu: "50m"
   memory: "112Mi"
   limits_memory: "1Gi"
-  storage: "10Gi"
+  storage: "2Gi"
 
 log_backups:
   enabled: false
@@ -74,6 +114,7 @@ rollingUpdate:
   maxUnavailable: "1"
 
 env: demo
+storageClass: demo
 
 deployNotification:
   enabled: false

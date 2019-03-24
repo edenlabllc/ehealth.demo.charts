@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-mongo-secondary1-shard0
+spec:
+  storageClassName: local-storage
+  capacity:
+    storage: 500Gi
+  accessModes:
+  - ReadWriteOnce
+  hostPath:
+    path: "/mongodb-secondary1-shard0"
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - k8s-me-0

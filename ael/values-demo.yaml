@@ -3,17 +3,17 @@
 #Docker image and tag for api
 image_api:
   repository: edenlabllc/ael_api
-  tag: "2.0.0"
+  tag: "3.1.1"
 
 env_api:
   # --- Phoenix---#
   PORT: "4000"
   HOST: ""
-  SECRET: ""
+  SECRET_KEY: ""
   ERLANG_COOKIE: ""
   # SA
-  SERVICE_ACCOUNT_KEY_PATH: "/app/secrets/sa.json"
-  KNOWN_BUCKETS: "legal-entities-dev, declaration-requests-dev, capitation-reports-dev, declarations-dev,  medication-request-requests-dev, contract-requests-dev"
+  SERVICE_ACCOUNT_KEY_PATH: "/app/secrets/sa.json"  
+  KNOWN_BUCKETS: "contracts-dev, legal-entities-dev, related-legal-entities-dev, related-legal-entities-demo, declaration-requests-dev, capitation-reports-dev, declarations-dev,  medication-request-requests-dev, contract-requests-dev, persons-dev, encounters-dev, medication-dispenses-dev, medication-requests-dev, service-requests-dev"
   # 30 minutes
   SECRETS_TTL: "7200"
   # App migrations
@@ -21,8 +21,15 @@ env_api:
   SWIFT_ENDPOINT: ""
   SWIFT_TENANT_ID: ""
   SWIFT_TEMP_URL_KEY: ""
-  OBJECT_STORAGE_BACKEND: "gcs"
+  # OBJECT_STORAGE_BACKEND: "gcs"  
+  OBJECT_STORAGE_BACKEND: "s3"
+  AWS_REGION: "us-east-1"
+  AWS_ACCESS_KEY_ID: ""
+  AWS_SECRET_ACCESS_KEY: ""
+  MINIO_ENDPOINT: ""
+  NEW_MINIO_ENDPOINT: ""
   DIGITAL_SIGNATURE_ENDPOINT: "http://api-svc.digital-signature"
+
 resources_api:
   cpu: "10m"
   cpu_limit: "1"
@@ -34,6 +41,7 @@ rollingUpdate:
   maxUnavailable: "1"
 
 env: demo
+storageClass: demo
 
 deployNotification:
   enabled: false

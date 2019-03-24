@@ -23,9 +23,9 @@ spec:
         version: {{ .Values.image_api.tag }}
     spec:
       containers:
-      - name: report-api
+      - name: em-api
         image: {{ .Values.image_api.repository }}:{{ .Values.image_api.tag }}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         ports:
         - containerPort: 4000
           protocol: TCP
@@ -92,7 +92,3 @@ spec:
                 matchLabels:
                   app: postgres
               topologyKey: failure-domain.beta.kubernetes.io/zone
-        {{- if or (eq .Values.env "prod") (eq .Values.env "preprod") }}
-      nodeSelector:
-        cloud.google.com/gke-nodepool: {{ .Values.nodeSelector_api}}
-        {{ end }}

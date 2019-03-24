@@ -1,0 +1,140 @@
+replicas: 1
+port: 27017
+
+wiredTigerCacheSizeGB: 3
+
+replicaSetName: sh0
+
+podDisruptionBudget: {}
+  # maxUnavailable: 1
+  # minAvailable: 2
+
+auth:
+  enabled: true
+  adminUser: admin
+  adminPassword: sDowi8L9J4Fv
+  metricsUser: metrics
+  metricsPassword: 7uEwycNd37Kv
+  key: "lPsOdR06YrC8quuOtlFVItznLF302oLcH8cBGoYbsE5yN25YiZiX3uyJMYMOrpbP
+        WuSLFaROr1m5a4BQ19Z899rAy2ekmn6dliNLbWljbTOKMAF78e6t6RwExXiZYPMZ
+        mybRWxRTdiS++/sahv1+LmLxJ2+0nRrfsXujify0Ubze6+A9ZJXAg9F/DsljBic3
+        NtdHfV+tcUJ4GzK1sAVXGZqusA5vqSwoV/uKuxblOoPg3A7NVoC3+/s/YlX8YoyA
+        gidEBex49HRpoH45Mb37Ktrn60tCEraBHbC/NE0fRtHM5DzreWji/CgCtvZPNeK+
+        5IPw/ATLk5maEaPGxsVYnp5ntcqkcNaKZTbI9+mSOjVVdvyfCDmoF4iFV9vc2fyl
+        Gf8Wu+EEEPBf+NrAAerI7eHbAsModEJPMa94o8MnvS35zax3tpWcVvDbpaPeSSWN
+        WLxM1fO5w37Ljlueyl5LfsU07JmYG85UdJd2JC71wexxVPQlbbBL/U2GFHl2fzbq
+        3/Hm8akGg774Tuj8cWuKnzkjsghEj9wqo/XZvdFmL9Y+cX6C1L3ACKYxZ7KT9Eb+
+        XqNTORp9xJOuowq1Uv5NsBNfSE3HdDnSbSltr5yaUQ5jztxAiNFdVNQ0R2LPcqQS
+        PrUGPB6KyEbFOhxewNgY8UZdsgvIT2wVdWlSd/15uAs7uHaMkj7YMmznGjwcJegu
+        9EglI8J0ZA3VKFxtQboPbbHT2dJxoQJ9JSIOSHjDCSaUfQId0Nkwd5rzxv7LEYOW
+        PyyfL3alATnFqI1cBfIVeCBpIa5IVS1XgUSfyFyOXVzqbxt25W3NF7D8k/l7beXY
+        lysTkqutvE3JqSNlCry9RVtAgq8b4nndHKkbBQ9nrrWJ1p0xYQhEj/n2IbPs4nx2
+        kh8jSrK/qijgCuJaieoXs6/CY+urwYjK9G6qoLxwTeyZmwuyz3+vNN2zqsUgZ8IU
+        DxCQ2E30heLqRB8XsA6zXMfUnYWWwL5bEGro3ZbA143Sxes=
+        "
+
+# Specs for the Docker image for the init container that establishes the replica set
+installImage:
+  repository: k8s.gcr.io/mongodb-install
+  tag: 0.6
+  pullPolicy: IfNotPresent
+
+# Specs for the MongoDB image
+image:
+  repository: mongo
+  tag: 4.0.4
+  pullPolicy: IfNotPresent
+
+# Additional environment variables to be set in the container
+extraVars: 
+  - name: wiredTigerCacheSizeGB
+    value: "4"
+  
+# Prometheus Metrics Exporter
+metrics:
+  enabled: true
+  image:
+    repository: ssalaues/mongodb-exporter
+    tag: 0.6.1
+    pullPolicy: IfNotPresent
+  port: 9216
+  path: "/metrics"
+  socketTimeout: 3s
+  syncTimeout: 1m
+  prometheusServiceDiscovery: true
+  resources: {}
+
+# Annotations to be added to MongoDB pods
+podAnnotations: {}
+
+securityContext:
+  runAsUser: 999
+  fsGroup: 999
+  runAsNonRoot: true
+
+resources:
+ limits:
+ # cpu: 500m
+  memory: 6Gi
+# requests:
+#   cpu: 100m
+#   memory: 256Mi
+
+## Node selector
+## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+nodeSelector: {}
+
+affinity: {}
+
+tolerations: []
+
+extraLabels: {}
+
+persistentVolume:
+  enabled: true
+  ## mongodb-replicaset data Persistent Volume Storage Class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  storageClass: "local-storage"
+  accessModes:
+    - ReadWriteOnce
+  size: 100Gi
+  annotations: {}
+
+# Annotations to be added to the service
+serviceAnnotations: {}
+
+tls:
+  # Enable or disable MongoDB TLS support
+  enabled: false
+  # Please generate your own TLS CA by generating it via:
+  # $ openssl genrsa -out ca.key 2048
+  # $ openssl req -x509 -new -nodes -key ca.key -days 10000 -out ca.crt -subj "/CN=mydomain.com"
+  # After that you can base64 encode it and paste it here:
+  # $ cat ca.key | base64 -w0
+  # cacert:
+  # cakey:
+
+# Entries for the MongoDB config file
+configmap:
+   replication.replSetName: "sh0" 
+   sharding.clusterRole: "shardsvr" 
+# Readiness probe
+readinessProbe:
+  initialDelaySeconds: 5
+  timeoutSeconds: 1
+  failureThreshold: 3
+  periodSeconds: 10
+  successThreshold: 1
+
+# Liveness probe
+livenessProbe:
+  initialDelaySeconds: 30
+  timeoutSeconds: 5
+  failureThreshold: 3
+  periodSeconds: 10
+  successThreshold: 1

@@ -1,0 +1,140 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: db-dedup
+  labels:
+    app: "{{ .Values.env_db_dedup.app}}"
+    version: "{{ .Values.env_db_dedup.version}}"
+spec:
+  serviceName: "postgresql"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: "{{ .Values.env_db_dedup.app}}"
+        version: "{{ .Values.env_db_dedup.version}}"
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      {{- if .Values.log_backups.enabled }}
+      - name: log-archiver
+        image: {{ .Values.log_backups.image }}
+        command:
+        - watch
+        - -n
+        - "{{ .Values.log_backups.period_in_seconds }}"
+        - |
+          gcloud auth activate-service-account \
+            {{ .Values.log_backups.account }} \
+            --key-file={{ .Values.log_backups.key_file_path }}
+           # TODO: skip logging for pghoard user
+           gsutil -m rsync -r -J \
+            {{ .Values.log_backups.log_folder }} \
+            {{ .Values.log_backups.bucket }}
+        volumeMounts:
+        - mountPath: /service-account
+          name: service-account-config
+        - mountPath: /var/lib/postgresql
+          name: "{{ .Values.env_db_dedup.app}}"
+      {{ end }}
+      - name: mpi-postgresql-dedup
+        image: {{ .Values.image_db.repository }}:{{ .Values.image_db.tag }}
+        imagePullPolicy: IfNotPresent
+        ports:
+          - name: "{{ .Values.env_db.app}}"
+            containerPort: {{ .Values.env_db_dedup.db_port }}
+        env:
+          - name: POSTGRES_USER
+            value: "{{ .Values.env_db_dedup.POSTGRES_USER}}"
+          - name: POSTGRES_PASSWORD
+  {{- if .Values.env_db_dedup.POSTGRES_PASSWORD }}
+            value: "{{ .Values.env_db_dedup.POSTGRES_PASSWORD }}"
+  {{ else }}
+            valueFrom:
+             secretKeyRef:
+               name: db
+               key: DB_PASSWORD
+  {{- end }}
+          - name: PGDATA
+            value: "{{ .Values.env_db_dedup.PGDATA}}"
+          - name: POSTGRES_DB
+            value: "{{ .Values.env_db_dedup.POSTGRES_DB}}"
+          - name: REPLICATOR_USER
+            value: "{{ .Values.env_db_dedup.REPLICATOR_USER}}"
+          - name: REPLICATOR_PASSWORD
+  {{- if .Values.env_db_dedup.REPLICATOR_PASSWORD }}
+            value: "{{ .Values.env_db_dedup.REPLICATOR_PASSWORD }}"
+  {{ else }}
+            valueFrom:
+             secretKeyRef:
+               name: db
+               key: REPLICATOR_PASSWORD
+  {{- end }}
+        volumeMounts:
+        - mountPath: /var/lib/postgresql
+          name: "{{ .Values.env_db_dedup.app}}"
+        resources:
+          requests:
+            cpu: {{ .Values.resources_db_dedup.cpu }}
+            memory: {{ .Values.resources_db_dedup.memory }}
+          limits:
+            memory: {{ .Values.resources_db_dedup.limits_memory }}
+        readinessProbe:
+          timeoutSeconds: 3
+          initialDelaySeconds: 5
+          tcpSocket:
+            port: 5432
+        livenessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -h
+            - localhost
+            - -U
+            - $(POSTGRES_USER)
+            - -d
+            - $(POSTGRES_DB)
+      {{- if .Values.nodeSelector_db }}
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.nodeSelector_db}}
+      {{- end}}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              namespaces:
+                - gateway
+                - il
+                - man
+                - mithril
+                - ops
+                - prm
+                - uaddresses
+                - verification
+              labelSelector:
+                matchLabels:
+                  app: "{{ .Values.env_db_dedup.app}}"
+              topologyKey: "kubernetes.io/hostname"
+      {{- if .Values.log_backups.enabled }}
+      volumes:
+      - name: service-account-config
+        secret:
+          secretName: psql-logs-backup-maker
+      {{- end }}
+  volumeClaimTemplates:
+  - metadata:
+      name: postgresql-dedup
+      labels:
+        app: "{{ .Values.env_db_dedup.app}}"
+        version: "{{ .Values.env_db_dedup.version}}"
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: {{ .Values.resources_db_dedup.storage}}
+          {{- if .Values.volumeNameDedup }}
+      volumeName:  {{ .Values.volumeNameDedup }}
+          {{- end}}
+

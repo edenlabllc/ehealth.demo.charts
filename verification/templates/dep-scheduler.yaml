@@ -1,0 +1,143 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: verification
+  name: {{ .Values.image_scheduler.name }}
+  labels:
+    app: scheduler
+    version: {{ .Values.image_scheduler.tag }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: scheduler
+  strategy:
+    rollingUpdate:
+      maxSurge: {{ .Values.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.rollingUpdate.maxUnavailable }}
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: scheduler
+        version: {{ .Values.image_scheduler.tag }}
+    spec:
+      containers:
+      - name: {{ .Values.image_scheduler.name }}
+        image:  {{ .Values.image_scheduler.repository }}:{{ .Values.image_scheduler.tag }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 4000
+          protocol: TCP
+        env:
+        {{- range $name, $value := .Values.env_scheduler }}
+        {{- if not (empty $value) }}
+        - name: {{ $name | quote }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
+        # Phoenix
+        - name: PORT
+          value: "{{ .Values.env_api.port }}"
+        - name: HOST
+          value: "{{ .Values.env_api.host }}"
+        - name: SECRET_KEY
+          value: "{{ .Values.env_api.secret }}"
+        - name: ERLANG_COOKIE
+          value: "{{ .Values.env_api.ERLANG_COOKIE }}"
+        # Database
+        - name: DB_NAME
+          value: "{{ .Values.env_db.POSTGRES_DB }}"
+        - name: DB_USER
+          value: "{{ .Values.env_db.POSTGRES_USER }}"
+        - name: DB_PASSWORD
+  {{- if .Values.env_db.POSTGRES_PASSWORD }}
+          value: "{{ .Values.env_db.POSTGRES_PASSWORD }}"
+  {{ else }}
+          valueFrom:
+             secretKeyRef:
+               name: db
+               key: DB_PASSWORD
+  {{ end }}
+        - name: DB_HOST
+          value: "{{ .Values.env_api.DB_HOST }}"
+        - name: DB_PORT
+          value: "{{ .Values.env_api.DB_PORT }}"
+        - name: DB_POOL_SIZE
+          value: "{{ .Values.env_api.DB_POOL_SIZE }}"
+        - name: GATEWAY_ADAPTER
+          value: "{{ .Values.env_api.GATEWAY_ADAPTER }}"
+        - name: SOURCE_NUMBER
+          value: "{{ .Values.env_api.SOURCE_NUMBER }}"
+        - name: GATEWAY_URL
+          value: "{{ .Values.env_api.GATEWAY_URL }}"
+        - name: GATEWAY_STATUS_URL
+          value: "{{ .Values.env_api.GATEWAY_STATUS_URL }}"
+        - name: GATEWAY_LOGIN
+          value: "{{ .Values.env_api.GATEWAY_LOGIN }}"
+        - name: GATEWAY_PASSWORD
+          value: "{{ .Values.env_api.GATEWAY_PASSWORD }}"
+        - name: TWILIO_ACCOUNT_SID
+          value: "{{ .Values.env_api.TWILIO_ACCOUNT_SID }}"
+        - name: TWILIO_AUTH_TOKEN
+          value: "{{ .Values.env_api.TWILIO_AUTH_TOKEN }}"
+        - name: SMS2IP_GATEWAY_ADAPTER
+          value: "{{ .Values.env_api.SMS2IP_GATEWAY_ADAPTER }}"
+        - name: SMS2IP_SOURCE_NUMBER
+          value: "{{ .Values.env_api.SMS2IP_SOURCE_NUMBER }}"
+        - name: SMS2IP_GATEWAY_URL
+          value: "{{ .Values.env_api.SMS2IP_GATEWAY_URL }}"
+        - name: SMS2IP_GATEWAY_STATUS_URL
+          value: "{{ .Values.env_api.SMS2IP_GATEWAY_STATUS_URL }}"
+        - name: SMS2IP_GATEWAY_LOGIN
+          value: "{{ .Values.env_api.SMS2IP_GATEWAY_LOGIN }}"
+        - name: SMS2IP_GATEWAY_PASSWORD
+          value: "{{ .Values.env_api.SMS2IP_GATEWAY_PASSWORD }}"
+        - name: SMS2IP_HOST
+          value: "{{ .Values.env_api.SMS2IP_HOST }}"
+        - name: SMS2IP_ACCOUNT_SID
+          value: "{{ .Values.env_api.SMS2IP_ACCOUNT_SID }}"
+        - name: SMS2IP_AUTH_TOKEN
+          value: "{{ .Values.env_api.SMS2IP_AUTH_TOKEN }}"
+        - name: CODE_EXPIRATION_PERIOD_MINUTES
+          value: "{{ .Values.env_api.CODE_EXPIRATION_PERIOD_MINUTES }}"
+        - name: REDIS_HOST
+          value: "{{ .Values.env_api.REDIS_HOST }}"
+        - name: REDIS_PORT
+          value: "{{ .Values.env_api.REDIS_PORT }}"
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis
+              key: redis-password
+  {{- if .Values.env_db.POSTGRES_PASSWORD }}
+          value: "{{ .Values.env_db.POSTGRES_PASSWORD }}"
+  {{ else }}
+          valueFrom:
+             secretKeyRef:
+               name: db
+               key: DB_PASSWORD
+  {{ end }}
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis
+              key: redis-password
+        resources:
+          requests:
+            cpu: {{ .Values.resources_scheduler.cpu }}
+            memory: {{ .Values.resources_scheduler.memory }}
+          limits:
+            cpu: {{ .Values.resources_scheduler.cpu_limit }}
+            memory: {{ .Values.resources_scheduler.memory_limit }}
+      affinity:
+        podAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: postgres
+              topologyKey: failure-domain.beta.kubernetes.io/zone
+

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-mongo-primary-shard1
+spec:
+  storageClassName: local-storage
+  capacity:
+    storage: 500Gi
+  accessModes:
+  - ReadWriteOnce
+  hostPath:
+    path: "/mongodb-primary-1"
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - gke-cluster-1-pool-1-2c47a5a6-zfxf

@@ -3,9 +3,32 @@
 #Docker image and tag for api
 image_api:
   repository: edenlabllc/mpi
-  tag: "2.1.3"
+  tag: "2.6.1"
+
+image_person_updates_producer:
+  repository: edenlabllc/person_updates_producer
+  tag: "1.4.0"
+  name: "person-updates-producer"
+  schedule: "*/15 * * * *"
+
+image_deduplication:
+  repository: edenlabllc/deduplication
+  tag: "0.2.4"
+  name: "deduplication"
+
+image_person_deactivator:
+  repository: edenlabllc/person_deactivator
+  tag: "1.0.0"
+  name: "person-deactivator"
+
+image_mpi_scheduler:
+  repository: edenlabllc/mpi_scheduler
+  tag: "1.0.0"
+  name: "mpi-scheduler"  
 
 env_api:
+  # RPC
+  NAMESPACE: "mpi"
    # --- Phoenix---#
    #APP_PORT
   port: "4000"
@@ -23,11 +46,134 @@ env_api:
   DB_MIGRATE: "true"
    # App config
   DEDUPLICATION_SCHEDULE: "* * * * *"
+  BATCH_SIZE: "100"
+  KAFKA_BROKERS: "kafka.kafka.svc.cluster.local:9092"
+  PERSON_EVENTS_PARTITIONS: "4"
+  DB_DEDUPLICATION_NAME: "deduplication"
+  DB_DEDUPLICATION_USER: "db"
+  DB_DEDUPLICATION_PASSWORD: ""
+  DB_DEDUPLICATION_HOST: "db-svc-dedup"
+  DB_DEDUPLICATION_PORT: "5432"
+  DEDUPLICATION_POOL_SIZE: "50"
+    # Deduplication
+  MAX_PERSONS_RESULT: "50"
+  DEDUPLICATION_SCORE: "0.7"
+  MAX_POSTPONED_MANUAL_MERGE_REQUESTS: "12"
+  MANUAL_MERGE_QUORUM: "4"
+  DB_READ_USER: "db"
+  DB_READ_PASSWORD: ""
+  DB_READ_NAME: "mpi"
+  DB_READ_HOST: "db-svc"
+  DB_READ_PORT: "5432"
+  READ_POOL_SIZE: "20"
+  DEDUPLICATION_MANUAL_SCORE_MIN: "0.7"
+  DEDUPLICATION_MANUAL_SCORE_MAX: "0.9"
+
+
+env_person:
+  DB_POOL_SIZE: "5"
+
 resources_api:
   cpu: "10m"
   cpu_limit: "1"
   memory: "112Mi"
   memory_limit: "400Mi"
+
+env_deduplication:
+  # RPC
+  NAMESPACE: "mpi"
+  APP_SECRET_KEY: ""
+  ERLANG_COOKIE: ""
+  APP_HOST: "deduplication.ehealth.world"
+  APP_PORT: "4000"
+  DB_NAME: "mpi"
+  DB_USER: "db"
+  DB_PASSWORD: ""
+  DB_HOST: "db-svc"
+  DB_PORT: "5432"
+  DB_MIGRATE: "false"
+  DEDUPLICATION_PERSON_LIMIT: "40"
+  DEDUPLICATION_PARALLEL_TASKS: "20"
+  DEDUPLICATION_SCORE: "0.7"
+  DEDUPLICATION_MANUAL_SCORE_MIN: "0.7"
+  DEDUPLICATION_MANUAL_SCORE_MAX: "0.9"
+  DEDUPLICATION_CANDIDATES_BATCH_SIZE: "50000"
+  POOL_SIZE: "20"
+  DEDUPLICATION_MODE: "mixed"
+  PYTHON_WORKERS_POOL_SIZE: 4
+  DB_DEDUPLICATION_NAME: "deduplication"
+  DB_DEDUPLICATION_USER: "db"
+  DB_DEDUPLICATION_PASSWORD: ""
+  DB_DEDUPLICATION_HOST: "db-svc-dedup"
+  DB_DEDUPLICATION_PORT: "5432"
+  DEDUPLICATION_POOL_SIZE: "10"
+  MAX_POSTPONED_MANUAL_MERGE_REQUESTS: "5"
+  MANUAL_MERGE_QUORUM: "3"  
+  DEDUPLICATION_VACUUM_REFRESH_TIMEOUT: "30000"
+
+
+resources_deduplication:
+  cpu: "10m"
+  cpu_limit: "6"
+  memory: "150Mi"
+  memory_limit: "900Mi"
+
+env_person_deactivator:
+  NAMESPACE: "mpi"
+  ERLANG_COOKIE: ""
+  DB_NAME: "mpi"
+  DB_USER: "db"
+  DB_PASSWORD: ""
+  DB_HOST: "db-svc"
+  DB_PORT: "5432"
+  DB_POOL_SIZE: "50"
+  KAFKA_DEACTIVATION_SCORE: "0.9"
+  DEACTIVATION_BATCH_SIZE: "500"
+  DEACTIVATION_LIMIT: "700"
+  KAFKA_BROKERS: "kafka.kafka.svc.cluster.local:9092"
+  DB_DEDUPLICATION_NAME: "deduplication"
+  DB_DEDUPLICATION_USER: "db"
+  DB_DEDUPLICATION_PASSWORD: ""
+  DB_DEDUPLICATION_HOST: "db-svc-dedup"
+  DB_DEDUPLICATION_PORT: "5432"
+  DEDUPLICATION_POOL_SIZE: "10"
+  MAX_POSTPONED_MANUAL_MERGE_REQUESTS: "5"
+  MANUAL_MERGE_QUORUM: "3"
+  DB_READ_USER: "db"
+  DB_READ_PASSWORD: ""
+  DB_READ_NAME: "mpi"
+  DB_READ_HOST: "db-svc"
+  DB_READ_PORT: "5432"
+  READ_POOL_SIZE: "20"
+
+env_mpi_scheduler:
+  NAMESPACE: "mpi"
+  ERLANG_COOKIE: ""
+  DB_NAME: "mpi"
+  DB_USER: "db"
+  DB_PASSWORD: ""
+  DB_HOST: "db-svc"
+  DB_PORT: "5432"
+  DB_POOL_SIZE: "50"
+  KAFKA_DEACTIVATION_SCORE: "0.9"
+  DEACTIVATION_BATCH_SIZE: "500"
+  DEACTIVATION_LIMIT: "700"
+  KAFKA_BROKERS: "kafka.kafka.svc.cluster.local:9092"
+  DB_DEDUPLICATION_NAME: "deduplication"
+  DB_DEDUPLICATION_USER: "db"
+  DB_DEDUPLICATION_PASSWORD: ""
+  DB_DEDUPLICATION_HOST: "db-svc-dedup"
+  DB_DEDUPLICATION_PORT: "5432"
+  DEDUPLICATION_POOL_SIZE: "10"
+  PERSON_AUTO_DEACTIVATION_SCHEDULE: "* * * * *"
+  PERSON_AUTO_DEACTIVATION_SCORE: "0.95"
+  PERSON_AUTO_DEACTIVATION_BATCH_SIZE: "10000"
+  DB_READ_USER: "db"
+  DB_READ_PASSWORD: ""
+  DB_READ_NAME: "mpi"
+  DB_READ_HOST: "db-svc"
+  DB_READ_PORT: "5432"
+  READ_POOL_SIZE: "20"
 
 ## DB ##
 image_db:
@@ -50,9 +196,29 @@ env_db:
 
 resources_db:
   cpu: "50m"
+  memory: "512Mi"
+  limits_memory: "1Gi"
+  storage: "50Gi"
+
+env_db_dedup:
+  app: "postgresql-dedup"
+  version: "9.6"
+  #DB_USER: API - POSTGRES_DB: DB
+  POSTGRES_USER: "db"
+  #DB_PASSWORD: API and DB
+  POSTGRES_PASSWORD: ""
+  PGDATA: "/var/lib/postgresql/data"
+  #DB_NAME: API
+  POSTGRES_DB: "deduplication"
+  REPLICATOR_USER: "pghoard"
+  REPLICATOR_PASSWORD: ""
+  db_port: "5432"
+
+resources_db_dedup:
+  cpu: "50m"
   memory: "112Mi"
   limits_memory: "1Gi"
-  storage: "10Gi"
+  storage: "1Gi"
 
 log_backups:
   enabled: false
@@ -62,6 +228,9 @@ log_backups:
   account:
   key_file_path:
   bucket:
+
+storageClass: demo
+
 
 rollingUpdate:
   maxSurge: "1"

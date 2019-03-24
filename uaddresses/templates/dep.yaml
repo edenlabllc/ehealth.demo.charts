@@ -26,7 +26,10 @@ spec:
       containers:
       - name: uaddresses-api
         image: {{ .Values.image_api.repository }}:{{ .Values.image_api.tag }}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
+        command: ["sh", "-c"]
+        args: ["POD_A_RECORD"]
+        args: ["export POD_A_RECORD=$(echo $POD_IP | sed 's/\\./\\-/g') && /app/bin/uaddresses_api foreground"]
         ports:
         - containerPort: 4000
           protocol: TCP
@@ -63,6 +66,12 @@ spec:
         # App migrations
         - name: DB_MIGRATE
           value: "{{ .Values.env_api.DB_MIGRATE }}"
+        - name: NAMESPACE
+          value: "{{ .Values.env_api.NAMESPACE }}"
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
         resources:
           requests:
             cpu: {{ .Values.resources_api.cpu }}
@@ -91,7 +100,3 @@ spec:
                 matchLabels:
                   app: postgres
               topologyKey: failure-domain.beta.kubernetes.io/zone
-        {{- if or (eq .Values.env "prod") (eq .Values.env "preprod") }}
-      nodeSelector:
-        cloud.google.com/gke-nodepool: {{ .Values.nodeSelector_api}}
-        {{ end }}

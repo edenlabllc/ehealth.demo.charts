@@ -27,10 +27,24 @@ spec:
       - name: casher
         image:  {{ .Values.image_casher.repository }}:{{ .Values.image_casher.tag }}
         imagePullPolicy: Always
+        command: ["sh", "-c"]
+        args: ["POD_A_RECORD"]
+        args: ["export POD_A_RECORD=$(echo $POD_IP | sed 's/\\./\\-/g') && /app/bin/casher foreground"]
         ports:
         - containerPort: 4000
           protocol: TCP
+        {{- if eq .Values.env "dev" }}
+        - containerPort: 50051
+          protocol: TCP
+        {{- end }}
         env:
+        # RPC env
+        - name: NAMESPACE
+          value: "{{ .Values.env_api.NAMESPACE }}"
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
         # CASHER env
         - name: HOST
           value: "{{ .Values.env_casher.host }}"
@@ -75,6 +89,26 @@ spec:
           value: "{{ .Values.env_api.DB_PORT }}"
         - name: DB_POOL_SIZE
           value: "{{ .Values.env_api.DB_POOL_SIZE }}"
+        # DB READ ENV
+        - name: READ_DB_NAME
+          value: "{{ .Values.env_api.READ_DB_NAME }}"
+        - name: READ_DB_USER
+          value: "{{ .Values.env_api.READ_DB_USER }}"
+        - name: READ_DB_PASSWORD
+  {{- if .Values.env_db.POSTGRES_PASSWORD }}
+          value: "{{ .Values.env_db.POSTGRES_PASSWORD }}"
+  {{ else }}
+          valueFrom:
+             secretKeyRef:
+               name: db
+               key: DB_PASSWORD
+  {{ end }}
+        - name: READ_DB_HOST
+          value: "{{ .Values.env_api.READ_DB_HOST }}"
+        - name: READ_DB_PORT
+          value: "{{ .Values.env_api.READ_DB_PORT }}"
+        - name: READ_DB_POOL_SIZE
+          value: "{{ .Values.env_api.READ_DB_POOL_SIZE }}"
         # PRM Database
         - name: PRM_DB_NAME
           value: "{{ .Values.env_api.PRM_DB_NAME }}"
@@ -95,6 +129,26 @@ spec:
           value: "{{ .Values.env_api.PRM_DB_PORT }}"
         - name: PRM_DB_POOL_SIZE
           value: "{{ .Values.env_api.PRM_DB_POOL_SIZE }}"
+          # PRM READ Database
+        - name: READ_PRM_DB_NAME
+          value: "{{ .Values.env_api.READ_PRM_DB_NAME }}"
+        - name: READ_PRM_DB_USER
+          value: "{{ .Values.env_api.READ_PRM_DB_USER }}"
+        - name: READ_PRM_DB_PASSWORD
+  {{- if .Values.env_api.READ_PRM_DB_PASSWORD }}
+          value: "{{ .Values.env_api.READ_PRM_DB_PASSWORD }}"
+  {{ else }}
+          valueFrom:
+             secretKeyRef:
+               name: db
+               key: PRM_PASSWORD
+  {{ end }}
+        - name: READ_PRM_DB_HOST
+          value: "{{ .Values.env_api.READ_PRM_DB_HOST }}"
+        - name: READ_PRM_DB_PORT
+          value: "{{ .Values.env_api.READ_PRM_DB_PORT }}"
+        - name: READ_PRM_DB_POOL_SIZE
+          value: "{{ .Values.env_api.READ_PRM_DB_POOL_SIZE }}"
         {{- if .Values.env_api.EM_ENABLED }}
         # EventManager Database
         - name: EVENT_MANAGER_DB_NAME
@@ -220,6 +274,8 @@ spec:
           value: "{{ .Values.env_api.MEDIA_STORAGE_ENABLED }}"
         - name: MEDIA_STORAGE_LEGAL_ENTITY_BUCKET
           value: "{{ .Values.env_api.MEDIA_STORAGE_LEGAL_ENTITY_BUCKET }}"
+        - name: MEDIA_STORAGE_RELATED_LEGAL_ENTITY_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_RELATED_LEGAL_ENTITY_BUCKET }}"
         - name: MEDIA_STORAGE_DECLARATION_REQUEST_BUCKET
           value: "{{ .Values.env_api.MEDIA_STORAGE_DECLARATION_REQUEST_BUCKET }}"
         - name: MEDIA_STORAGE_DECLARATION_BUCKET
@@ -232,6 +288,10 @@ spec:
           value: "{{ .Values.env_api.MEDIA_STORAGE_CONTRACT_BUCKET }}"
         - name: MEDIA_STORAGE_PERSON_BUCKET
           value: "{{ .Values.env_api.MEDIA_STORAGE_PERSON_BUCKET }}"
+        - name: MEDIA_STORAGE_MEDICATION_DISPENSE_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_MEDICATION_DISPENSE_BUCKET }}"
+        - name: MEDIA_STORAGE_MEDICATION_REQUEST_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_MEDICATION_REQUEST_BUCKET }}"
         - name: OAUTH_REQUEST_TIMEOUT
           value: "{{ .Values.env_api.OAUTH_REQUEST_TIMEOUT }}"
           # Postmark
@@ -355,10 +415,19 @@ spec:
         - name: CABINET_CLIENT_ID
           value: "{{ .Values.env_api.CABINET_CLIENT_ID }}"
         # Contract requests
-        - name: CONTRACT_REQUEST_PRINTOUT_FORM_TEMPLATE_ID
-          value : "{{ .Values.env_api.CONTRACT_REQUEST_PRINTOUT_FORM_TEMPLATE_ID }}"
-        - name: CONTRACT_REQUEST_PRINTOUT_FORM_APPENDIX_TEMPLATE_ID
-          value : "{{ .Values.env_api.CONTRACT_REQUEST_PRINTOUT_FORM_APPENDIX_TEMPLATE_ID }}"
+        - name: CAPITATION_CONTRACT_REQUEST_PRINTOUT_FORM_TEMPLATE_ID
+          value : "{{ .Values.env_api.CAPITATION_CONTRACT_REQUEST_PRINTOUT_FORM_TEMPLATE_ID }}"
+        - name: CAPITATION_CONTRACT_REQUEST_PRINTOUT_FORM_APPENDIX_TEMPLATE_ID
+          value : "{{ .Values.env_api.CAPITATION_CONTRACT_REQUEST_PRINTOUT_FORM_APPENDIX_TEMPLATE_ID }}"
+        # Kafka
+        - name: KAFKA_BROKERS_HOST
+          value: "{{ .Values.env_api.KAFKA_BROKERS_HOST }}"
+        - name: KAFKA_BROKERS
+          value: "{{ .Values.env_api.KAFKA_BROKERS_HOST }}"
+        - name: SMS_PROVIDER
+          value : "{{ .Values.env_api.SMS_PROVIDER }}"
+        - name: CLIENT_TYPE_MSP_LIMITED_ID
+          value : "{{ .Values.env_api.CLIENT_TYPE_MSP_LIMITED_ID }}"
         resources:
           requests:
             cpu: {{ .Values.resources_casher.cpu }}

@@ -1,0 +1,221 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Values.image_deactivate_legal_entity_consumer.name }}
+  labels:
+    app: {{ .Values.image_deactivate_legal_entity_consumer.name }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: {{ .Values.image_deactivate_legal_entity_consumer.name }}
+  strategy:
+    rollingUpdate:
+      maxSurge: {{ .Values.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.rollingUpdate.maxUnavailable }}
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.image_deactivate_legal_entity_consumer.name }}
+    spec:
+      containers:
+      - name: {{ .Values.image_deactivate_legal_entity_consumer.name }}
+        image: {{ .Values.image_deactivate_legal_entity_consumer.repository }}:{{ .Values.image_deactivate_legal_entity_consumer.tag }}
+        imagePullPolicy: Always
+        command: ["sh", "-c"]
+        args: ["POD_A_RECORD"]
+        args: ["export POD_A_RECORD=$(echo $POD_IP | sed 's/\\./\\-/g') && /app/bin/deactivate_legal_entity_consumer foreground"]
+        # ports:
+        # - containerPort: 4000
+        #   protocol: TCP
+        env:
+        {{- range $name, $value := .Values.env_deactivate_legal_entity_consumer }}
+        {{- if not (empty $value) }}
+        - name: {{ $name | quote }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
+        - name: DB_PASSWORD
+  {{- if .Values.env_db.POSTGRES_PASSWORD }}
+          value: "{{ .Values.env_db.POSTGRES_PASSWORD }}"
+  {{ else }}
+          valueFrom:
+             secretKeyRef:
+               name: db
+               key: DB_PASSWORD
+  {{ end }}
+        - name: PRM_DB_PASSWORD
+  {{- if .Values.env_api.PRM_DB_PASSWORD }}
+          value: "{{ .Values.env_api.PRM_DB_PASSWORD }}"
+  {{ else }}
+          valueFrom:
+             secretKeyRef:
+               name: db
+               key: PRM_PASSWORD
+  {{ end }}
+        - name: EVENT_MANAGER_DB_PASSWORD
+  {{- if .Values.env_api.EVENT_MANAGER_DB_PASSWORD }}
+          value: "{{ .Values.env_api.EVENT_MANAGER_DB_PASSWORD }}"
+  {{ else }}
+          valueFrom:
+             secretKeyRef:
+               name: db
+               key: EM_PASSWORD
+  {{ end }}
+        - name: BLOCK_DB_PASSWORD
+  {{- if .Values.env_api.BLOCK_DB_PASSWORD }}
+          value: "{{ .Values.env_api.BLOCK_DB_PASSWORD }}"
+  {{ else }}
+          valueFrom:
+             secretKeyRef:
+               name: db
+               key: BLOCKS_PASSWORD
+  {{ end }}
+        - name: FRAUD_DB_PASSWORD
+  {{- if .Values.env_api.FRAUD_DB_PASSWORD }}
+          value: "{{ .Values.env_api.FRAUD_DB_PASSWORD }}"
+  {{ else }}
+          valueFrom:
+             secretKeyRef:
+               name: db
+               key: FRAUD_PASSWORD
+  {{ end }}
+        # DB READ ENV
+        - name: READ_DB_NAME
+          value: "{{ .Values.env_api.READ_DB_NAME }}"
+        - name: READ_DB_USER
+          value: "{{ .Values.env_api.READ_DB_USER }}"
+        - name: READ_DB_PASSWORD
+  {{- if .Values.env_db.POSTGRES_PASSWORD }}
+          value: "{{ .Values.env_db.POSTGRES_PASSWORD }}"
+  {{ else }}
+          valueFrom:
+             secretKeyRef:
+               name: db
+               key: DB_PASSWORD
+  {{ end }}
+        - name: READ_DB_HOST
+          value: "{{ .Values.env_api.READ_DB_HOST }}"
+        - name: READ_DB_PORT
+          value: "{{ .Values.env_api.READ_DB_PORT }}"
+        - name: READ_DB_POOL_SIZE
+          value: "{{ .Values.env_api.READ_DB_POOL_SIZE }}"
+          # PRM READ Database
+        - name: READ_PRM_DB_NAME
+          value: "{{ .Values.env_api.READ_PRM_DB_NAME }}"
+        - name: READ_PRM_DB_USER
+          value: "{{ .Values.env_api.READ_PRM_DB_USER }}"
+        - name: READ_PRM_DB_PASSWORD
+  {{- if .Values.env_api.READ_PRM_DB_PASSWORD }}
+          value: "{{ .Values.env_api.READ_PRM_DB_PASSWORD }}"
+  {{ else }}
+          valueFrom:
+             secretKeyRef:
+               name: db
+               key: PRM_PASSWORD
+  {{ end }}
+        - name: READ_PRM_DB_HOST
+          value: "{{ .Values.env_api.READ_PRM_DB_HOST }}"
+        - name: READ_PRM_DB_PORT
+          value: "{{ .Values.env_api.READ_PRM_DB_PORT }}"
+        - name: READ_PRM_DB_POOL_SIZE
+          value: "{{ .Values.env_api.READ_PRM_DB_POOL_SIZE }}"
+        # RPC env
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        # OAuth
+        - name: OAUTH_ENDPOINT
+          value: "{{ .Values.env_api.OAUTH_ENDPOINT }}"
+        - name: OAUTH_CLIENT_TYPE_ID
+          value: "{{ .Values.env_api.OAUTH_CLIENT_TYPE_ID }}"
+        - name: OAUTH_REQUEST_TIMEOUT
+          value: "{{ .Values.env_api.OAUTH_REQUEST_TIMEOUT }}"
+        - name: CLIENT_TYPE_MSP_LIMITED_ID
+          value: "{{ .Values.env_api.CLIENT_TYPE_MSP_LIMITED_ID }}"
+        - name: SMS_PROVIDER
+          value : "{{ .Values.env_api.SMS_PROVIDER }}"
+        - name: POSTMARK_ENDPOINT
+          value: "{{ .Values.env_api.POSTMARK_ENDPOINT }}"
+        - name: EMAIL_VERIFICATION_TEMPLATE_ID
+          value: "{{ .Values.env_api.EMAIL_VERIFICATION_TEMPLATE_ID }}"
+        - name: EMAIL_VERIFICATION_FROM
+          value: "{{ .Values.env_api.EMAIL_VERIFICATION_FROM }}"
+        - name: EMAIL_VERIFICATION_SUBJECT
+          value: "{{ .Values.env_api.EMAIL_VERIFICATION_SUBJECT }}"
+        - name: CAPITATION_CONTRACT_REQUEST_PRINTOUT_FORM_TEMPLATE_ID
+          value : "{{ .Values.env_api.CAPITATION_CONTRACT_REQUEST_PRINTOUT_FORM_TEMPLATE_ID }}"
+        - name: CAPITATION_CONTRACT_REQUEST_PRINTOUT_FORM_APPENDIX_TEMPLATE_ID
+          value : "{{ .Values.env_api.CAPITATION_CONTRACT_REQUEST_PRINTOUT_FORM_APPENDIX_TEMPLATE_ID }}"
+        - name: CAPITATION_CONTRACT_REQUEST_PRINTOUT_FORM_APPENDIX_TEMPLATE_ID
+          value : "{{ .Values.env_api.CAPITATION_CONTRACT_REQUEST_PRINTOUT_FORM_APPENDIX_TEMPLATE_ID }}"
+        - name: MPI_ENDPOINT
+          value: "{{ .Values.env_api.MPI_ENDPOINT }}"
+        - name: MAN_ENDPOINT
+          value: "{{ .Values.env_api.MAN_ENDPOINT }}"
+        - name: JWT_SECRET
+          value: "{{ .Values.env_api.JWT_SECRET }}"
+        - name: JWT_TTL_REGISTRATION
+          value: "{{ .Values.env_api.JWT_TTL_REGISTRATION }}"
+        - name: DECLARATION_REQUEST_PRINTOUT_FORM_TEMPLATE_ID
+          value: "{{ .Values.env_api.DECLARATION_REQUEST_PRINTOUT_FORM_TEMPLATE_ID }}"
+        - name: MEDIA_STORAGE_ENDPOINT
+          value: "{{ .Values.env_api.MEDIA_STORAGE_ENDPOINT }}"
+        - name: MEDIA_STORAGE_LEGAL_ENTITY_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_LEGAL_ENTITY_BUCKET }}"
+        - name: MEDIA_STORAGE_CONTRACT_REQUEST_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_CONTRACT_REQUEST_BUCKET }}"
+        - name: CABINET_ROLE_ID
+          value: "{{ .Values.env_api.CABINET_ROLE_ID }}"
+        - name: MEDIA_STORAGE_CONTRACT_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_CONTRACT_BUCKET }}"
+        - name: MEDIA_STORAGE_DECLARATION_REQUEST_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_DECLARATION_REQUEST_BUCKET }}"
+        - name: CABINET_CLIENT_ID
+          value: "{{ .Values.env_api.CABINET_CLIENT_ID }}"
+        - name: MEDIA_STORAGE_DECLARATION_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_DECLARATION_BUCKET }}"
+        - name: MEDIA_STORAGE_MEDICATION_REQUEST_REQUEST_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_MEDICATION_REQUEST_REQUEST_BUCKET }}"
+        - name: MEDIA_STORAGE_PERSON_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_PERSON_BUCKET }}"
+        - name: MEDIA_STORAGE_MEDICATION_DISPENSE_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_MEDICATION_DISPENSE_BUCKET }}"
+        - name: MEDIA_STORAGE_MEDICATION_REQUEST_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_MEDICATION_REQUEST_BUCKET }}"
+        - name: MEDIA_STORAGE_RELATED_LEGAL_ENTITY_BUCKET
+          value: "{{ .Values.env_api.MEDIA_STORAGE_RELATED_LEGAL_ENTITY_BUCKET }}"
+        - name: EMPLOYEE_CREATED_NOTIFICATION_TEMPLATE_ID
+          value: "{{ .Values.env_api.EMPLOYEE_CREATED_NOTIFICATION_TEMPLATE_ID }}"
+        - name: REPORT_ENDPOINT
+          value: "{{ .Values.env_api.REPORT_ENDPOINT }}"
+        - name: BAMBOO_MAILER
+          value: "{{ .Values.env_api.BAMBOO_MAILER }}"
+        - name: CREDENTIALS_RECOVERY_REQUEST_INVITATION_TEMPLATE_ID
+          value: "{{ .Values.env_api.CREDENTIALS_RECOVERY_REQUEST_INVITATION_TEMPLATE_ID }}"
+        - name: EMPLOYEE_REQUEST_UPDATE_INVITATION_TEMPLATE_ID
+          value: "{{ .Values.env_api.EMPLOYEE_REQUEST_UPDATE_INVITATION_TEMPLATE_ID }}"
+        - name: EMPLOYEE_REQUEST_INVITATION_TEMPLATE_ID
+          value: "{{ .Values.env_api.EMPLOYEE_REQUEST_INVITATION_TEMPLATE_ID }}"
+        - name: OTP_VERIFICATION_ENDPOINT
+          value: "{{ .Values.env_api.OTP_VERIFICATION_ENDPOINT }}"
+        - name: CASHER_ENDPOINT
+          value: "{{ .Values.env_api.CASHER_ENDPOINT }}"
+        - name: OPS_ENDPOINT
+          value: "{{ .Values.env_api.OPS_ENDPOINT }}"
+        - name: UADDRESS_ENDPOINT
+          value: "{{ .Values.env_api.UADDRESS_ENDPOINT }}"
+        - name: DIGITAL_SIGNATURE_ENDPOINT
+          value: "{{ .Values.env_api.DIGITAL_SIGNATURE_ENDPOINT }}"
+        - name: JWT_TTL_EMAIL
+          value: "{{ .Values.env_api.JWT_TTL_EMAIL }}"
+        resources:
+          requests:
+            cpu: {{ .Values.resources_api.cpu }}
+            memory: {{ .Values.resources_api.memory }}
+          limits:
+            cpu: {{ .Values.resources_api.cpu_limit }}
+            memory: {{ .Values.resources_api.memory_limit }}

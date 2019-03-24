@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: il
+  name: merge-legal-entities-consumer-svc
+  labels:
+    app: merge-legal-entities-consumer
+spec:
+  ports:
+  - port: 80
+    targetPort: 4000
+    protocol: TCP
+    name: http
+  selector:
+    app: merge-legal-entities-consumer
+  type: ClusterIP
