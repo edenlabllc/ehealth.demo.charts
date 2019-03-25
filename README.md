@@ -67,6 +67,11 @@ kubectl create secret generic db -n il --from-literal=DB_PASSWORD=$(openssl rand
 
 il=$(kubectl get secret --namespace il db -o jsonpath="{.data.DB_PASSWORD}" | base64 --decode ; echo);
 ```
+Create cluster role bindings for some services:
+
+`kubectl create clusterrolebinding reports-cluster-rule --clusterrole=view --serviceaccount=reports:default`
+`kubectl create clusterrolebinding abac-cluster-rule --clusterrole=view --serviceaccount=abac:default`
+`kubectl create clusterrolebinding il-cluster-rule --clusterrole=view --serviceaccount=me:default`
 
 3) Kafka
 - fill out `values.yaml`:

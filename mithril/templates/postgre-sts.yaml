@@ -32,8 +32,6 @@ spec:
             {{ .Values.log_backups.log_folder }} \
             {{ .Values.log_backups.bucket }}
         volumeMounts:
-        - mountPath: /service-account
-          name: service-account-config
         - mountPath: /var/lib/postgresql
           name: "{{ .Values.env_db.app}}"
       {{ end }}
@@ -116,10 +114,6 @@ spec:
                 matchLabels:
                   app: "{{ .Values.env_db.app}}"
               topologyKey: "kubernetes.io/hostname"
-      volumes:
-      - name: service-account-config
-        secret:
-          secretName: psql-logs-backup-maker
   volumeClaimTemplates:
   - metadata:
       name: "{{ .Values.env_db.app}}"
